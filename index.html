@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기업연구소 인사평가(개발)</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;900&display=swap');
+:root{
+  --navy:#1B2A4A; --blue:#2563EB; --blue-bg:#EFF6FF;
+  --indigo:#3730A3; --indigo-bg:#EEF2FF;
+  --gold:#F59E0B; --gold-bg:#FEF3C7;
+  --slate:#334155; --slate-bg:#F1F5F9; --border:#CBD5E1;
+  --d1c:#7c3aed; --d1bg:#EDE9FE;
+  --d2c:#be185d; --d2bg:#FCE7F3;
+  --slack:#4A154B;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans KR',sans-serif;font-size:11px;background:#e8edf3;color:#1e293b;}
+.wrap{max-width:1450px;margin:12px auto;background:white;box-shadow:0 4px 28px rgba(0,0,0,.14);border-radius:4px;overflow:hidden; position: relative;}
+.page-title{background:var(--navy);color:white;text-align:center;padding:15px 20px;font-size:17px;font-weight:700;letter-spacing:.5px;}
+.mode-bar{display:flex;align-items:stretch;border-bottom:2px solid var(--border);background:var(--slate-bg);}
+.mode-tab{flex:1;padding:11px 12px;border:none;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:6px;border-bottom:3px solid transparent;background:transparent;color:#64748b;}
+.mode-tab.ms{color:var(--blue);border-bottom-color:var(--blue);background:var(--blue-bg);}
+.mode-tab.m1{color:var(--d1c);border-bottom-color:var(--d1c);background:var(--d1bg);}
+.mode-tab.m2{color:var(--d2c);border-bottom-color:var(--d2c);background:var(--d2bg);}
+.mbadge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;background:#e2e8f0;color:#475569;}
+.mode-tab.ms .mbadge{background:var(--blue);color:white;}
+.mode-tab.m1 .mbadge{background:var(--d1c);color:white;}
+.mode-tab.m2 .mbadge{background:var(--d2c);color:white;}
+/* 셀프평가가 완료된 경우 하향 탭에 잠금 해제 표시 */
+.mode-tab.locked{opacity:0.5; cursor:not-allowed;}
+.lock-badge{font-size:10px; margin-left:4px;}
+.dashboard{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:2px solid var(--navy);}
+.dc{border-right:1px solid var(--border); text-align:center;}
+.dlabel{background:var(--indigo-bg);color:var(--indigo);padding:6px 8px;font-weight:600;font-size:11px;border-bottom:1px solid var(--border);}
+.dval{padding:10px 8px;font-size:28px;font-weight:900;}
+.dval.vs{color:var(--blue);}
+.dval.vd{color:var(--indigo);}
+.down-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;padding:8px;}
+.dgv-memo{height:30px; border-radius:4px; border:1px solid #cbd5e1; background: #fff;}
+.info-wrap{border-bottom:2px solid var(--navy);}
+.info-table{width:100%;border-collapse:collapse;}
+.info-table td{border:1px solid var(--border);padding:5px 8px;}
+.ilabel{background:var(--slate-bg);color:var(--slate);font-weight:600;text-align:center;width:80px;white-space:nowrap;font-size:11px;}
+.iinput input{width:100%;border:none;outline:none;font-family:inherit;font-size:11px;padding:2px 4px;}
+.eval-table{width:100%;border-collapse:collapse;table-layout: auto;}
+.eval-table th,.eval-table td{border:1px solid var(--border);padding:6px 4px;vertical-align:middle;text-align:center;}
+.th-navy{background:var(--navy);color:white;font-size:9px;}
+.th-self{background:#1e40af;color:white;font-size:9px;}
+.th-d1{background:var(--d1c);color:white;font-size:9px;}
+.th-d2{background:var(--d2c);color:white;font-size:9px;}
+.sbtn{width:38px; height:28px; background:white; border:1px solid #d1d5db; cursor:pointer; font-size:9px; font-weight:700; border-radius:3px; color:#6b7280; margin: 1px;}
+.sbtn.ss{background:#1e40af!important;color:white!important;}
+.sbtn.s1{background:var(--d1c)!important;color:white!important;}
+.sbtn.s2{background:var(--d2c)!important;color:white!important;}
+/* 셀프 버튼 잠금 (하향 모드에서) */
+.sbtn.self-locked{background:#f1f5f9!important;color:#cbd5e1!important;cursor:not-allowed!important;border-color:#e2e8f0!important;}
+.sbtn.self-locked.ss{background:#bfdbfe!important;color:#93c5fd!important;}
+.vres{font-weight:900; font-size:14px; color:white; min-width: 45px;}
+.vself{background:#1e40af;}
+.vd1{background:var(--d1c);}
+.vd2{background:var(--d2c);}
+.dimmed{opacity:0.15; pointer-events:none;}
+.case-row td{background:#f0f7ff;}
+.case-lbl{background:#dbeafe!important;color:#1e40af!important;font-weight:700;font-size:10px;}
+.case-inp input{width:100%;height:52px;border:none;outline:none;background:transparent;padding:8px 10px;font-size:11px;}
+.total-row td{background:var(--navy);color:white;font-weight:700;font-size:12px;padding:10px;}
+.action-bar{padding:12px 20px; background:var(--slate-bg); border-top:1px solid var(--border); display:flex; gap:10px; align-items:center; justify-content:space-between;}
+.action-left{display:flex; gap:8px;}
+.btn{padding:9px 18px; border:none; border-radius:6px; cursor:pointer; font-family:inherit; font-size:12px; font-weight:600; transition:all .15s;}
+.btn-gray{background:white; color:var(--slate); border:1px solid var(--border);}
+.btn-red{background:#fee2e2; color:#b91c1c;}
+.btn-slack{background:var(--slack); color:white; display:flex; align-items:center; gap:8px;}
+/* 하향 모드 안내 배너 */
+.down-mode-banner{display:none; background:#fef3c7; border:1px solid #f59e0b; border-left:4px solid #f59e0b; padding:10px 16px; margin:0; font-size:11px; color:#92400e; line-height:1.5;}
+.down-mode-banner.show{display:block;}
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;}
+.modal-ov.open{display:flex;}
+.modal{background:white;border-radius:12px;width:480px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.35); text-align:center;}
+.m-title{font-size:18px; font-weight:800; margin-bottom:15px; color:var(--navy);}
+.m-msg{font-size:12px; color:#444; margin-bottom:25px; line-height: 1.7; text-align: left; background: #f9fafb; padding: 15px; border-radius: 8px;}
+
+@media print{ .action-bar, .mode-bar, .down-mode-banner{display:none!important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-title">🏢 기업연구소 인사평가(개발)</div>
+  <div class="mode-bar">
+    <button class="mode-tab ms" id="tab-self" onclick="setMode('self')">📝 셀프평가 <span class="mbadge">1차</span></button>
+    <button class="mode-tab" id="tab-d1" onclick="setMode('d1')">⬇️ 하향평가① <span class="mbadge">2차</span><span class="lock-badge" id="lock-d1">🔒</span></button>
+    <button class="mode-tab" id="tab-d2" onclick="setMode('d2')">⬇️ 하향평가② <span class="mbadge">2차</span><span class="lock-badge" id="lock-d2">🔒</span></button>
+  </div>
+  <div class="down-mode-banner" id="down-banner">
+    ⚠️ <strong>하향평가 모드입니다.</strong> 셀프평가 점수는 수정할 수 없습니다. 파란색으로 표시된 점수가 직원이 선택한 셀프 점수입니다. 하향 점수만 새로 선택해주세요.
+  </div>
+  <div class="dashboard">
+    <div class="dc"><div class="dlabel">📊 셀프 평균점수</div><div class="dval vs" id="d-self">0.0</div></div>
+    <div class="dc"><div class="dlabel">⬇️ 하향 평균</div><div class="dval vd" id="d-down">0.0</div></div>
+    <div class="dc"><div class="dlabel">확인란 (메모)</div><textarea id="memo-area" placeholder="자유롭게 메모를 입력하세요..." style="width:100%;height:62px;border:none;outline:none;font-family:inherit;font-size:11px;padding:8px;resize:none;background:white;"></textarea></div>
+  </div>
+  <div class="info-wrap">
+    <table class="info-table">
+      <tr>
+        <td class="ilabel">사 번</td><td class="iinput"><input id="inf-id" type="text" placeholder="사번 입력"></td>
+        <td class="ilabel">성 명</td><td class="iinput"><input id="inf-name" type="text" placeholder="이름 입력"></td>
+        <td class="ilabel">직 위</td><td class="iinput"><input id="inf-pos" type="text" placeholder="직위 입력"></td>
+      </tr>
+      <tr>
+        <td class="ilabel">부 서</td><td class="iinput"><input id="inf-dept" type="text" placeholder="부서 입력"></td>
+        <td class="ilabel">입사일자</td><td class="iinput"><input id="inf-join" type="date"></td>
+        <td class="ilabel">작성일자</td><td class="iinput"><input id="inf-date" type="date"></td>
+      </tr>
+      <tr>
+        <td class="ilabel">담당업무</td>
+        <td class="iinput" colspan="5"><input id="inf-work" type="text" placeholder="담당업무 입력" style="width:100%"></td>
+      </tr>
+    </table>
+  </div>
+  <table class="eval-table">
+    <thead>
+      <tr>
+        <th class="th-navy" style="width:35px">No.</th>
+        <th class="th-navy" style="width:75px">평가요소</th>
+        <th class="th-navy" style="width:85px">평가항목</th>
+        <th class="th-navy">평 가 기 준</th>
+        <th class="th-navy" colspan="9">등급 선택 (S+ ~ D+)</th>
+        <th class="th-self" style="width:50px">셀프</th>
+        <th class="th-d1" style="width:50px">하향①</th>
+        <th class="th-d2" style="width:50px">하향②</th>
+      </tr>
+    </thead>
+    <tbody id="eval-body"></tbody>
+    <tr class="total-row">
+      <td colspan="4" style="text-align:right;">총 합계 점수</td>
+      <td colspan="9"></td>
+      <td id="tot-self">0</td><td id="tot-d1">0</td><td id="tot-d2">0</td>
+    </tr>
+  </table>
+  <div class="action-bar">
+    <div class="action-left">
+      <button class="btn btn-red" onclick="clearCurrentMode()">🗑️ 현재 초기화</button>
+      <button class="btn btn-red" onclick="clearAll()">🗑️ 전체 초기화</button>
+      <button class="btn btn-gray" onclick="window.print()">🖨️ 인쇄하기</button>
+    </div>
+    <button class="btn btn-slack" onclick="submitToSlack()">슬랙으로 제출하기</button>
+  </div>
+</div>
+
+<!-- 제출 완료 모달 -->
+<div class="modal-ov" id="status-modal">
+  <div class="modal">
+    <div class="m-title" id="m-title">전송 중...</div>
+    <div id="m-msg" class="m-msg"></div>
+
+    <button class="btn" id="m-btn" style="display:none; margin:15px auto 0; background:var(--navy); color:white;" onclick="closeModal()">확인</button>
+  </div>
+</div>
+
+<script>
+const WEBHOOK_CONFIG = {
+  self: "https://hooks.slack.com/triggers/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",
+  down: "https://hooks.slack.com/triggers/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"
+};
+
+const ITEMS=[
+  ['조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
+  ['조직문화','팀 소통','ㆍ회사라는 공동체 생활에 나 아닌 우리를 생각하며, 모든 협조를 하려고 노력하는가?',false],
+  ['업무태도','피드백반영','ㆍ동료와 상사의 피드백을 수용하고, 피드백을 업무에 반영해 개선을 실천했는가?',false],
+  ['업무태도','수용성','ㆍ지시나 요청을 수동적으로 따르기보다, 이해하고 더 나은 방법을 제안했는가?',false],
+  ['업무태도','직급별 책임','ㆍ자신의 직급에 부합하는 태도와 리더십을 발휘하며, 후배에게는 모범이 되고 선배에게는 신뢰를 주는가?',false],
+  ['업무태도','일정 관리','ㆍ현실적인 일정을 수립하고, 어려움이 있는 경우 추가 노력을 기울이고 있다고 생각하는가?',false],
+  ['업무처리','지속성','ㆍ모든 업무에 대해 꾸준히 노력하며 포기하지 않고 끝까지 해내는가?',false],
+  ['업무처리','우선순위관리','ㆍ중요한 업무를 우선적으로 처리하고, 우선순위에 관련된 부분을 스스로 분배하여 요청할 수 있었는가?',false],
+  ['업무결과','정확성','ㆍ본인이 수행한 업무 결과가 객관적인 시선으로 신뢰할 만한 수준으로 정확하게 완료되었는가?',false],
+  ['업무결과','꼼꼼함','ㆍ세부 사항까지 놓치지 않고 철저히 처리하며, 이후 에러 및 유지보수가 적었는가?',false],
+  ['업무결과','성 과','ㆍ업무 성과가 내용이나 결과 면에서 기대치를 뛰어넘었는가?',false],
+  ['문제해결','문제 분석','ㆍ고객이나 내부팀의 문제를 능동적으로 인식하고 해결하려고 했는가?',false],
+  ['문제해결','책임감','ㆍ단순 지시에만 의존하지 않고, 회사의 입장에 입각하여 주도적으로 접근했는가?',false],
+  ['문제해결','연구심','ㆍ새로운 기술(AI, 자동화 등)을 시도하고 익히려는 노력을 했는가?',false],
+  ['코딩역량','코드 품질','ㆍ효율적인 코드 작성과 주석을 코드마다 달고 있는가?',false],
+  ['코딩역량','성능 최적화','ㆍ비즈니스 로직에서 성능 최적화를 위해 노력하며, 정확한 Data를 기반으로 응답속도를 줄였는가?',false],
+  ['코딩역량','확장성','ㆍ설계 시 장기적인 유지보수와 확장성을 고려했는가?',false],
+  ['실행력','신속한시도','ㆍ문제가 불확실하거나 미정된 상황에서 빠르게 MVP 또는 실험적 시도를 했는가?',true],
+  ['실행력','실행중심','ㆍ실행 이후, 개선 루프(피드백-반영)를 통해 결과를 반복 개선했는가?',true],
+  ['자동화','프로세스개선','ㆍ개발 중 반복적 수작업 프로세스를 자동화하거나, 개발 툴/스크립트로 직접 개선한 경험이 있는가?',true],
+  ['자동화','효율성제안','ㆍ팀 또는 프로젝트의 생산성을 높이기 위한 기술적 개선안을 제안하거나 적용한 경험이 있는가?',true],
+  ['데이터사고','근거기반판단','ㆍ업무 판단 시, 수치화된 근거나 과거 데이터를 논리적으로 활용했는가?',false],
+  ['데이터사고','정량적접근','ㆍ여러 가지 테스트와 로그 기반 디버깅 등으로 문제점의 상황을 데이터 기반으로 제시한 적이 있었는가?',false],
+  ['성과','납기준수','ㆍ명확한 결과물을 기한 내에 낼 수 있었는가?',false],
+  ['성과','품질관리','ㆍ결과물의 품질, 안정성, 사용자 피드백은 어땠는가?',false]
+];
+
+let mode = 'self';
+let scores = { self: {}, d1: {}, d2: {} };
+let cases = {};
+let info = {};
+
+// ── URL에서 받은 경우 셀프가 잠금 상태인지 여부
+let selfLockedFromURL = false;
+let currentResultLink = '';
+
+// 등급명과 환산점수 정의
+const GRADES = [
+  { label: 'S+', score: 100 },
+  { label: 'S',  score: 95  },
+  { label: 'A+', score: 90  },
+  { label: 'A',  score: 85  },
+  { label: 'B+', score: 80  },
+  { label: 'B',  score: 75  },
+  { label: 'C+', score: 70  },
+  { label: 'C',  score: 65  },
+  { label: 'D+', score: 60  },
+];
+const SV = GRADES.map(g => g.score); // 호환성 유지
+
+function buildTable() {
+  const tbody = document.getElementById('eval-body');
+  tbody.innerHTML = '';
+  const rowSpanCounts = {};
+  ITEMS.forEach(it => { rowSpanCounts[it[0]] = (rowSpanCounts[it[0]] || 0) + 1 + (it[3] ? 1 : 0); });
+  const usedFactors = {};
+  ITEMS.forEach((it, idx) => {
+    const factor = it[0];
+    const tr = document.createElement('tr');
+    let factorHtml = '';
+    if (!usedFactors[factor]) {
+      factorHtml = `<td style="font-weight:700;" rowspan="${rowSpanCounts[factor]}">${factor}</td>`;
+      usedFactors[factor] = true;
+    }
+    let scoreBtns = '';
+    GRADES.forEach(g => {
+      scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
+    });
+    tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="font-size:10px;">${it[1]}</td><td style="text-align:left; padding:5px 10px; font-size:10px; line-height:1.4;">${it[2]}</td>${scoreBtns}<td class="vres vself" id="vs-${idx}"></td><td class="vres vd1" id="v1-${idx}"></td><td class="vres vd2" id="v2-${idx}"></td>`;
+    tbody.appendChild(tr);
+    if(it[3]){
+      const trCase = document.createElement('tr');
+      trCase.className = 'case-row';
+      trCase.innerHTML = `<td class="case-lbl">사례작성</td><td colspan="15" class="case-inp"><input type="text" class="case-val" data-idx="${idx}" placeholder="구체적인 사례를 입력하세요..."></td>`;
+      tbody.appendChild(trCase);
+    }
+  });
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('ms','m1','m2'));
+  document.getElementById(`tab-${m}`).classList.add(m === 'self' ? 'ms' : m === 'd1' ? 'm1' : 'm2');
+  document.querySelectorAll('.vres').forEach(td => td.classList.add('dimmed'));
+  const prefix = mode === 'self' ? 'vs' : mode === 'd1' ? 'v1' : 'v2';
+  document.querySelectorAll(`[id^="${prefix}-"]`).forEach(td => td.classList.remove('dimmed'));
+
+  // 하향 모드일 때 셀프 버튼 잠금 + 배너 표시
+  const isDown = (mode === 'd1' || mode === 'd2');
+  document.getElementById('down-banner').classList.toggle('show', isDown && selfLockedFromURL);
+  updateButtonLockState();
+}
+
+function updateButtonLockState() {
+  const isDown = (mode === 'd1' || mode === 'd2');
+  ITEMS.forEach((_, idx) => {
+    SV.forEach(v => {
+      const btn = document.getElementById(`b-${idx}-${v}`);
+      if(!btn) return;
+      if(isDown && selfLockedFromURL) {
+        // 하향 모드에서 셀프 버튼 잠금: 클릭하면 하향 점수로 처리되므로 시각적으로만 잠금 표시
+        btn.classList.add('self-locked');
+      } else {
+        btn.classList.remove('self-locked');
+      }
+    });
+  });
+}
+
+function clickScore(idx, val) {
+  // 키를 문자열로 통일 (JSON 직렬화/역직렬화 후에도 동일하게 접근 가능)
+  scores[mode][String(idx)] = val;
+  refreshRow(idx);
+  calculate();
+}
+
+function refreshRow(idx) {
+  const si = String(idx);
+  SV.forEach(v => {
+    const btn = document.getElementById(`b-${idx}-${v}`);
+    if(btn) {
+      btn.classList.remove('ss', 's1', 's2');
+      if (scores.self[si] === v) btn.classList.add('ss');
+      if (scores.d1[si] === v) btn.classList.add('s1');
+      if (scores.d2[si] === v) btn.classList.add('s2');
+    }
+  });
+  function scoreLabel(v) {
+    if(!v) return '';
+    const g = GRADES.find(g => g.score === v);
+    return g ? g.label : v;
+  }
+  document.getElementById(`vs-${idx}`).textContent = scoreLabel(scores.self[si]);
+  document.getElementById(`v1-${idx}`).textContent = scoreLabel(scores.d1[si]);
+  document.getElementById(`v2-${idx}`).textContent = scoreLabel(scores.d2[si]);
+}
+
+function calculate() {
+  // 각 모드별 입력된 항목 수와 합계 계산
+  function modeAvg(m) {
+    const vals = Object.values(scores[m]).filter(v => v > 0);
+    if(vals.length === 0) return 0;
+    return vals.reduce((a,b) => a+b, 0) / vals.length;
+  }
+  const selfAvg = modeAvg('self');
+  const d1Avg   = modeAvg('d1');
+  const d2Avg   = modeAvg('d2');
+
+  document.getElementById('tot-self').textContent = selfAvg === 0 ? '0.0' : selfAvg.toFixed(1);
+  document.getElementById('tot-d1').textContent   = d1Avg === 0   ? '0.0' : d1Avg.toFixed(1);
+  document.getElementById('tot-d2').textContent   = d2Avg === 0   ? '0.0' : d2Avg.toFixed(1);
+  document.getElementById('d-self').textContent   = selfAvg === 0 ? '0.0' : selfAvg.toFixed(1);
+
+  const activeCount = (d1Avg > 0 ? 1 : 0) + (d2Avg > 0 ? 1 : 0);
+  const downAvg = activeCount > 0 ? (d1Avg + d2Avg) / activeCount : 0;
+  document.getElementById('d-down').textContent = downAvg === 0 ? '0.0' : downAvg.toFixed(1);
+}
+
+// ── 현재 상태 전체를 URL 파라미터로 직렬화 (하향평가자 공유 링크용)
+function getSaveData() {
+  // 점수를 "idx:val,idx:val" 형태로 압축해 URL 길이 최소화
+  function compress(obj) {
+    return Object.entries(obj).map(([k,v]) => k+':'+v).join(',');
+  }
+  const caseData = {};
+  document.querySelectorAll('.case-val').forEach(el => { if(el.value) caseData[el.dataset.idx] = el.value; });
+  const infoData = {
+    id: document.getElementById('inf-id').value,
+    name: document.getElementById('inf-name').value,
+    pos: document.getElementById('inf-pos').value,
+    dept: document.getElementById('inf-dept').value,
+    join: document.getElementById('inf-join').value,
+    date: document.getElementById('inf-date').value,
+    work: document.getElementById('inf-work').value
+  };
+  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), c: caseData, i: infoData };
+  return btoa(encodeURIComponent(JSON.stringify(compact)));
+}
+
+// ── 점수 데이터를 Slack 전달용 텍스트로 변환 (항목별 점수 요약)
+
+
+// ── URL 파라미터에서 복원 (압축 포맷 & 구버전 포맷 모두 지원)
+function restoreFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const d = params.get('d');
+  if(!d) return;
+  try {
+    const data = JSON.parse(decodeURIComponent(atob(d)));
+
+    // 압축 포맷 (s, d1, d2, c, i) vs 구버전 포맷 (scores, cases, info) 자동 감지
+    function expandScores(str) {
+      if(!str) return {};
+      const out = {};
+      str.split(',').forEach(part => {
+        const [k,v] = part.split(':');
+        if(k !== undefined && v !== undefined) out[String(parseInt(k))] = parseInt(v);
+      });
+      return out;
+    }
+
+    if(data.s !== undefined) {
+      // 신규 압축 포맷
+      scores.self = expandScores(data.s);
+      scores.d1 = expandScores(data.d1);
+      scores.d2 = expandScores(data.d2);
+      if(data.i) Object.entries(data.i).forEach(([k,v]) => { const el = document.getElementById('inf-'+k); if(el) el.value = v; });
+      if(data.c) Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
+    } else if(data.scores) {
+      // 구버전 포맷 호환
+      scores = data.scores;
+      if(data.info) Object.entries(data.info).forEach(([k,v]) => { const el = document.getElementById('inf-'+k); if(el) el.value = v; });
+      if(data.cases) Object.entries(data.cases).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
+    }
+
+    // 셀프 점수가 있으면 셀프 잠금
+    const hasSelf = Object.keys(scores.self || {}).length > 0;
+    if(hasSelf) {
+      selfLockedFromURL = true;
+      document.getElementById('lock-d1').textContent = '🔓';
+      document.getElementById('lock-d2').textContent = '🔓';
+    }
+    ITEMS.forEach((_, i) => refreshRow(i));
+    calculate();
+  } catch(e) { console.error("Restore failed", e); }
+}
+
+function clearCurrentMode() {
+  if(mode === 'self' && selfLockedFromURL) {
+    alert('URL로 불러온 셀프평가는 초기화할 수 없습니다. 직원 본인이 재작성해야 합니다.');
+    return;
+  }
+  if(!confirm(`현재 모드(${mode}) 점수만 초기화할까요?`)) return;
+  scores[mode] = {};
+  ITEMS.forEach((_, i) => refreshRow(i));
+  calculate();
+}
+
+function clearAll() {
+  if(confirm('전체 초기화할까요?')) window.location.href = window.location.origin + window.location.pathname;
+}
+
+async function submitToSlack() {
+  const nameInput = document.getElementById('inf-name').value.trim();
+  if(!nameInput) return alert("성함을 입력해주세요.");
+
+  showModal("전송 중...", "데이터를 슬랙으로 안전하게 보내고 있습니다.");
+
+  const triggerUrl = (mode === 'self') ? WEBHOOK_CONFIG.self : WEBHOOK_CONFIG.down;
+  const selfTotal = parseInt(document.getElementById('tot-self').textContent) || 0;
+  const downAvg = document.getElementById('d-down').textContent;
+
+  // 현재까지의 모든 점수를 URL에 인코딩해서 링크 생성
+  // GitHub Pages URL 기준으로 링크 생성
+  const savedData = getSaveData();
+  const baseUrl = 'https://hrculture.github.io/allmytour/';
+  const resultUrl = baseUrl + '?d=' + savedData;
+
+  const payload = {
+    name: nameInput,
+    dept: document.getElementById('inf-dept').value || '미입력',
+    employee_id: document.getElementById('inf-id').value || '미입력',
+    self_score: String(selfTotal),
+    down_avg: downAvg,
+    result_url: resultUrl
+  };
+
+  let successMsg = '';
+  if(mode === 'self') {
+    successMsg = `<strong>${nameInput}</strong> 님의 소중한 성과가 정상적으로 전달되었습니다. 📩<br>작성해주신 내용은 공정한 평가에 반영됩니다.<br><br>한 해 동안의 노고에 감사드립니다. 🙏`;
+  } else {
+    successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가(${mode === 'd1' ? '①' : '②'})가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
+  }
+
+  fetch(triggerUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify(payload)
+  }).then(() => {
+    showModal("제출 완료! ✅", successMsg, true);
+  }).catch(() => {
+    showModal("제출 완료! ✅", successMsg, true);
+  });
+}
+
+function showModal(title, msg, btnShow=false) {
+  document.getElementById('m-title').textContent = title;
+  document.getElementById('m-msg').innerHTML = msg;
+  document.getElementById('m-btn').style.display = btnShow ? 'block' : 'none';
+  const linkBox = document.getElementById('m-link-box');
+  if(linkBox) linkBox.style.display = 'none';
+  document.getElementById('status-modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('status-modal').classList.remove('open'); }
+
+
+
+// 초기화
+document.getElementById('inf-date').value = new Date().toISOString().slice(0, 10);
+buildTable();
+restoreFromURL(); // ← buildTable 이후에 복원해야 DOM이 준비됨
+setMode('self');
+</script>
+</body>
+</html>

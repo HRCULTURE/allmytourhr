@@ -221,6 +221,67 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .phase-tab.admin-tab { padding: 8px 12px; color: var(--text-soft); border-left: 1px solid var(--border); margin-left: 2px; }
 .phase-tab.admin-tab:hover { background: #FEF3C7; color: #92400E; }
 .phase-tab.admin-tab.admin-on { background: #FEF3C7; color: #92400E; box-shadow: 0 0 0 2px #F59E0B; }
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 10mm 8mm;
+  }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .header, .action-bar, .phase-tabs, .down-banner,
+  .self-panel, #self-ref-panel, .onboarding { display: none !important; }
+  .page { max-width: 100%; padding: 0; margin: 0; }
+  .page-layout { display: block; }
+  .main-content { width: 100%; }
+  .info-card { border: 1px solid #ddd; border-radius: 0; box-shadow: none; margin-bottom: 8px; padding: 12px; }
+  .score-row { display: none; }
+  .table-card { box-shadow: none; border: 1px solid #ddd; border-radius: 0; }
+  .eval-table th { font-size: 10px; padding: 8px 6px; }
+  .eval-table td { font-size: 10px; padding: 6px 4px; }
+  .eval-table td[style*="text-align:left"] { font-size: 10px; line-height: 1.5; padding: 6px 8px; }
+  .score-btn { width: 28px; height: 28px; font-size: 9px; }
+  .score-btn.selected { border: 2px solid #4F46E5; background: #4F46E5; color: white; }
+}
+
+/* ── 관리자 대시보드 ───────────────────── */
+.admin-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.85); z-index:2000; overflow-y:auto; }
+.admin-overlay.open { display:block; }
+.admin-wrap { max-width:1100px; margin:40px auto; padding:0 20px 60px; }
+.admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
+.admin-title { font-size:22px; font-weight:900; color:#fff; }
+.admin-close { background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px; padding:8px 16px; cursor:pointer; font-size:13px; }
+.admin-close:hover { background:rgba(255,255,255,0.2); }
+.admin-tabs { display:flex; gap:8px; margin-bottom:20px; }
+.admin-tab { padding:8px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:700; background:rgba(255,255,255,0.1); color:#CBD5E1; }
+.admin-tab.active { background:#6366F1; color:#fff; }
+.admin-card { background:#fff; border-radius:16px; overflow:hidden; }
+.admin-table { width:100%; border-collapse:collapse; font-size:12px; }
+.admin-table th { background:#F8FAFC; color:#64748B; font-weight:700; padding:12px 14px; text-align:left; border-bottom:2px solid #E2E8F0; white-space:nowrap; }
+.admin-table td { padding:11px 14px; border-bottom:1px solid #F1F5F9; color:#1E293B; }
+.admin-table tr:hover td { background:#F8FAFF; }
+.admin-score { display:inline-block; background:#6366F1; color:#fff; border-radius:6px; padding:2px 10px; font-weight:700; font-size:13px; }
+.admin-url { color:#6366F1; text-decoration:none; font-size:11px; }
+.admin-empty { text-align:center; padding:40px; color:#94A3B8; font-size:13px; }
+.admin-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.admin-stat { background:rgba(255,255,255,0.07); border-radius:12px; padding:16px 20px; color:#fff; }
+.admin-stat-val { font-size:28px; font-weight:900; color:#818CF8; }
+.admin-stat-label { font-size:12px; color:#94A3B8; margin-top:4px; }
+
+/* 관리자 버튼 */
+.btn-admin { background:rgba(99,102,241,0.15); color:#818CF8; border:1.5px solid #4F46E5; }
+.btn-admin:hover { background:#4F46E5; color:#fff; }
+
+/* 비밀번호 모달 */
+.admin-pw-modal { position:fixed; inset:0; background:rgba(15,23,42,0.9); z-index:3000; display:none; align-items:center; justify-content:center; }
+.admin-pw-modal.open { display:flex; }
+.admin-pw-box { background:#fff; border-radius:20px; padding:40px; width:360px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.admin-pw-title { font-size:18px; font-weight:800; margin-bottom:8px; color:#1E293B; }
+.admin-pw-sub { font-size:13px; color:#94A3B8; margin-bottom:24px; }
+.admin-pw-input { width:100%; box-sizing:border-box; border:1.5px solid #E2E8F0; border-radius:10px; padding:12px 16px; font-size:15px; text-align:center; letter-spacing:4px; outline:none; margin-bottom:12px; }
+.admin-pw-input:focus { border-color:#6366F1; }
+.admin-pw-btn { width:100%; padding:12px; background:#6366F1; color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
+.admin-pw-btn:hover { background:#4F46E5; }
+.admin-pw-err { color:#EF4444; font-size:12px; margin-top:8px; display:none; }
 </style>
 </head>
 <body>
@@ -333,7 +394,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           <th style="width:50px;">No.</th>
           <th style="width:100px;">역량요소</th>
           <th style="width:100px;">리뷰항목</th>
-          <th style="text-align:left; padding-left:20px;">리 뷰 기 준</th>
+          <th style="text-align:left; padding-left:20px; min-width:200px;">리 뷰 기 준</th>
           <th colspan="10">등급 선택 (S+ ~ D)</th>
         </tr>
       </thead>
@@ -356,6 +417,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
       <span style="font-size:10px; color:#B0B8C1; padding-left:2px;">같은 브라우저·기기에서만 유지됩니다</span>
     </div>
     <div style="display:flex; gap:10px;">
+      <button class="btn btn-admin" onclick="openAdminPw()">🔐 관리자</button>
       <button class="btn btn-primary" onclick="submitToSlack()" style="padding:12px 32px; font-size:15px; font-weight:700; border-radius:12px; min-width:140px;">리뷰완료</button>
     </div>
   </div>
@@ -578,7 +640,7 @@ const WEBHOOK_CONFIG = {
   down: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzhuF6ZjG-kJK0wDN-OXqRAh3YcCki4Pm3_b8AiTDg_MxEbvMZUTOsO76geey6wTf6n/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzkJPdbzvBjQ1MIn8-6eCr1TK-UFPiRVUs7VDUZjytyOiXKAziodxHXQPThCX1Osy-c_w/exec';
 
 const ITEMS_DEV=[
   ['팀워크&조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
@@ -852,7 +914,7 @@ function buildTable() {
     GRADES.forEach(g => {
       scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
     });
-    tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="font-size:12px; font-weight:700;">${it[1]}</td><td style="text-align:left; padding:8px 16px; font-size:12px; line-height:1.5;">${it[2]}</td>${scoreBtns}`;
+    tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="font-size:12px; font-weight:700;">${it[1]}</td><td style="text-align:left; padding:10px 16px; font-size:12px; line-height:1.8; color:#374151; word-break:keep-all; min-width:200px;">${it[2]}</td>${scoreBtns}`;
     tbody.appendChild(tr);
     if(it[3]){
       const trCase = document.createElement('tr');
@@ -1164,6 +1226,26 @@ async function submitToSlack() {
     fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }
 
+  // Sheets 저장 (셀프/하향 모두)
+  if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const sheetsParams = new URLSearchParams({
+      action: mode === 'self' ? 'save_self' : 'save_down',
+      mode,
+      name:        payload.name        || '',
+      dept:        payload.dept        || '',
+      employee_id: payload.employee_id || '',
+      self_score:  payload.self_score  || '',
+      down_score:  mode === 'self' ? '' : (document.getElementById('d-down2')?.textContent || ''),
+      evaluator:   document.getElementById('inf-evaluator')?.value || '',
+      result_url:  payload.result_url  || '',
+      pos:  document.getElementById('inf-pos')?.value  || '',
+      work: document.getElementById('inf-work')?.value || '',
+      join: document.getElementById('inf-join')?.value || '',
+      date: document.getElementById('inf-date')?.value || ''
+    });
+    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
+  }
+
   function onSubmitDone() {
     if(mode === 'self') {
       selfSubmitted = true;
@@ -1175,7 +1257,6 @@ async function submitToSlack() {
     showModal("제출 완료! ✅", doneMsg, true);
   }
 
-  // no-cors는 응답을 받을 수 없으므로 타임아웃으로 완료 처리
   const submitTimer = setTimeout(onSubmitDone, 2000);
 
   fetch(triggerUrl, {
@@ -1372,12 +1453,31 @@ async function searchSelfByName(name) {
     panelName.textContent = data.name + ' 님';
     panelStatus.textContent = '제출일: ' + (data.submitted || '-');
 
+    // 기본정보 자동 입력
+    autoFillInfo(data);
+
     // result_url에서 점수 파싱
     renderPanelFromResultUrl(data.result_url, data.self_score);
 
   } catch(err) {
     panelBody.innerHTML = '<div class="panel-empty">⚠️ 조회 실패<br>' + err.message + '</div>';
   }
+}
+
+function autoFillInfo(data) {
+  // 평가대상자 정보 자동 입력 (비어있는 필드만)
+  function fill(id, val) {
+    const el = document.getElementById(id);
+    if(el && !el.value && val) el.value = val;
+  }
+  fill('inf-name', data.name);
+  fill('inf-dept', data.dept);
+  fill('inf-pos',  data.pos);
+  fill('inf-id',   data.employee_id);
+  fill('inf-work', data.work);
+  fill('inf-join', data.join);
+  // 이름 레이블 동기화
+  syncNameLabels();
 }
 
 function renderPanelFromResultUrl(resultUrl, fallbackScore) {
@@ -1556,5 +1656,56 @@ if(_urlParams.get('d')) {
 }
 
 </script>
+
+<!-- 관리자 비밀번호 모달 -->
+<div class="admin-pw-modal" id="admin-pw-modal">
+  <div class="admin-pw-box">
+    <div class="admin-pw-title">🔐 관리자 인증</div>
+    <div class="admin-pw-sub">관리자 비밀번호를 입력하세요</div>
+    <input class="admin-pw-input" id="admin-pw-input" type="password" placeholder="••••••••"
+      onkeydown="if(event.key==='Enter') checkAdminPw()">
+    <button class="admin-pw-btn" onclick="checkAdminPw()">확인</button>
+    <div class="admin-pw-err" id="admin-pw-err">비밀번호가 올바르지 않습니다</div>
+    <div style="margin-top:12px;">
+      <button onclick="closeAdminPw()" style="background:none;border:none;color:#94A3B8;font-size:12px;cursor:pointer;">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 대시보드 -->
+<div class="admin-overlay" id="admin-overlay">
+  <div class="admin-wrap">
+    <div class="admin-header">
+      <div class="admin-title">📊 인사평가 관리자 대시보드</div>
+      <div style="display:flex;gap:8px;">
+        <button class="admin-close" onclick="refreshAdminData()">🔄 새로고침</button>
+        <button class="admin-close" onclick="closeAdmin()">✕ 닫기</button>
+      </div>
+    </div>
+    <div class="admin-stats">
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-self">0</div>
+        <div class="admin-stat-label">셀프리뷰 제출</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-down">0</div>
+        <div class="admin-stat-label">하향리뷰 제출</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-avg">-</div>
+        <div class="admin-stat-label">셀프리뷰 평균점수</div>
+      </div>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('self', this)">셀프리뷰 결과</button>
+      <button class="admin-tab" onclick="switchAdminTab('down', this)">하향리뷰 결과</button>
+    </div>
+    <div class="admin-card">
+      <div id="admin-table-wrap">
+        <div class="admin-empty">🔄 데이터를 불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

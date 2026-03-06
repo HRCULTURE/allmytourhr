@@ -244,9 +244,9 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 }
 
 /* ── 관리자 대시보드 ───────────────────── */
-.admin-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.85); z-index:2000; overflow-y:auto; }
-.admin-overlay.open { display:block; }
-.admin-wrap { max-width:1100px; margin:40px auto; padding:0 20px 60px; }
+.admin-overlay { display:none !important; position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; background:#0F172A; z-index:99999 !important; overflow-y:auto; }
+.admin-overlay.open { display:block !important; }
+.admin-wrap { width:100%; max-width:100%; margin:0; padding:16px 16px 60px; box-sizing:border-box; }
 .admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
 .admin-title { font-size:22px; font-weight:900; color:#fff; }
 .admin-close { background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px; padding:8px 16px; cursor:pointer; font-size:13px; }
@@ -254,7 +254,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .admin-tabs { display:flex; gap:8px; margin-bottom:20px; }
 .admin-tab { padding:8px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:700; background:rgba(255,255,255,0.1); color:#CBD5E1; }
 .admin-tab.active { background:#6366F1; color:#fff; }
-.admin-card { background:#fff; border-radius:16px; overflow:hidden; }
+.admin-card { background:#fff; border-radius:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
 .admin-table { width:100%; border-collapse:collapse; font-size:12px; }
 .admin-table th { background:#F8FAFC; color:#64748B; font-weight:700; padding:12px 14px; text-align:left; border-bottom:2px solid #E2E8F0; white-space:nowrap; }
 .admin-table td { padding:11px 14px; border-bottom:1px solid #F1F5F9; color:#1E293B; }
@@ -262,7 +262,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .admin-score { display:inline-block; background:#6366F1; color:#fff; border-radius:6px; padding:2px 10px; font-weight:700; font-size:13px; }
 .admin-url { color:#6366F1; text-decoration:none; font-size:11px; }
 .admin-empty { text-align:center; padding:40px; color:#94A3B8; font-size:13px; }
-.admin-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
+.admin-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
 .admin-stat { background:rgba(255,255,255,0.07); border-radius:12px; padding:16px 20px; color:#fff; }
 .admin-stat-val { font-size:28px; font-weight:900; color:#818CF8; }
 .admin-stat-label { font-size:12px; color:#94A3B8; margin-top:4px; }
@@ -282,6 +282,45 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .admin-pw-btn { width:100%; padding:12px; background:#6366F1; color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
 .admin-pw-btn:hover { background:#4F46E5; }
 .admin-pw-err { color:#EF4444; font-size:12px; margin-top:8px; display:none; }
+
+/* ── 리뷰 원본 뷰어 ── */
+.admin-viewer-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; background:#0F172A; z-index:9999; overflow:hidden; }
+.admin-viewer-overlay.open { display:flex; flex-direction:column; }
+.admin-viewer-wrap { width:100%; padding:24px 40px 60px; box-sizing:border-box; }
+.admin-viewer-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.admin-viewer-title { font-size:18px; font-weight:800; color:#fff; }
+.admin-viewer-card { background:#fff; border-radius:16px; padding:24px 28px; margin-bottom:16px; }
+.admin-viewer-info { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:20px; }
+.admin-viewer-field { background:#F8FAFC; border-radius:10px; padding:10px 14px; }
+.admin-viewer-field-label { font-size:10px; font-weight:700; color:#94A3B8; margin-bottom:3px; }
+.admin-viewer-field-val { font-size:13px; font-weight:700; color:#1E293B; }
+.admin-viewer-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
+.admin-viewer-table th { background:#F1F5FF; color:#4F46E5; font-weight:700; padding:11px 14px; text-align:left; border-bottom:2px solid #C7D2FE; white-space:nowrap; }
+.admin-viewer-table th:nth-child(1) { width:44px; }
+.admin-viewer-table th:nth-child(2) { width:120px; }
+.admin-viewer-table th:nth-child(3) { width:120px; }
+.admin-viewer-table th:nth-child(4) { width:auto; }
+.admin-viewer-table th:nth-child(5) { width:80px; }
+.admin-viewer-table td { padding:12px 14px; border-bottom:1px solid #F1F5F9; color:#1E293B; vertical-align:top; }
+.admin-viewer-table tr:hover td { background:#F8F9FF; }
+.admin-viewer-grade { display:inline-block; padding:4px 12px; border-radius:6px; font-weight:800; font-size:13px; color:#fff; background:#6366F1; }
+.admin-viewer-section { font-size:13px; font-weight:800; color:#6366F1; padding:8px 0 4px; border-bottom:2px solid #EEF0F8; margin:16px 0 8px; }
+.admin-case-box { background:#F8FAFC; border-radius:10px; padding:14px 16px; margin-top:8px; }
+.admin-case-label { font-size:11px; font-weight:700; color:#94A3B8; margin-bottom:6px; }
+.admin-case-text { font-size:13px; color:#1E293B; line-height:1.7; white-space:pre-wrap; }
+
+/* ── 관리자 필터 ── */
+.admin-filters { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
+.admin-filter-select {
+  background:#1E293B; color:#CBD5E1; border:1.5px solid #334155;
+  border-radius:8px; padding:7px 12px; font-size:13px; font-family:inherit;
+  cursor:pointer; outline:none; min-width:120px;
+}
+.admin-filter-select:focus { border-color:#6366F1; }
+.admin-filter-reset { background:none; border:1.5px solid #475569; color:#94A3B8;
+  border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family:inherit; }
+.admin-filter-reset:hover { border-color:#6366F1; color:#818CF8; }
+.admin-filter-count { font-size:12px; color:#64748B; margin-left:auto; }
 </style>
 </head>
 <body>
@@ -516,6 +555,15 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
       onmouseout="this.style.transform='';this.style.boxShadow='0 10px 25px rgba(0,82,204,0.25)';">
         리뷰 시작
       </button>
+      <div style="margin-top:20px;">
+        <button onclick="openAdminPw()"
+          style="background:none; border:none; color:#CBD5E1; font-size:11px;
+                 cursor:pointer; padding:4px 8px; font-family:inherit;"
+          onmouseover="this.style.color='#6366F1'"
+          onmouseout="this.style.color='#CBD5E1'">
+          🔐 관리자
+        </button>
+      </div>
     </div>
 
     <!-- STEP 2: 부서 선택 -->
@@ -640,7 +688,7 @@ const WEBHOOK_CONFIG = {
   down: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzkJPdbzvBjQ1MIn8-6eCr1TK-UFPiRVUs7VDUZjytyOiXKAziodxHXQPThCX1Osy-c_w/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyvW7Ypgbv17SLeaSY9Fx2MOoSxr7NhZcESCaoyHq5B6rHkuPbFaSYAsxDcA64Id5KLNg/exec';
 
 const ITEMS_DEV=[
   ['팀워크&조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
@@ -1516,11 +1564,15 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
       const score = selfScores[String(idx)];
       const grade = score ? (GRADES.find(g => g.score === score)?.label || score) : null;
       if(score > 0) { total += score; count++; }
-      rows += '<div class="self-panel-item">'
-            + '<span class="item-name">' + it[1] + '</span>'
+      const criteria = it[2] || '';
+      rows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
+            + '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;">'
+            + '<span class="item-name" style="font-weight:700;">' + it[1] + '</span>'
             + (grade
                 ? '<span class="item-grade">' + grade + '</span>'
                 : '<span class="item-grade empty">-</span>')
+            + '</div>'
+            + (criteria ? '<span style="font-size:11px;color:#64748B;line-height:1.5;white-space:pre-line;">' + criteria + '</span>' : '')
             + '</div>';
     });
 
@@ -1655,13 +1707,520 @@ if(_urlParams.get('d')) {
   }
 }
 
+// ── 관리자 대시보드 ──────────────────────────────────────────
+const ADMIN_PW = 'allmyhye2026'; // 레거시 유지
+let currentAdminName = '';
+let adminData = { self: [], down: [] };
+let adminCurrentTab = 'self';
+
+// ── 구글 시트 직원 목록 실시간 조회 ──────────────────────────
+// RAW(연봉) 시트: 헤더 4행, 데이터 5행부터
+// B=성명, C=재직여부, D=첫계약일(입사일)
+// 이후 3열 반복: [계약시작일, 계약만료일, 연봉] → (D,E,F), (G,H,I), (J,K,L)...
+// col index(0-base): A=0,B=1,C=2,D=3,E=4,F=5,G=6,H=7,I=8,J=9,K=10,L=11,M=12,N=13,O=14,P=15,Q=16,R=17...
+const SALARY_SHEET_ID  = '1eP5wQmdQ_r5RxYbn_w5ZaL1pmr0Wdy2Ck-SDpCUBUAU';
+const SALARY_SHEET_GID = '524796043';
+
+let evalTargets    = [];
+let targetTabState = 'all';
+let targetLoaded   = false;
+
+async function loadEvalTargets() {
+  // Apps Script로 직원목록 + 연봉이력 조회
+  const res  = await fetch(SHEETS_API_URL + '?action=get_salary_list');
+  const data = await res.json();
+  if(!data.success) throw new Error(data.error || '조회 실패');
+  evalTargets  = data.targets || [];
+  targetLoaded = true;
+  return evalTargets;
+}
+
+// ── 셀 값 헬퍼 (gviz 방식 제거 후 미사용이지만 호환성 유지)
+function cellStr(row, idx) {
+  return (row[idx] && row[idx].v !== null && row[idx].v !== undefined)
+    ? String(row[idx].v).trim() : '';
+}
+function cellNum(row, idx) {
+  if(!row[idx]) return 0;
+  const v = row[idx].v;
+  return (v !== null && v !== undefined && !isNaN(Number(v))) ? Number(v) : 0;
+}
+function cellDate(row, idx) {
+  if(!row || !row[idx]) return '';
+  const f = row[idx].f;
+  if(f && String(f).trim()) return String(f).trim();
+  const v = row[idx].v;
+  if(!v) return '';
+  if(typeof v === 'string' && v.startsWith('Date(')) {
+    const p = v.slice(5,-1).split(',').map(Number);
+    return p[0] + '-' + String(p[1]+1).padStart(2,'0') + '-' + String(p[2]).padStart(2,'0');
+  }
+  return String(v);
+}
+
+function fmtSalary(n) {
+  if(!n || n <= 0) return '-';
+  const man = Math.round(n / 10000);
+  return man.toLocaleString('ko-KR') + '만원';
+}
+function fmtSalaryFull(n) {
+  if(!n || n <= 0) return '-';
+  return Number(n).toLocaleString('ko-KR') + '원';
+}
+
+function statusStyle(status) {
+  if(status === '재직')  return { bg:'rgba(99,102,241,0.18)', border:'rgba(99,102,241,0.35)', nameColor:'#C7D2FE', badge:'#4F46E5', badgeTxt:'재직' };
+  if(status === '퇴직')  return { bg:'rgba(30,41,59,0.6)',    border:'rgba(100,116,139,0.2)', nameColor:'#64748B', badge:'#334155', badgeTxt:'퇴직' };
+  if(status && status.includes('휴직')) return { bg:'rgba(245,158,11,0.12)', border:'rgba(245,158,11,0.3)', nameColor:'#FCD34D', badge:'#B45309', badgeTxt:status };
+  return { bg:'rgba(255,255,255,0.05)', border:'rgba(255,255,255,0.08)', nameColor:'#94A3B8', badge:'#334155', badgeTxt: status||'-' };
+}
+
+// ── 패널 열기/닫기 ───────────────────────────────────────────
+function toggleTargetPanel() {
+  const panel = document.getElementById('target-panel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen) { if(!targetLoaded) openTargetPanel(false); else { document.getElementById('target-list') && renderTargetList(); } }
+}
+
+async function reloadTargetPanel() {
+  await openTargetPanel(true);
+}
+
+async function openTargetPanel(forceReload) {
+  const wrap = document.getElementById('target-list');
+  wrap.innerHTML = '<div style="color:#64748B;font-size:13px;grid-column:1/-1;padding:24px 0;text-align:center;">🔄 직원 목록 불러오는 중...</div>';
+  try {
+    if(!targetLoaded || forceReload) { targetLoaded = false; await loadEvalTargets(); }
+    renderTargetList();
+  } catch(e) {
+    wrap.innerHTML = '<div style="color:#EF4444;font-size:13px;grid-column:1/-1;padding:20px 0;">⚠️ 불러오기 실패: ' + e.message + '<br><small style="color:#64748B;">시트를 "링크가 있는 모든 사용자 → 뷰어"로 공유했는지 확인해 주세요.</small></div>';
+  }
+}
+
+// ── 이번달 제출자 이름 Set ────────────────────────────────────
+function getSubmittedNames() {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth() + 1;
+  const names = new Set();
+  (adminData.self || []).forEach(r => {
+    const d = String(r['제출일시'] || '');
+    const match = d.match(/(\d{4})\D+(\d{1,2})/);
+    if(match && +match[1] === y && +match[2] === m && r['성명'])
+      names.add(r['성명'].trim());
+  });
+  return names;
+}
+
+// ── 카드 렌더링 ──────────────────────────────────────────────
+function renderTargetList() {
+  const submittedNames = getSubmittedNames();
+  const now = new Date();
+  const thisMonth = now.getMonth() + 1; // 현재 월 (1~12)
+
+  document.getElementById('target-month-label').textContent =
+    now.getFullYear() + '년 ' + thisMonth + '월 기준';
+
+  // 입사월 기준 대상자: 재직/휴직 중이고 입사월 = 이번 달인 사람
+  const joinMonthMatch = t => {
+    if(!t.joinDate) return false;
+    const m = parseInt(t.joinDate.slice(5, 7), 10); // 'YYYY-MM-DD'에서 월 추출
+    return m === thisMonth;
+  };
+  const isActive = t => t.status === '재직' || (t.status && t.status.includes('휴직'));
+
+  // 이번달 평가 대상자 = 재직 중 + 입사월이 이번 달
+  const thisMonthTargets = evalTargets.filter(t => isActive(t) && joinMonthMatch(t));
+  const doneCount = thisMonthTargets.filter(t => submittedNames.has(t.name)).length;
+  const total     = thisMonthTargets.length;
+
+  document.getElementById('stat-target').textContent = total;
+  document.getElementById('stat-target-sub').textContent =
+    '✅ ' + doneCount + '명 제출 / ⏳ ' + (total - doneCount) + '명 미제출';
+  document.getElementById('target-progress-text').textContent = doneCount + ' / ' + total + '명';
+  document.getElementById('target-progress-bar').style.width =
+    (total ? Math.round(doneCount / total * 100) : 0) + '%';
+
+  // 탭 필터
+  let list = thisMonthTargets; // 기본: 이번달 대상자
+  if(targetTabState === 'all')     list = thisMonthTargets;
+  if(targetTabState === 'active')  list = thisMonthTargets; // 이미 재직자만
+  if(targetTabState === 'retired') list = evalTargets.filter(t => t.status === '퇴직' && joinMonthMatch(t));
+  if(targetTabState === 'done')    list = thisMonthTargets.filter(t => submittedNames.has(t.name));
+  if(targetTabState === 'todo')    list = thisMonthTargets.filter(t => !submittedNames.has(t.name));
+
+  const wrap = document.getElementById('target-list');
+  if(!list.length) {
+    wrap.innerHTML = '<div style="color:#64748B;font-size:13px;grid-column:1/-1;padding:20px 0;text-align:center;">해당하는 직원이 없습니다.</div>';
+    return;
+  }
+
+  wrap.innerHTML = list.map(t => {
+    const done = submittedNames.has(t.name);
+    const s    = statusStyle(t.status);
+
+    // 연봉 이력 행들
+    const historyRows = (t.history || []).map((h, idx) => {
+      const isLatest = idx === t.history.length - 1;
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);gap:8px;">'
+        + '<span style="font-size:10px;color:#64748B;white-space:nowrap;">' + (h.contractStart || '-') + ' ~ ' + (h.expiry || '-') + '</span>'
+        + '<span style="font-size:11px;font-weight:' + (isLatest ? '800' : '500') + ';color:' + (isLatest ? '#A5B4FC' : '#475569') + ';white-space:nowrap;">'
+        + fmtSalaryFull(h.salary)
+        + (isLatest ? '&nbsp;<span style="font-size:9px;background:#4F46E5;color:#fff;padding:1px 5px;border-radius:3px;vertical-align:middle;">현재</span>' : '')
+        + '</span>'
+        + '</div>';
+    }).join('');
+
+    return '<div style="background:' + s.bg + ';border:1px solid ' + s.border + ';border-radius:12px;padding:14px 16px;">'
+      // 헤더: 이름 + 상태뱃지 + 제출뱃지
+      + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
+      +   '<div style="display:flex;align-items:center;gap:6px;">'
+      +     '<span style="font-size:14px;font-weight:800;color:' + s.nameColor + ';">' + t.name + '</span>'
+      +     '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:' + s.badge + ';color:#fff;">' + s.badgeTxt + '</span>'
+      +     (done ? '<span style="font-size:9px;background:#16A34A;color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;">✅ 제출</span>' : '')
+      +   '</div>'
+      + '</div>'
+      // 기본 정보
+      + '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">'
+      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📅 입사일</span><span style="color:#94A3B8;">' + (t.joinDate || '-') + '</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📋 현재계약</span><span style="color:#94A3B8;">' + (t.contractStart||'-') + ' ~ ' + (t.expiry||'-') + '</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#64748B;">💰 현재연봉</span><span style="font-weight:800;color:#A5B4FC;">' + fmtSalaryFull(t.salary) + '</span></div>'
+      + '</div>'
+      // 연봉 이력 (2회 이상일 때만)
+      + (t.history && t.history.length > 1
+        ? '<details style="margin-top:4px;">'
+          + '<summary style="font-size:10px;color:#6366F1;cursor:pointer;font-weight:700;list-style:none;">📈 연봉 이력 ' + t.history.length + '건 보기</summary>'
+          + '<div style="margin-top:6px;">' + historyRows + '</div>'
+          + '</details>'
+        : '')
+      + '</div>';
+  }).join('');
+}
+
+// ── 탭 전환 ──────────────────────────────────────────────────
+function switchTargetTab(tab) {
+  targetTabState = tab;
+  ['all','active','retired','done','todo'].forEach(t => {
+    const btn = document.getElementById('tp-tab-' + t);
+    if(!btn) return;
+    btn.style.background = t === tab ? '#6366F1' : 'rgba(255,255,255,0.1)';
+    btn.style.color      = t === tab ? '#fff'    : '#94A3B8';
+  });
+  renderTargetList();
+}
+
+// ── 상단 통계카드 숫자 업데이트 ──────────────────────────────
+function updateTargetStat() {
+  if(!targetLoaded) {
+    document.getElementById('stat-target').textContent = '...';
+    document.getElementById('stat-target-sub').textContent = '클릭하여 불러오기';
+    return;
+  }
+  const submittedNames = getSubmittedNames();
+  const thisMonth = new Date().getMonth() + 1;
+  const thisMonthTargets = evalTargets.filter(t => {
+    const isActive = t.status === '재직' || (t.status && t.status.includes('휴직'));
+    const m = t.joinDate ? parseInt(t.joinDate.slice(5,7), 10) : 0;
+    return isActive && m === thisMonth;
+  });
+  const total     = thisMonthTargets.length;
+  const doneCount = thisMonthTargets.filter(t => submittedNames.has(t.name)).length;
+  document.getElementById('stat-target').textContent = total;
+  document.getElementById('stat-target-sub').textContent = '✅ ' + doneCount + '명 / ⏳ ' + (total - doneCount) + '명';
+}
+
+function openAdminPw() {
+  document.getElementById('admin-pw-modal').classList.add('open');
+  document.getElementById('admin-pw-name').value = '';
+  document.getElementById('admin-pw-input').value = '';
+  document.getElementById('admin-pw-err').style.display = 'none';
+  setTimeout(() => document.getElementById('admin-pw-name').focus(), 100);
+}
+function closeAdminPw() {
+  document.getElementById('admin-pw-modal').classList.remove('open');
+}
+async function checkAdminPw() {
+  const name = document.getElementById('admin-pw-name').value.trim();
+  const pw   = document.getElementById('admin-pw-input').value.trim();
+  if(!name || !pw) {
+    document.getElementById('admin-pw-err').textContent = '이름과 비밀번호를 모두 입력하세요.';
+    document.getElementById('admin-pw-err').style.display = 'block';
+    return;
+  }
+  const btn = document.querySelector('.admin-pw-btn');
+  btn.textContent = '확인 중...'; btn.disabled = true;
+  try {
+    const res  = await fetch(SHEETS_API_URL + '?action=check_admin&name=' + encodeURIComponent(name) + '&pw=' + encodeURIComponent(pw));
+    const data = await res.json();
+    if(data.success) {
+      currentAdminName = data.name;
+      closeAdminPw();
+      openAdmin();
+    } else {
+      document.getElementById('admin-pw-err').textContent = data.error || '인증 실패';
+      document.getElementById('admin-pw-err').style.display = 'block';
+      document.getElementById('admin-pw-input').value = '';
+      document.getElementById('admin-pw-input').focus();
+    }
+  } catch(e) {
+    document.getElementById('admin-pw-err').textContent = '서버 오류: ' + e.message;
+    document.getElementById('admin-pw-err').style.display = 'block';
+  }
+  btn.textContent = '확인'; btn.disabled = false;
+}
+async function openAdmin() {
+  const el = document.getElementById('admin-overlay');
+  document.body.appendChild(el); // body 직접 자식으로 이동
+  el.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  await refreshAdminData();
+}
+function closeAdmin() {
+  const el = document.getElementById('admin-overlay');
+  el.classList.remove('open');
+  document.body.style.overflow = '';
+}
+async function refreshAdminData() {
+  document.getElementById('admin-table-wrap').innerHTML = '<div class="admin-empty">🔄 데이터 불러오는 중...</div>';
+  try {
+    const res  = await fetch(SHEETS_API_URL + '?action=admin_all');
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error || '조회 실패');
+    adminData = data;
+    updateAdminStats();
+    renderAdminTable(adminCurrentTab);
+  } catch(err) {
+    document.getElementById('admin-table-wrap').innerHTML = '<div class="admin-empty">⚠️ 실패: ' + err.message + '</div>';
+  }
+}
+function updateAdminStats() {
+  document.getElementById('stat-self').textContent = adminData.self.length;
+  document.getElementById('stat-down').textContent = adminData.down.length;
+  const scores = adminData.self.map(r => parseFloat(r['셀프점수'])).filter(v => !isNaN(v) && v > 0);
+  document.getElementById('stat-avg').textContent = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
+  updateTargetStat();
+  // 패널이 열려있으면 자동 새로고침
+  const panel = document.getElementById('target-panel');
+  if(panel && panel.style.display !== 'none') renderTargetList();
+}
+function switchAdminTab(tab, el) {
+  adminCurrentTab = tab;
+  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('filter-dept').value  = '';
+  document.getElementById('filter-pos').value   = '';
+  document.getElementById('filter-month').value = '';
+  renderAdminTable(tab);
+}
+
+// ── 필터 ──────────────────────────────────────
+function populateFilters() {
+  const rows = adminData[adminCurrentTab] || [];
+  const nameKey = adminCurrentTab === 'self' ? '부서' : '부서';
+  const posKey  = adminCurrentTab === 'self' ? '직위' : null;
+
+  const depts  = [...new Set(rows.map(r => r['부서']).filter(Boolean))].sort();
+  const poses  = posKey ? [...new Set(rows.map(r => r[posKey]).filter(Boolean))].sort() : [];
+  const months = [...new Set(rows.map(r => {
+    const d = r['제출일시'] ? String(r['제출일시']) : '';
+    const m = d.match(/(\d{4})\D+(\d{1,2})/);
+    return m ? m[1] + '년 ' + m[2] + '월' : null;
+  }).filter(Boolean))].sort();
+
+  function setOptions(id, items, placeholder) {
+    const el = document.getElementById(id);
+    const cur = el.value;
+    el.innerHTML = '<option value="">' + placeholder + '</option>'
+      + items.map(v => '<option value="'+v+'" '+(v===cur?'selected':'')+'>'+v+'</option>').join('');
+  }
+
+  setOptions('filter-dept',  depts,  '🏢 전체 부서');
+  setOptions('filter-pos',   poses,  '👤 전체 직급');
+  setOptions('filter-month', months, '📅 전체 월');
+
+  // 직급 필터는 하향리뷰에선 숨기기
+  document.getElementById('filter-pos').style.display = adminCurrentTab === 'down' ? 'none' : '';
+}
+
+function getFilteredRows() {
+  const rows  = adminData[adminCurrentTab] || [];
+  const dept  = document.getElementById('filter-dept').value;
+  const pos   = document.getElementById('filter-pos').value;
+  const month = document.getElementById('filter-month').value;
+
+  return rows.filter(r => {
+    if(dept && r['부서'] !== dept) return false;
+    if(pos  && r['직위'] !== pos)  return false;
+    if(month) {
+      const d = String(r['제출일시'] || '');
+      const m = d.match(/(\d{4})\D+(\d{1,2})/);
+      const rm = m ? m[1] + '년 ' + m[2] + '월' : '';
+      if(rm !== month) return false;
+    }
+    return true;
+  });
+}
+
+function applyFilters() {
+  renderAdminTable(adminCurrentTab);
+}
+
+function resetFilters() {
+  document.getElementById('filter-dept').value  = '';
+  document.getElementById('filter-pos').value   = '';
+  document.getElementById('filter-month').value = '';
+  renderAdminTable(adminCurrentTab);
+}
+
+function renderAdminTable(tab) {
+  populateFilters();
+  const allRows = adminData[tab] || [];
+  const rows = getFilteredRows();
+  const wrap = document.getElementById('admin-table-wrap');
+  const countEl = document.getElementById('filter-count');
+  if(countEl) countEl.textContent = rows.length + ' / ' + allRows.length + '명';
+  if(!allRows.length) { wrap.innerHTML = '<div class="admin-empty">아직 제출된 데이터가 없습니다</div>'; return; }
+  if(!rows.length) { wrap.innerHTML = '<div class="admin-empty">필터 조건에 맞는 데이터가 없습니다</div>'; return; }
+
+  // data-idx로 클릭 이벤트 처리 (따옴표 충돌 방지)
+  if(tab === 'self') {
+    let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>성명</th><th>부서</th><th>직위</th><th>셀프점수</th><th>원본</th></tr></thead><tbody>';
+    rows.forEach((r, i) => {
+      t += '<tr>'
+        + '<td style="white-space:nowrap;">' + (r['제출일시']||'-') + '</td>'
+        + '<td><strong>' + (r['성명']||'-') + '</strong></td>'
+        + '<td>' + (r['부서']||'-') + '</td>'
+        + '<td>' + (r['직위']||'-') + '</td>'
+        + '<td><span class="admin-score">' + (r['셀프점수']||'-') + '</span></td>'
+        + '<td>' + (r['result_url']
+            ? '<button class="admin-view-btn" data-idx="' + i + '" data-tab="self" style="background:#6366F1;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:11px;color:#fff;font-weight:700;white-space:nowrap;">📋 원본 보기</button>'
+            : '-') + '</td>'
+        + '</tr>';
+    });
+    wrap.innerHTML = t + '</tbody></table>';
+  } else {
+    let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>평가자</th><th>평가대상자</th><th>부서</th><th>하향점수</th><th>원본</th></tr></thead><tbody>';
+    rows.forEach((r, i) => {
+      t += '<tr>'
+        + '<td>' + (r['제출일시']||'-') + '</td>'
+        + '<td>' + (r['평가자']||'-') + '</td>'
+        + '<td><strong>' + (r['평가대상자']||'-') + '</strong></td>'
+        + '<td>' + (r['부서']||'-') + '</td>'
+        + '<td><span class="admin-score" style="background:#3B82F6;">' + (r['하향점수']||'-') + '</span></td>'
+        + '<td>' + (r['result_url']
+            ? '<button class="admin-view-btn" data-idx="' + i + '" data-tab="down" style="background:none;border:1.5px solid #BFD9FF;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#3B82F6;font-weight:700;">📋 원본 보기</button>'
+            : '-') + '</td>'
+        + '</tr>';
+    });
+    wrap.innerHTML = t + '</tbody></table>';
+  }
+
+  // 버튼 클릭 이벤트 위임
+  wrap.querySelectorAll('.admin-view-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const idx  = parseInt(this.dataset.idx);
+      const tab2 = this.dataset.tab;
+      const row  = adminData[tab2][idx];
+      const name = row['성명'] || row['평가대상자'] || '';
+      openViewer(row['result_url'], name, tab2);
+    });
+  });
+}
+
+// ── 리뷰 원본 뷰어 ──────────────────────────────────────────
+function closeViewer() {
+  document.getElementById('admin-viewer-overlay').classList.remove('open');
+}
+
+function openViewer(resultUrl, name, type) {
+  window.open(resultUrl, '_blank');
+}
+
+function renderViewer(resultUrl, type) {
+  const content = document.getElementById('viewer-content');
+  try {
+    let dParam = null;
+    try { dParam = new URL(resultUrl).searchParams.get('d'); } catch(e) {
+      const m = resultUrl.match(/[?&]d=([^&]+)/); if(m) dParam = m[1];
+    }
+    if(!dParam) throw new Error('URL 파싱 실패');
+
+    const data = JSON.parse(decodeURIComponent(atob(dParam)));
+
+    function expandScores(str) {
+      if(!str) return {};
+      const out = {};
+      str.split(',').forEach(part => {
+        const [k,v] = part.split(':');
+        if(k !== undefined && v !== undefined) out[String(parseInt(k))] = parseInt(v);
+      });
+      return out;
+    }
+
+    const info       = data.i || data.info || {};
+    const selfScores = data.s !== undefined ? expandScores(data.s) : (data.scores?.self || {});
+    const downScores = data.d1 !== undefined ? expandScores(data.d1) : (data.scores?.d1 || {});
+    const cases      = data.c || data.cases || {};
+    const showScores = type === 'self' ? selfScores : downScores;
+    const itemList   = ITEMS_DEV; // 기본 항목 (추후 부서별 분기 가능)
+
+    // 기본정보
+    let infoHtml = '<div class="admin-viewer-info">';
+    const fields = [
+      ['성명', info.name], ['사번', info.id], ['부서', info.dept],
+      ['직위', info.pos], ['담당업무', info.work], ['작성일', info.date]
+    ];
+    fields.forEach(([label, val]) => {
+      infoHtml += '<div class="admin-viewer-field"><div class="admin-viewer-field-label">' + label + '</div><div class="admin-viewer-field-val">' + (val || '-') + '</div></div>';
+    });
+    infoHtml += '</div>';
+
+    // 항목별 점수 테이블
+    let tableHtml = '<div class="admin-viewer-section">' + (type === 'self' ? '셀프리뷰 항목별 점수' : '하향리뷰 항목별 점수') + '</div>';
+    tableHtml += '<table class="admin-viewer-table"><thead><tr><th>No.</th><th>역량요소</th><th>리뷰항목</th><th style="min-width:300px;">리뷰기준</th><th>등급</th></tr></thead><tbody>';
+    let total = 0, count = 0;
+    itemList.forEach((it, idx) => {
+      const score = showScores[String(idx)];
+      const grade = score ? (GRADES.find(g => g.score === score)?.label || '-') : '-';
+      const gradeColor = score >= 90 ? '#6366F1' : score >= 70 ? '#3B82F6' : score >= 50 ? '#10B981' : score > 0 ? '#F59E0B' : '#E2E8F0';
+      if(score > 0) { total += score; count++; }
+      tableHtml += '<tr><td style="color:#94A3B8;">' + (idx+1) + '</td><td>' + it[0] + '</td><td style="font-weight:700;">' + it[1] + '</td><td style="font-size:12px;color:#374151;line-height:1.7;word-break:keep-all;">' + (it[2]||'') + '</td><td>' +
+        (score ? '<span class="admin-viewer-grade" style="background:' + gradeColor + '">' + grade + '</span>' : '<span style="color:#CBD5E1;">-</span>') +
+        '</td></tr>';
+    });
+    tableHtml += '</tbody></table>';
+
+    // 총점
+    const avg = count > 0 ? (total / count).toFixed(1) : '-';
+    tableHtml += '<div style="text-align:right;padding:12px 0;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg + '</div>';
+
+    // 사례 (셀프리뷰만)
+    let caseHtml = '';
+    if(type === 'self' && Object.keys(cases).length > 0) {
+      caseHtml = '<div class="admin-viewer-section">작성 사례</div>';
+      Object.entries(cases).forEach(([idx, val]) => {
+        if(!val) return;
+        const item = itemList[parseInt(idx)];
+        caseHtml += '<div class="admin-case-box"><div class="admin-case-label">' + (item ? item[1] : idx) + '</div><div class="admin-case-text">' + val + '</div></div>';
+      });
+    }
+
+    content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + caseHtml + '</div>';
+  } catch(e) {
+    content.innerHTML = '<div style="text-align:center;color:#EF4444;padding:40px;">원본 데이터를 불러올 수 없습니다.<br><small>' + e.message + '</small></div>';
+  }
+}
+
 </script>
 
 <!-- 관리자 비밀번호 모달 -->
 <div class="admin-pw-modal" id="admin-pw-modal">
   <div class="admin-pw-box">
     <div class="admin-pw-title">🔐 관리자 인증</div>
-    <div class="admin-pw-sub">관리자 비밀번호를 입력하세요</div>
+    <div class="admin-pw-sub">이름과 비밀번호를 입력하세요</div>
+    <input class="admin-pw-input" id="admin-pw-name" type="text" placeholder="이름"
+      style="letter-spacing:0; margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter') document.getElementById('admin-pw-input').focus()">
     <input class="admin-pw-input" id="admin-pw-input" type="password" placeholder="••••••••"
       onkeydown="if(event.key==='Enter') checkAdminPw()">
     <button class="admin-pw-btn" onclick="checkAdminPw()">확인</button>
@@ -1682,7 +2241,15 @@ if(_urlParams.get('d')) {
         <button class="admin-close" onclick="closeAdmin()">✕ 닫기</button>
       </div>
     </div>
-    <div class="admin-stats">
+    <div class="admin-stats" style="grid-template-columns:repeat(4,1fr);">
+      <div class="admin-stat" style="cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);transition:all 0.2s;" onclick="toggleTargetPanel()" onmouseover="this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="admin-stat-val" id="stat-target">0</div>
+          <span style="font-size:20px;">👥</span>
+        </div>
+        <div class="admin-stat-label">이번달 대상자 <span style="font-size:10px;color:#818CF8;">▼ 클릭</span></div>
+        <div style="margin-top:6px;font-size:10px;color:#64748B;" id="stat-target-sub">-</div>
+      </div>
       <div class="admin-stat">
         <div class="admin-stat-val" id="stat-self">0</div>
         <div class="admin-stat-label">셀프리뷰 제출</div>
@@ -1696,9 +2263,53 @@ if(_urlParams.get('d')) {
         <div class="admin-stat-label">셀프리뷰 평균점수</div>
       </div>
     </div>
+
+    <!-- 이번달 대상자 패널 -->
+    <div id="target-panel" style="display:none; background:rgba(255,255,255,0.05); border-radius:14px; padding:20px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="color:#fff;font-size:15px;font-weight:800;">📋 이번달 평가 대상자 현황</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span id="target-month-label" style="font-size:12px;color:#94A3B8;"></span>
+          <button onclick="reloadTargetPanel()" style="background:rgba(99,102,241,0.3);color:#A5B4FC;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;">🔄 새로고침</button>
+          <button onclick="toggleTargetPanel()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;">✕ 닫기</button>
+        </div>
+      </div>
+      <!-- 진행 현황 바 -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;color:#94A3B8;">제출 진행률</span>
+          <span style="font-size:12px;font-weight:700;color:#818CF8;" id="target-progress-text">0 / 0명</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;">
+          <div id="target-progress-bar" style="height:100%;background:linear-gradient(90deg,#6366F1,#818CF8);border-radius:99px;transition:width 0.5s;width:0%"></div>
+        </div>
+      </div>
+      <!-- 탭 -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+        <button id="tp-tab-all"     onclick="switchTargetTab('all')"     style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:#6366F1;color:#fff;">이번달 대상자</button>
+        <button id="tp-tab-retired" onclick="switchTargetTab('retired')" style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#94A3B8;">⚫ 같은달 퇴직자</button>
+        <button id="tp-tab-done"    onclick="switchTargetTab('done')"    style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#94A3B8;">✅ 제출완료</button>
+        <button id="tp-tab-todo"    onclick="switchTargetTab('todo')"    style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#94A3B8;">⏳ 미제출</button>
+      </div>
+      <!-- 대상자 목록 -->
+      <div id="target-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;max-height:400px;overflow-y:auto;"></div>
+    </div>
     <div class="admin-tabs">
       <button class="admin-tab active" onclick="switchAdminTab('self', this)">셀프리뷰 결과</button>
       <button class="admin-tab" onclick="switchAdminTab('down', this)">하향리뷰 결과</button>
+    </div>
+    <div class="admin-filters">
+      <select class="admin-filter-select" id="filter-dept" onchange="applyFilters()">
+        <option value="">🏢 전체 부서</option>
+      </select>
+      <select class="admin-filter-select" id="filter-pos" onchange="applyFilters()">
+        <option value="">👤 전체 직급</option>
+      </select>
+      <select class="admin-filter-select" id="filter-month" onchange="applyFilters()">
+        <option value="">📅 전체 월</option>
+      </select>
+      <button class="admin-filter-reset" onclick="resetFilters()">✕ 초기화</button>
+      <span class="admin-filter-count" id="filter-count"></span>
     </div>
     <div class="admin-card">
       <div id="admin-table-wrap">
@@ -1706,6 +2317,15 @@ if(_urlParams.get('d')) {
       </div>
     </div>
   </div>
+</div>
+
+<!-- 리뷰 원본 뷰어 -->
+<div class="admin-viewer-overlay" id="admin-viewer-overlay">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:#1E293B; flex-shrink:0; width:100%; box-sizing:border-box;">
+    <div style="font-size:16px; font-weight:800; color:#fff;" id="viewer-title">📋 리뷰 원본</div>
+    <button onclick="closeViewer()" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;">✕ 닫기</button>
+  </div>
+  <iframe id="viewer-iframe" src="" style="width:100%; flex:1; border:none; background:#fff; display:block;"></iframe>
 </div>
 </body>
 </html>

@@ -151,6 +151,9 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .sbtn.ss { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 .sbtn.s1 { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
 .sbtn.self-locked { background: var(--bg) !important; color: #CBD5E1 !important; cursor: not-allowed !important; border-color: var(--border) !important; box-shadow: none !important; transform: none !important; }
+.viewer-mode .sbtn { cursor: default !important; pointer-events: none !important; }
+.viewer-mode .sbtn.s1 { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; box-shadow: 0 4px 10px rgba(14,165,233,0.3) !important; }
+.viewer-mode .sbtn.ss { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; box-shadow: 0 4px 10px rgba(79,70,229,0.3) !important; }
 
 /* 사례 작성 */
 .case-row td { background: #F8FAFC; border-bottom: 1px dashed var(--border); }
@@ -426,7 +429,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
     </div>
   </div>
 
-  <div class="table-card">
+  <div class="table-card" id="table-card">
     <table class="eval-table">
       <thead>
         <tr>
@@ -684,8 +687,8 @@ const DEPT_CONFIG = [
 ];
 let currentDept = null; // 선택된 부서 config 객체
 const WEBHOOK_CONFIG = {
-  self: "https://hooks.slack.com/triggers/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",
-  down: "https://hooks.slack.com/triggers/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"
+  self: "https://hooks.slack.com/triggers/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",
+  down: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyvW7Ypgbv17SLeaSY9Fx2MOoSxr7NhZcESCaoyHq5B6rHkuPbFaSYAsxDcA64Id5KLNg/exec';
@@ -1085,7 +1088,10 @@ function updateButtonLockState() {
     SV.forEach(v => {
       const btn = document.getElementById(`b-${idx}-${v}`);
       if(!btn) return;
-      if(isDown && selfLockedFromURL) {
+      // 원문보기 모드에서는 잠금 클래스 제거 (선택된 등급이 보여야 함)
+      if(viewerMode) {
+        btn.classList.remove('self-locked');
+      } else if(isDown && selfLockedFromURL) {
         btn.classList.add('self-locked');
       } else {
         btn.classList.remove('self-locked');
@@ -1692,6 +1698,9 @@ if(_urlParams.get('d')) {
   document.getElementById('onboarding').style.display = 'none';
   // viewerMode를 restoreFromURL() 전에 설정해야 updatePhaseTabs()가 올바르게 동작
   viewerMode = (_urlParams.get('view') === 'down') ? 'down' : 'self';
+  // 원문보기 모드: 테이블에 viewer-mode 클래스 추가 (선택된 등급 표시, 클릭 차단)
+  const _tableCard = document.getElementById('table-card');
+  if(_tableCard) _tableCard.classList.add('viewer-mode');
   restoreFromURL();
   if(viewerMode === 'down') {
     // 하향리뷰 원문보기: URL 쿼리의 evaluator로 덮어쓰기 (d 파라미터에도 저장되지만 명시적으로 처리)

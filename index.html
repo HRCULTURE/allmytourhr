@@ -1288,6 +1288,25 @@ async function submitToSlack() {
     successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
   }
 
+  // Sheets에도 저장 (셀프리뷰일 때만)
+  if(mode === 'self' && SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    // GET 방식으로 저장 (CORS 우회)
+    const sheetsParams = new URLSearchParams({
+      action: 'save',
+      mode: 'self',
+      name:        payload.name        || '',
+      dept:        payload.dept        || '',
+      employee_id: payload.employee_id || '',
+      self_score:  payload.self_score  || '',
+      result_url:  payload.result_url  || '',
+      pos:  document.getElementById('inf-pos')?.value  || '',
+      work: document.getElementById('inf-work')?.value || '',
+      join: document.getElementById('inf-join')?.value || '',
+      date: document.getElementById('inf-date')?.value || ''
+    });
+    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
+  }
+
   // Sheets 저장 (셀프/하향 모두) - 사례 데이터는 POST로 전송 (URL 길이 제한 우회)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
     const caseData = getCaseData();
@@ -1315,18 +1334,23 @@ async function submitToSlack() {
     }).catch(() => {});
   }
 
+  let _done = false;
   function onSubmitDone() {
+    if(_done) return;
+    _done = true;
     if(mode === 'self') {
       selfSubmitted = true;
       selfLockedFromURL = true;
       updatePhaseTabs();
       lockSelfInputs();
     }
-    const doneMsg = successMsg + (mode === 'self' ? '<br><br>✅ 셀프리뷰가 잠금 처리되었습니다.' : '');
+    const doneMsg = successMsg
+      + (mode === 'self' ? '<br><br>✅ 셀프리뷰가 잠금 처리되었습니다.' : '')
+      + '<br><br><button onclick="closeModal();submitToSlack();" style="margin-top:4px;padding:6px 18px;background:#6366F1;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🔄 재전송</button>';
     showModal("제출 완료! ✅", doneMsg, true);
   }
 
-  const submitTimer = setTimeout(onSubmitDone, 2000);
+  const submitTimer = setTimeout(onSubmitDone, 3000);
 
   fetch(triggerUrl, {
     method: 'POST',

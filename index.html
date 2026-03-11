@@ -769,6 +769,8 @@ const ITEMS_DEV_DOWN = [
   ['자동화/효율화 노력','효율성제안','ㆍ팀 또는 프로젝트의 생산성을 높이기 위한 기술적 개선안을 제안하거나 적용한 경험이 있는가?',true],
   ['데이터 기반 사고','근거기반판단','ㆍ업무 판단 시, 수치화된 근거나 과거 데이터를 논리적으로 활용했는가?',true],
   ['데이터 기반 사고','정량적접근','ㆍ여러 가지 테스트와 로그 기반 디버깅 등으로 문제점의 상황을 데이터 기반으로 제시한 적이 있었는가?',true],
+  ['성과 및 결과물','납기준수','ㆍ명확한 결과물을 기한 내에 낼 수 있었는가?',false],
+  ['성과 및 결과물','품질관리','ㆍ결과물의 품질, 안정성, 사용자 피드백은 어땠는가?',false]
 ];
 let ITEMS = ITEMS_DEV;
 let ITEMS_DOWN = ITEMS_DEV_DOWN;
@@ -1153,10 +1155,11 @@ function calculate() {
 // ── 현재 상태 전체를 URL 파라미터로 직렬화 (하향평가자 공유 링크용)
 function getSaveData() {
   // 점수를 "idx:val,idx:val" 형태로 압축해 URL 길이 최소화
-  // 사례(서술형) 데이터는 URL에서 제외 → Sheets에 POST로 별도 저장
   function compress(obj) {
     return Object.entries(obj).map(([k,v]) => k+':'+v).join(',');
   }
+  const caseData = {};
+  document.querySelectorAll('.case-val').forEach(el => { if(el.value) caseData[el.dataset.idx] = el.value; });
   const infoData = {
     id: document.getElementById('inf-id').value,
     name: document.getElementById('inf-name').value,
@@ -1167,15 +1170,8 @@ function getSaveData() {
     work: document.getElementById('inf-work').value,
     evaluator: document.getElementById('inf-evaluator')?.value || ''
   };
-  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), i: infoData };
+  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), c: caseData, i: infoData };
   return btoa(encodeURIComponent(JSON.stringify(compact)));
-}
-
-// ── 사례(서술형) 데이터만 별도 수집
-function getCaseData() {
-  const caseData = {};
-  document.querySelectorAll('.case-val').forEach(el => { if(el.value.trim()) caseData[el.dataset.idx] = el.value.trim(); });
-  return caseData;
 }
 
 // ── URL 파라미터에서 복원 (압축 포맷 & 구버전 포맷 모두 지원)
@@ -1203,21 +1199,7 @@ function restoreFromURL() {
       scores.d1 = expandScores(data.d1);
       scores.d2 = expandScores(data.d2);
       if(data.i) Object.entries(data.i).forEach(([k,v]) => { const el = document.getElementById('inf-'+k); if(el) el.value = v; });
-      // c가 URL에 있으면 그대로, 없으면 Sheets에서 비동기 로드
-      if(data.c) {
-        Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
-      } else if(data.i?.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        fetch(SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name))
-          .then(r => r.json())
-          .then(res => {
-            if(res.success && res.cases) {
-              Object.entries(res.cases).forEach(([idx,v]) => {
-                const el = document.querySelector('.case-val[data-idx="'+idx+'"]');
-                if(el) el.value = v;
-              });
-            }
-          }).catch(() => {});
-      }
+      if(data.c) Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
     } else if(data.scores) {
       // 구버전 포맷 호환
       scores = data.scores;
@@ -1307,9 +1289,8 @@ async function submitToSlack() {
     fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }
 
-  // Sheets 저장 (셀프/하향 모두) - 사례 데이터는 POST로 전송 (URL 길이 제한 우회)
+  // Sheets 저장 (셀프/하향 모두)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    const caseData = getCaseData();
     const sheetsParams = new URLSearchParams({
       action: mode === 'self' ? 'save_self' : 'save_down',
       mode,
@@ -1323,15 +1304,9 @@ async function submitToSlack() {
       pos:  document.getElementById('inf-pos')?.value  || '',
       work: document.getElementById('inf-work')?.value || '',
       join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || '',
-      cases: JSON.stringify(caseData)
+      date: document.getElementById('inf-date')?.value || ''
     });
-    fetch(SHEETS_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: sheetsParams.toString(),
-      mode: 'no-cors'
-    }).catch(() => {});
+    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }
 
   function onSubmitDone() {

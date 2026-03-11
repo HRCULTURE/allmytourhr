@@ -1153,10 +1153,11 @@ function calculate() {
 // ── 현재 상태 전체를 URL 파라미터로 직렬화 (하향평가자 공유 링크용)
 function getSaveData() {
   // 점수를 "idx:val,idx:val" 형태로 압축해 URL 길이 최소화
-  // 사례(서술형) 데이터는 URL에서 제외 → Sheets에 POST로 별도 저장
   function compress(obj) {
     return Object.entries(obj).map(([k,v]) => k+':'+v).join(',');
   }
+  const caseData = {};
+  document.querySelectorAll('.case-val').forEach(el => { if(el.value) caseData[el.dataset.idx] = el.value; });
   const infoData = {
     id: document.getElementById('inf-id').value,
     name: document.getElementById('inf-name').value,
@@ -1167,15 +1168,8 @@ function getSaveData() {
     work: document.getElementById('inf-work').value,
     evaluator: document.getElementById('inf-evaluator')?.value || ''
   };
-  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), i: infoData };
+  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), c: caseData, i: infoData };
   return btoa(encodeURIComponent(JSON.stringify(compact)));
-}
-
-// ── 사례(서술형) 데이터만 별도 수집
-function getCaseData() {
-  const caseData = {};
-  document.querySelectorAll('.case-val').forEach(el => { if(el.value.trim()) caseData[el.dataset.idx] = el.value.trim(); });
-  return caseData;
 }
 
 // ── URL 파라미터에서 복원 (압축 포맷 & 구버전 포맷 모두 지원)
@@ -1203,21 +1197,7 @@ function restoreFromURL() {
       scores.d1 = expandScores(data.d1);
       scores.d2 = expandScores(data.d2);
       if(data.i) Object.entries(data.i).forEach(([k,v]) => { const el = document.getElementById('inf-'+k); if(el) el.value = v; });
-      // c가 URL에 있으면 그대로, 없으면 Sheets에서 비동기 로드
-      if(data.c) {
-        Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
-      } else if(data.i?.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-        fetch(SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name))
-          .then(r => r.json())
-          .then(res => {
-            if(res.success && res.cases) {
-              Object.entries(res.cases).forEach(([idx,v]) => {
-                const el = document.querySelector('.case-val[data-idx="'+idx+'"]');
-                if(el) el.value = v;
-              });
-            }
-          }).catch(() => {});
-      }
+      if(data.c) Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
     } else if(data.scores) {
       // 구버전 포맷 호환
       scores = data.scores;
@@ -1288,7 +1268,7 @@ async function submitToSlack() {
     successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
   }
 
-  // Sheets 저장 (셀프/하향 모두) - 사례 데이터는 POST로 전송 (URL 길이 제한 우회)
+  // Sheets 저장 (셀프/하향 모두) - POST로 전송 (URL 길이 제한 우회)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
     const caseData = getCaseData();
     const sheetsParams = new URLSearchParams({

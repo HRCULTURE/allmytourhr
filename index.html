@@ -151,9 +151,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .sbtn.ss { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 .sbtn.s1 { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
 .sbtn.self-locked { background: var(--bg) !important; color: #CBD5E1 !important; cursor: not-allowed !important; border-color: var(--border) !important; box-shadow: none !important; transform: none !important; }
-.viewer-mode .sbtn { cursor: default !important; pointer-events: none !important; }
-.viewer-mode .sbtn.s1 { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; box-shadow: 0 4px 10px rgba(14,165,233,0.3) !important; }
-.viewer-mode .sbtn.ss { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; box-shadow: 0 4px 10px rgba(79,70,229,0.3) !important; }
 
 /* 사례 작성 */
 .case-row td { background: #F8FAFC; border-bottom: 1px dashed var(--border); }
@@ -429,7 +426,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
     </div>
   </div>
 
-  <div class="table-card" id="table-card">
+  <div class="table-card">
     <table class="eval-table">
       <thead>
         <tr>
@@ -687,8 +684,8 @@ const DEPT_CONFIG = [
 ];
 let currentDept = null; // 선택된 부서 config 객체
 const WEBHOOK_CONFIG = {
-  self: "https://hooks.slack.com/triggers/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",
-  down: "https://hooks.slack.com/triggers/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"
+  self: "https://hooks.slack.com/triggers/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",
+  down: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyvW7Ypgbv17SLeaSY9Fx2MOoSxr7NhZcESCaoyHq5B6rHkuPbFaSYAsxDcA64Id5KLNg/exec';
@@ -1088,9 +1085,7 @@ function updateButtonLockState() {
     SV.forEach(v => {
       const btn = document.getElementById(`b-${idx}-${v}`);
       if(!btn) return;
-      if(viewerMode) {
-        btn.classList.remove('self-locked');
-      } else if(isDown && selfLockedFromURL) {
+      if(isDown && selfLockedFromURL) {
         btn.classList.add('self-locked');
       } else {
         btn.classList.remove('self-locked');
@@ -1158,11 +1153,10 @@ function calculate() {
 // ── 현재 상태 전체를 URL 파라미터로 직렬화 (하향평가자 공유 링크용)
 function getSaveData() {
   // 점수를 "idx:val,idx:val" 형태로 압축해 URL 길이 최소화
+  // 사례(서술형) 데이터는 URL에서 제외 → Sheets에 POST로 별도 저장
   function compress(obj) {
     return Object.entries(obj).map(([k,v]) => k+':'+v).join(',');
   }
-  const caseData = {};
-  document.querySelectorAll('.case-val').forEach(el => { if(el.value) caseData[el.dataset.idx] = el.value; });
   const infoData = {
     id: document.getElementById('inf-id').value,
     name: document.getElementById('inf-name').value,
@@ -1173,8 +1167,15 @@ function getSaveData() {
     work: document.getElementById('inf-work').value,
     evaluator: document.getElementById('inf-evaluator')?.value || ''
   };
-  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), c: caseData, i: infoData };
+  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), i: infoData };
   return btoa(encodeURIComponent(JSON.stringify(compact)));
+}
+
+// ── 사례(서술형) 데이터만 별도 수집
+function getCaseData() {
+  const caseData = {};
+  document.querySelectorAll('.case-val').forEach(el => { if(el.value.trim()) caseData[el.dataset.idx] = el.value.trim(); });
+  return caseData;
 }
 
 // ── URL 파라미터에서 복원 (압축 포맷 & 구버전 포맷 모두 지원)
@@ -1202,7 +1203,21 @@ function restoreFromURL() {
       scores.d1 = expandScores(data.d1);
       scores.d2 = expandScores(data.d2);
       if(data.i) Object.entries(data.i).forEach(([k,v]) => { const el = document.getElementById('inf-'+k); if(el) el.value = v; });
-      if(data.c) Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
+      // c가 URL에 있으면 그대로, 없으면 Sheets에서 비동기 로드
+      if(data.c) {
+        Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
+      } else if(data.i?.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+        fetch(SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name))
+          .then(r => r.json())
+          .then(res => {
+            if(res.success && res.cases) {
+              Object.entries(res.cases).forEach(([idx,v]) => {
+                const el = document.querySelector('.case-val[data-idx="'+idx+'"]');
+                if(el) el.value = v;
+              });
+            }
+          }).catch(() => {});
+      }
     } else if(data.scores) {
       // 구버전 포맷 호환
       scores = data.scores;
@@ -1292,8 +1307,9 @@ async function submitToSlack() {
     fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }
 
-  // Sheets 저장 (셀프/하향 모두)
+  // Sheets 저장 (셀프/하향 모두) - 사례 데이터는 POST로 전송 (URL 길이 제한 우회)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const caseData = getCaseData();
     const sheetsParams = new URLSearchParams({
       action: mode === 'self' ? 'save_self' : 'save_down',
       mode,
@@ -1307,9 +1323,15 @@ async function submitToSlack() {
       pos:  document.getElementById('inf-pos')?.value  || '',
       work: document.getElementById('inf-work')?.value || '',
       join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || ''
+      date: document.getElementById('inf-date')?.value || '',
+      cases: JSON.stringify(caseData)
     });
-    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
+    fetch(SHEETS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: sheetsParams.toString(),
+      mode: 'no-cors'
+    }).catch(() => {});
   }
 
   function onSubmitDone() {
@@ -1700,8 +1722,6 @@ if(_urlParams.get('d')) {
   document.getElementById('onboarding').style.display = 'none';
   // viewerMode를 restoreFromURL() 전에 설정해야 updatePhaseTabs()가 올바르게 동작
   viewerMode = (_urlParams.get('view') === 'down') ? 'down' : 'self';
-  const _tableCard = document.getElementById('table-card');
-  if(_tableCard) _tableCard.classList.add('viewer-mode');
   restoreFromURL();
   if(viewerMode === 'down') {
     // 하향리뷰 원문보기: URL 쿼리의 evaluator로 덮어쓰기 (d 파라미터에도 저장되지만 명시적으로 처리)

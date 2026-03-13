@@ -426,6 +426,36 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
     </div>
   </div>
 
+  <!-- 수습평가 전용 서술형 섹션 -->
+  <div id="probation-essay" style="display:none; margin-bottom:16px;">
+    <div class="table-card" style="padding:24px 28px;">
+      <div style="font-size:15px; font-weight:700; color:#1A1F27; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid #E8ECF0;">
+        🌱 수습평가 — 서술형 응답
+      </div>
+      <div style="display:flex; flex-direction:column; gap:20px;">
+        <div>
+          <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">
+            1. 신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요 <span style="color:#EF4444;">*</span>
+          </label>
+          <textarea id="prob-q1" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:80px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">
+            2. 신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요 <span style="color:#EF4444;">*</span>
+          </label>
+          <textarea id="prob-q2" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:80px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+        </div>
+        <div>
+          <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">
+            3. 신규 입사자는 어떤 강점을 가지고 있나요? <span style="color:#EF4444;">*</span>
+          </label>
+          <div style="font-size:12px; color:#94A3B8; margin-bottom:6px;">직무 전문성, 역량, 태도 등의 관점에서 작성해주세요</div>
+          <textarea id="prob-q3" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:80px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="table-card">
     <table class="eval-table">
       <thead>
@@ -446,6 +476,16 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
   </div>
 
   <div class="action-bar">
+    <!-- 수습평가 종합 서술형 -->
+    <div id="probation-final" style="display:none; width:100%; margin-bottom:20px;">
+      <div class="table-card" style="padding:24px 28px; margin-bottom:0;">
+        <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:6px;">
+          📝 지난 3개월간 팀원의 성과를 돌이켜 생각해본다면? <span style="color:#EF4444;">*</span>
+        </label>
+        <div style="font-size:12px; color:#94A3B8; margin-bottom:10px; line-height:1.7;">구체적인 사례를 함께 적어주시면 보다 정확하게 피드백을 전달하는 데 도움이 됩니다.</div>
+        <textarea id="prob-q4" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:120px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+      </div>
+    </div>
     <div style="display:flex; flex-direction:column; gap:6px;">
       <div class="action-left">
         <button class="btn btn-outline" onclick="tempSave()">💾 임시저장</button>
@@ -656,6 +696,26 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           </div>
         </div>
 
+        <!-- 수습평가 -->
+        <div class="review-card" onclick="obSelectMode('probation')"
+          onmouseover="hoverCard(this)" onmouseout="unhoverCard(this)"
+          style="background:#F9FAFB; border:1.5px solid #EAEDF0;
+            padding:16px 18px; border-radius:14px;
+            display:flex; align-items:center; cursor:pointer; transition:all 0.18s;">
+          <div style="width:40px;height:40px;background:#E8F5E9;border-radius:10px;
+            display:flex;align-items:center;justify-content:center;
+            margin-right:14px;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2L3 7v5c0 5 3.8 9.7 9 11 5.2-1.3 9-6 9-11V7L12 2z" stroke="#2E7D32" stroke-width="2" stroke-linejoin="round" fill="#C8E6C9"/>
+              <path d="M8 12l3 3 5-5" stroke="#2E7D32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">수습평가 🌱</b>
+            <span style="font-size:13px;color:#8B95A1;">신규 입사자 수습기간 평가를 작성합니다.</span>
+          </div>
+        </div>
+
       </div>
 
       <button onclick="obNext(2)" style="
@@ -685,7 +745,8 @@ const DEPT_CONFIG = [
 let currentDept = null; // 선택된 부서 config 객체
 const WEBHOOK_CONFIG = {
   self: "https://hooks.slack.com/triggers/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",
-  down: "https://hooks.slack.com/triggers/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"
+  down: "https://hooks.slack.com/triggers/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",
+  probation: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbyvW7Ypgbv17SLeaSY9Fx2MOoSxr7NhZcESCaoyHq5B6rHkuPbFaSYAsxDcA64Id5KLNg/exec';
@@ -770,6 +831,28 @@ const ITEMS_DEV_DOWN = [
   ['데이터 기반 사고','근거기반판단','ㆍ업무 판단 시, 수치화된 근거나 과거 데이터를 논리적으로 활용했는가?',true],
   ['데이터 기반 사고','정량적접근','ㆍ여러 가지 테스트와 로그 기반 디버깅 등으로 문제점의 상황을 데이터 기반으로 제시한 적이 있었는가?',true],
 ];
+// 수습평가 항목 (평가자가 작성) - PDF 기준
+const ITEMS_PROBATION = [
+  ['빠른실행력','신속한실행','ㆍ업무를 시작할 때 완벽한 준비보다 빠른 실행을 우선한다.',false],
+  ['빠른실행력','결과공유','ㆍ실행 후 결과를 빠르게 공유하고 다음 실행에 반영한다.',false],
+  ['성장 마인드셋과 Fast Learner','도전자세','ㆍ실패를 회피하기보다 도전하고 학습하려는 자세를 가진다.',false],
+  ['성장 마인드셋과 Fast Learner','피드백수용','ㆍ피드백을 수용하는 자세를 가진다.',false],
+  ['성장 마인드셋과 Fast Learner','자기학습','ㆍ스스로 학습 기회를 찾고 이를 업무에 적용한다.',false],
+  ['실시간 소통과 협업','즉시공유','ㆍ문제 발생 시 즉시 리더 또는 동료에게 공유한다.',false],
+  ['실시간 소통과 협업','명확한표현','ㆍ회의 또는 업무상 소통할 일이 있을 때 명확하고 간결하게 표현한다.',false],
+  ['GRIT 및 이익 중심 사고','책임완수','ㆍ업무 수행에 어려움이 생겨도 책임감을 가지고 끝까지 해결하려고 노력한다.',false],
+  ['GRIT 및 이익 중심 사고','목표이해','ㆍ맡은 업무가 팀과 회사의 목표에 어떤 방식으로 기여하는지 이해하고 있다.',false],
+  ['고객중심 주도적 문제해결','선제대응','ㆍ고객 또는 유관 부서의 요청사항에 대해 소극적으로 기다리기보다 먼저 파악하고 선제적으로 대응한다.',false],
+  ['고객중심 주도적 문제해결','개선제안','ㆍ업무 중 비효율이나 문제점을 발견하면 이를 방치하지 않고 개선 방안을 주도적으로 제안한다.',false],
+  ['직무이해도','우선순위','ㆍ업무의 우선순위와 기준을 스스로 정리하고 실행할 수 있다.',false],
+  ['업무 실행력','완수태도','ㆍ업무를 중간에 놓지 않고 끝까지 완수하려는 태도를 보인다.',false],
+  ['문제 해결력','원인분석','ㆍ동일한 문제의 재발을 방지하기 위해 원인을 분석한다.',false],
+  ['문제 해결력','구조적해결','ㆍ문제에 대해 즉흥적인 대응이 아닌, 구조적인 해결을 위한 실행안을 제시한다.',false],
+  ['도구/시스템 활용 능력','빠른적용','ㆍ새로 접한 툴도 학습해서 빠르게 적용하는 모습을 보인다.',false],
+  ['도구/시스템 활용 능력','도구제안','ㆍ실무에 유용한 도구 또는 자동화 방식을 스스로 제안한 경험이 있다.',false],
+  ['업무 성취도','종합성취','ㆍ입사 이후 업무 성취도를 종합적으로 평가한다.',false],
+];
+
 let ITEMS = ITEMS_DEV;
 let ITEMS_DOWN = ITEMS_DEV_DOWN;
 
@@ -842,13 +925,20 @@ function unhoverCard(el) {
 function obSelectMode(m) {
   // self_leader는 셀프리뷰와 동일하게 처리
   const actualMode = (m === 'self_leader') ? 'self' : m;
+  // 수습평가 모드
+  const isProbation = (m === 'probation');
   // 부서 평가지 적용
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
-  ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
-  ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  if(isProbation) {
+    ITEMS      = ITEMS_PROBATION;
+    ITEMS_DOWN = ITEMS_PROBATION;
+  } else {
+    ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
+    ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  }
   // 헤더 배지 업데이트
-  document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
+  document.getElementById('dept-badge-text').textContent = isProbation ? '🌱 수습평가' : (currentDept.emoji + ' ' + currentDept.label);
   // 온보딩 닫기
   const ob = document.getElementById('onboarding');
   ob.style.transition = 'opacity 0.4s ease';
@@ -857,20 +947,24 @@ function obSelectMode(m) {
   // 초기 모드 세팅
   scores = { self: {}, d1: {}, d2: {} };
   buildTable();
-  setMode(actualMode);
+  // 수습평가는 하향리뷰 모드(d1)로 동작 - 평가자가 단독 작성
+  setMode(isProbation ? 'd1' : actualMode);
   updatePhaseTabs();
   syncNameLabels();
   // 선택한 리뷰 탭만 표시
   const tabSelf = document.getElementById('tab-self');
   const tabDown = document.getElementById('tab-down');
-  if(actualMode === 'self') {
+  if(isProbation) {
+    if(tabSelf) tabSelf.style.display = 'none';
+    if(tabDown) { tabDown.style.display = ''; tabDown.classList.remove('locked'); tabDown.classList.add('active-down'); }
+  } else if(actualMode === 'self') {
     if(tabSelf) tabSelf.style.display = '';
     if(tabDown) tabDown.style.display = 'none';
   } else {
     if(tabSelf) tabSelf.style.display = 'none';
     if(tabDown) { tabDown.style.display = ''; tabDown.classList.remove('locked'); tabDown.classList.add('active-down'); }
   }
-  if(actualMode === 'd1') {
+  if(isProbation || actualMode === 'd1') {
     adminMode = true;
     selfSubmitted = true;
     selfLockedFromURL = false;
@@ -939,12 +1033,79 @@ const GRADES = [
   { label: 'D+', score: 60  },
   { label: 'D',  score: 55  },
 ];
+// 수습평가 전용 5단계 등급 (PDF 기준: D/C/B/A/S)
+const GRADES_PROB = [
+  { label: 'D', score: 55 },
+  { label: 'C', score: 65 },
+  { label: 'B', score: 75 },
+  { label: 'A', score: 85 },
+  { label: 'S', score: 95 },
+];
 const SV = GRADES.map(g => g.score); // 호환성 유지
 
 function buildTable() {
   const tbody = document.getElementById('eval-body');
   tbody.innerHTML = '';
   const isSelfMode = (mode === 'self');
+  const isProbMode = (ITEMS === ITEMS_PROBATION);
+  // 수습평가 서술형 섹션 표시/숨김
+  const probEssay = document.getElementById('probation-essay');
+  const probFinal = document.getElementById('probation-final');
+  if(probEssay) probEssay.style.display = isProbMode ? '' : 'none';
+  if(probFinal) probFinal.style.display = isProbMode ? '' : 'none';
+
+  // ── 수습평가 전용 렌더링 ──
+  if(isProbMode) {
+    // 테이블 헤더를 5단계로 교체
+    const thead = document.querySelector('.eval-table thead tr');
+    if(thead) {
+      thead.innerHTML = `
+        <th style="width:50px;">No.</th>
+        <th style="width:120px;">역량요소</th>
+        <th style="width:100px;">리뷰항목</th>
+        <th style="text-align:left; padding-left:20px; min-width:200px;">리 뷰 기 준</th>
+        <th style="width:60px;">D</th>
+        <th style="width:60px;">C</th>
+        <th style="width:60px;">B</th>
+        <th style="width:60px;">A</th>
+        <th style="width:60px;">S</th>
+        <th style="min-width:160px; text-align:left; padding-left:12px;">코멘트</th>
+      `;
+    }
+    const rowSpanCounts = {};
+    ITEMS_PROBATION.forEach(it => { rowSpanCounts[it[0]] = (rowSpanCounts[it[0]] || 0) + 1; });
+    const usedFactors = {};
+    ITEMS_PROBATION.forEach((it, idx) => {
+      const factor = it[0];
+      const tr = document.createElement('tr');
+      let factorHtml = '';
+      if(!usedFactors[factor]) {
+        factorHtml = `<td style="font-weight:700;" rowspan="${rowSpanCounts[factor]}">${factor}</td>`;
+        usedFactors[factor] = true;
+      }
+      let scoreBtns = '';
+      GRADES_PROB.forEach(g => {
+        scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
+      });
+      const commentTd = `<td style="padding:6px 8px;"><textarea class="case-val" data-idx="${idx}" placeholder="코멘트 입력 (선택)" style="width:100%;min-height:48px;padding:6px 8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.6;box-sizing:border-box;outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea></td>`;
+      tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="font-size:12px;font-weight:700;">${it[1]}</td><td style="text-align:left;padding:10px 16px;font-size:12px;line-height:1.8;color:#374151;word-break:keep-all;min-width:200px;">${it[2]}</td>${scoreBtns}${commentTd}`;
+      tbody.appendChild(tr);
+    });
+    return; // 수습평가는 여기서 종료
+  }
+
+  // ── 일반 평가 렌더링 (기존 로직) ──
+  // 테이블 헤더 원복
+  const thead = document.querySelector('.eval-table thead tr');
+  if(thead) {
+    thead.innerHTML = `
+      <th style="width:50px;">No.</th>
+      <th style="width:100px;">역량요소</th>
+      <th style="width:100px;">리뷰항목</th>
+      <th style="text-align:left; padding-left:20px; min-width:200px;">리 뷰 기 준</th>
+      <th colspan="10">등급 선택 (S+ ~ D)</th>
+    `;
+  }
   // rowspan: 하향 모드에서는 사례행 제외해서 계산
   const rowSpanCounts = {};
   ITEMS.forEach(it => {
@@ -1259,7 +1420,7 @@ async function submitToSlack() {
 
   showModal("전송 중...", "데이터를 슬랙으로 안전하게 보내고 있습니다.");
 
-  const triggerUrl = (mode === 'self') ? WEBHOOK_CONFIG.self : WEBHOOK_CONFIG.down;
+  const triggerUrl = (ITEMS === ITEMS_PROBATION) ? WEBHOOK_CONFIG.probation : (mode === 'self') ? WEBHOOK_CONFIG.self : WEBHOOK_CONFIG.down;
   const selfTotal = parseFloat(document.getElementById('d-self')?.textContent) || parseFloat(document.getElementById('d-down2')?.textContent) || 0;
   const downAvg = document.getElementById('d-down2')?.textContent || document.getElementById('d-down')?.textContent || '0.0';
 
@@ -1272,17 +1433,31 @@ async function submitToSlack() {
     + (mode !== 'self' ? '&view=down' : '')
     + (mode !== 'self' && evaluatorVal ? '&evaluator=' + encodeURIComponent(evaluatorVal) : '');
 
+  // 수습평가 서술형 수집
+  const probQ1 = document.getElementById('prob-q1')?.value?.trim() || '';
+  const probQ2 = document.getElementById('prob-q2')?.value?.trim() || '';
+  const probQ3 = document.getElementById('prob-q3')?.value?.trim() || '';
+  const probQ4 = document.getElementById('prob-q4')?.value?.trim() || '';
+
   const payload = {
     name: nameInput,
     dept: document.getElementById('inf-dept').value || '미입력',
     employee_id: document.getElementById('inf-id').value || '미입력',
     self_score: String(selfTotal),
     down_avg: downAvg,
-    result_url: resultUrl
+    result_url: resultUrl,
+    ...(ITEMS === ITEMS_PROBATION ? {
+      prob_q1: probQ1,
+      prob_q2: probQ2,
+      prob_q3: probQ3,
+      prob_q4: probQ4,
+    } : {})
   };
 
   let successMsg = '';
-  if(mode === 'self') {
+  if(ITEMS === ITEMS_PROBATION) {
+    successMsg = `<strong>${nameInput}</strong> 님의 수습평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
+  } else if(mode === 'self') {
     successMsg = `<strong>${nameInput}</strong> 님의 소중한 성과가 정상적으로 전달되었습니다. 📩<br>작성해주신 내용은 공정한 평가에 반영됩니다.<br><br>한 해 동안의 노고에 감사드립니다. 🙏`;
   } else {
     successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
@@ -1334,23 +1509,18 @@ async function submitToSlack() {
     }).catch(() => {});
   }
 
-  let _done = false;
   function onSubmitDone() {
-    if(_done) return;
-    _done = true;
     if(mode === 'self') {
       selfSubmitted = true;
       selfLockedFromURL = true;
       updatePhaseTabs();
       lockSelfInputs();
     }
-    const doneMsg = successMsg
-      + (mode === 'self' ? '<br><br>✅ 셀프리뷰가 잠금 처리되었습니다.' : '')
-      + '<br><br><button onclick="closeModal();submitToSlack();" style="margin-top:4px;padding:6px 18px;background:#6366F1;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🔄 재전송</button>';
+    const doneMsg = successMsg + (mode === 'self' ? '<br><br>✅ 셀프리뷰가 잠금 처리되었습니다.' : '');
     showModal("제출 완료! ✅", doneMsg, true);
   }
 
-  const submitTimer = setTimeout(onSubmitDone, 3000);
+  const submitTimer = setTimeout(onSubmitDone, 2000);
 
   fetch(triggerUrl, {
     method: 'POST',

@@ -1699,9 +1699,19 @@ async function submitToSlack() {
       });
     }
 
-    // GET 방식으로 전송 (Apps Script no-cors POST는 body 손실 위험)
-    const getUrl = SHEETS_API_URL + '?' + sheetsParams.toString();
-    fetch(getUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+    // 수습리뷰(서술형 길어서 POST), 셀프/하향은 GET
+    if(isProbSave) {
+      fetch(SHEETS_API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: sheetsParams.toString()
+      }).catch(() => {});
+    } else {
+      fetch(SHEETS_API_URL + '?' + sheetsParams.toString(), {
+        method: 'GET', mode: 'no-cors'
+      }).catch(() => {});
+    }
   }
 
   function onSubmitDone() {

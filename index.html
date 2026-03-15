@@ -1707,9 +1707,13 @@ async function submitToSlack() {
       });
     }
 
-    // 전송 (no-cors GET — Apps Script 안정 방식)
-    const _sendUrl = SHEETS_API_URL + '?' + sheetsParams.toString();
-    fetch(_sendUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+    // 전송 (POST — 서술형 긴 텍스트도 잘리지 않게 POST body로 전송)
+    fetch(SHEETS_API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: sheetsParams.toString()
+    }).catch(() => {});
   }
 
   function onSubmitDone() {

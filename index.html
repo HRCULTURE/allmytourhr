@@ -1650,6 +1650,8 @@ async function submitToSlack() {
     if(isProbSave) {
       // 수습리뷰
       const probTotalScore = document.getElementById('prob-total-val')?.textContent || '0.0';
+      // 서술형은 btoa로 인코딩 (URL 길이 제한 & 특수문자 문제 해결)
+      function b64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
       sheetsParams = new URLSearchParams({
         action: 'save_probation',
         name:        payload.name        || '',
@@ -1662,10 +1664,10 @@ async function submitToSlack() {
         work: document.getElementById('inf-work')?.value || '',
         join: document.getElementById('inf-join')?.value || '',
         date: document.getElementById('inf-date')?.value || '',
-        prob_q1: probQ1,
-        prob_q2: probQ2,
-        prob_q3: probQ3,
-        prob_q4: probQ4,
+        prob_q1: b64(probQ1),
+        prob_q2: b64(probQ2),
+        prob_q3: b64(probQ3),
+        prob_q4: b64(probQ4),
       });
     } else if(mode === 'self') {
       // 셀프리뷰
@@ -1699,19 +1701,9 @@ async function submitToSlack() {
       });
     }
 
-    // 수습리뷰(서술형 길어서 POST), 셀프/하향은 GET
-    if(isProbSave) {
-      fetch(SHEETS_API_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: sheetsParams.toString()
-      }).catch(() => {});
-    } else {
-      fetch(SHEETS_API_URL + '?' + sheetsParams.toString(), {
-        method: 'GET', mode: 'no-cors'
-      }).catch(() => {});
-    }
+    // 전송 (no-cors GET — Apps Script 안정 방식)
+    const _sendUrl = SHEETS_API_URL + '?' + sheetsParams.toString();
+    fetch(_sendUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
   }
 
   function onSubmitDone() {

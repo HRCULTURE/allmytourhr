@@ -2656,10 +2656,12 @@ function renderAdminTable(tab) {
   if(!allRows.length) { wrap.innerHTML = '<div class="admin-empty">아직 제출된 데이터가 없습니다</div>'; return; }
   if(!rows.length) { wrap.innerHTML = '<div class="admin-empty">필터 조건에 맞는 데이터가 없습니다</div>'; return; }
 
-  // data-idx로 클릭 이벤트 처리 (따옴표 충돌 방지)
+  // result_url을 data-url에 직접 저장 → 인덱스 불일치 원천 차단
   if(tab === 'self') {
     let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>성명</th><th>부서</th><th>직위</th><th>셀프점수</th><th>원본</th></tr></thead><tbody>';
-    rows.forEach((r, i) => {
+    rows.forEach((r) => {
+      const safeUrl = encodeURIComponent(r['result_url'] || '');
+      const safeName = (r['성명'] || '').replace(/"/g, '&quot;');
       t += '<tr>'
         + '<td style="white-space:nowrap;">' + (r['제출일시']||'-') + '</td>'
         + '<td><strong>' + (r['성명']||'-') + '</strong></td>'
@@ -2667,14 +2669,17 @@ function renderAdminTable(tab) {
         + '<td>' + (r['직위']||'-') + '</td>'
         + '<td><span class="admin-score">' + (r['셀프점수']||'-') + '</span></td>'
         + '<td>' + (r['result_url']
-            ? '<button class="admin-view-btn" data-idx="' + i + '" data-tab="self" style="background:#6366F1;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:11px;color:#fff;font-weight:700;white-space:nowrap;">📋 원본 보기</button>'
+            ? '<button class="admin-view-btn" data-url="' + safeUrl + '" data-name="' + safeName + '" data-tab="self" style="background:#6366F1;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:11px;color:#fff;font-weight:700;white-space:nowrap;">📋 원본 보기</button>'
             : '-') + '</td>'
         + '</tr>';
     });
     wrap.innerHTML = t + '</tbody></table>';
   } else {
     let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>평가자</th><th>평가대상자</th><th>부서</th><th>하향점수</th><th>원본</th></tr></thead><tbody>';
-    rows.forEach((r, i) => {
+    rows.forEach((r) => {
+      const safeUrl = encodeURIComponent(r['result_url'] || '');
+      const safeName = (r['평가대상자'] || '').replace(/"/g, '&quot;');
+      const safeEval = (r['평가자'] || '').replace(/"/g, '&quot;');
       t += '<tr>'
         + '<td>' + (r['제출일시']||'-') + '</td>'
         + '<td>' + (r['평가자']||'-') + '</td>'
@@ -2682,22 +2687,21 @@ function renderAdminTable(tab) {
         + '<td>' + (r['부서']||'-') + '</td>'
         + '<td><span class="admin-score" style="background:#3B82F6;">' + (r['하향점수']||'-') + '</span></td>'
         + '<td>' + (r['result_url']
-            ? '<button class="admin-view-btn" data-idx="' + i + '" data-tab="down" style="background:none;border:1.5px solid #BFD9FF;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#3B82F6;font-weight:700;">📋 원본 보기</button>'
+            ? '<button class="admin-view-btn" data-url="' + safeUrl + '" data-name="' + safeName + '" data-evaluator="' + safeEval + '" data-tab="down" style="background:none;border:1.5px solid #BFD9FF;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#3B82F6;font-weight:700;">📋 원본 보기</button>'
             : '-') + '</td>'
         + '</tr>';
     });
     wrap.innerHTML = t + '</tbody></table>';
   }
 
-  // 버튼 클릭 이벤트 위임
+  // data-url에서 직접 꺼내므로 인덱스 불일치 없음
   wrap.querySelectorAll('.admin-view-btn').forEach(btn => {
     btn.addEventListener('click', function() {
-      const idx  = parseInt(this.dataset.idx);
-      const tab2 = this.dataset.tab;
-      const row  = adminData[tab2][idx];
-      const name = row['성명'] || row['평가대상자'] || '';
-      const evaluator = tab2 === 'down' ? (row['평가자'] || '') : '';
-      openViewer(row['result_url'], name, tab2, evaluator);
+      const resultUrl = decodeURIComponent(this.dataset.url || '');
+      const tab2      = this.dataset.tab;
+      const name      = this.dataset.name || '';
+      const evaluator = this.dataset.evaluator || '';
+      openViewer(resultUrl, name, tab2, evaluator);
     });
   });
 }
@@ -2711,11 +2715,16 @@ function openViewer(resultUrl, name, type, evaluator) {
   try {
     let url = resultUrl || '';
 
-    // d 파라미터를 안전하게 재인코딩 (구글 시트 저장 시 인코딩 손상 대응)
+    // ① 유효한 URL인지 먼저 확인 (hrculture.github.io 도메인 + ?d= 파라미터 필수)
+    if(!url.startsWith('https://hrculture.github.io/') || !url.includes('?d=')) {
+      alert('⚠️ 원본 데이터 URL이 올바르지 않습니다.\n\n저장된 값: ' + (url || '(없음)') + '\n\n테스트 데이터이거나 제출이 정상적으로 완료되지 않은 항목입니다.');
+      return;
+    }
+
+    // ② d 파라미터를 안전하게 재인코딩 (구글 시트 저장 시 인코딩 손상 대응)
     const dMatch = url.match(/([?&]d=)([^&]+)(.*)?$/);
     if(dMatch) {
       try {
-        // 혹시 이미 디코딩된 상태라면 재인코딩
         const rawD = dMatch[2];
         const safeD = encodeURIComponent(decodeURIComponent(rawD));
         url = url.slice(0, url.indexOf(dMatch[0])) + dMatch[1] + safeD + (dMatch[3] || '');
@@ -2729,7 +2738,7 @@ function openViewer(resultUrl, name, type, evaluator) {
 
     window.open(url, '_blank');
   } catch(e) {
-    window.open(resultUrl || '', '_blank');
+    alert('⚠️ 원본 보기를 열 수 없습니다: ' + e.message);
   }
 }
 

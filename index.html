@@ -132,9 +132,10 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 
 /* ── 평가 테이블 ── */
 .table-card { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-md); overflow: hidden; margin-bottom: 24px; }
-.eval-table { width: 100%; border-collapse: collapse; }
+.eval-table { width: 100%; border-collapse: collapse; table-layout: auto; }
+.eval-table td:nth-child(2) { width: 100%; }
 .eval-table th { background: #F8FAFC; color: var(--text-soft); font-size: 12px; font-weight: 700; padding: 16px 10px; text-align: center; border-bottom: 2px solid var(--border); }
-.eval-table td { border-bottom: 1px solid #F1F5F9; padding: 12px 8px; vertical-align: middle; text-align: center; font-size: 12px; font-weight: 500; }
+.eval-table td { border-bottom: 1px solid #F1F5F9; padding: 8px 4px; vertical-align: middle; text-align: center; font-size: 12px; font-weight: 500; }
 .eval-table tr:hover td { background: #F8FAFC; }
 
 /* ── 자바스크립트 연결 클래스 (기존 로직 유지용) ── */
@@ -146,7 +147,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .hide-col { display: none !important; }
 
 /* 점수 버튼 */
-.sbtn { width: 36px; height: 32px; background: white; border: 1.5px solid var(--border); cursor: pointer; font-size: 11px; font-weight: 700; border-radius: 8px; color: var(--text-soft); margin: 1px; transition: all 0.2s; font-family: inherit; min-width: 36px; }
+.sbtn { width: 34px; height: 30px; background: white; border: 1.5px solid var(--border); cursor: pointer; font-size: 11px; font-weight: 700; border-radius: 6px; color: var(--text-soft); margin: 1px; transition: all 0.2s; font-family: inherit; min-width: 34px; flex-shrink:0; }
 .sbtn:hover { border-color: var(--primary); color: var(--primary); transform: translateY(-1px); }
 .sbtn.ss { background: var(--primary) !important; color: white !important; border-color: var(--primary) !important; box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3); }
 .sbtn.s1 { background: var(--blue) !important; color: white !important; border-color: var(--blue) !important; box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3); }
@@ -1322,7 +1323,7 @@ function buildTable() {
     GRADES.forEach(g => {
       scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
     });
-    tr.innerHTML = `<td style="text-align:center;color:#94A3B8;font-size:12px;">${idx+1}</td><td style="text-align:center; padding:10px 12px; font-size:12px; line-height:1.5; color:#374151; word-break:keep-all;"><span style="font-size:10px;color:#6366F1;font-weight:700;display:block;margin-bottom:2px;">${it[0]}</span>${it[2]}</td>${scoreBtns}`;
+    tr.innerHTML = `<td style="text-align:center;color:#94A3B8;font-size:12px;white-space:nowrap;">${idx+1}</td><td style="text-align:left; padding:8px 12px; font-size:11px; line-height:1.4; color:#374151; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:0;"><span style="font-size:10px;color:#6366F1;font-weight:700;margin-right:6px;">${it[0]}</span>${it[2]}</td>${scoreBtns}`;
     tbody.appendChild(tr);
     if(it[3]){
       const trCase = document.createElement('tr');

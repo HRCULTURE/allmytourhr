@@ -2742,14 +2742,12 @@ function checkAdminPw() {
     + '&callback=' + cbName;
   document.head.appendChild(script);
 }
-async function openAdmin() {
+function openAdmin() {
   const el = document.getElementById('admin-overlay');
   document.body.appendChild(el);
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
-  // appendChild 후 DOM 안정화 대기
-  await new Promise(r => setTimeout(r, 0));
-  await refreshAdminData();
+  setTimeout(refreshAdminData, 0);
 }
 function closeAdmin() {
   const el = document.getElementById('admin-overlay');

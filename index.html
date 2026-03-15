@@ -817,7 +817,7 @@ const WEBHOOK_CONFIG = {
   probation: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbwMUXL39holTqzFBSezz4MQ11M7q34daPVZ0muk1Gk0XB8xV7pvL_cnKjRwDhR2zALCag/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxmCbQR_OLLA13UR5v7eFp7osa8I9ot_QRrFfQhtCzCGkfm9_QBr4PxQLIsKeCTo7blbA/exec';
 
 const ITEMS_DEV=[
   ['팀워크&조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
@@ -1670,9 +1670,7 @@ async function submitToSlack() {
         prob_q4: b64(probQ4),
       });
     } else if(mode === 'self') {
-      // 셀프리뷰 — 서술형 사례 수집
-      const caseData = getCaseData();
-      function b64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
+      // 셀프리뷰
       sheetsParams = new URLSearchParams({
         action: 'save_self',
         name:        payload.name        || '',
@@ -1684,12 +1682,9 @@ async function submitToSlack() {
         work: document.getElementById('inf-work')?.value || '',
         join: document.getElementById('inf-join')?.value || '',
         date: document.getElementById('inf-date')?.value || '',
-        cases: b64(JSON.stringify(caseData)),
       });
     } else {
-      // 하향리뷰 — 서술형 사례 수집
-      const caseData = getCaseData();
-      function b64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
+      // 하향리뷰
       sheetsParams = new URLSearchParams({
         action: 'save_down',
         name:        payload.name        || '',
@@ -1703,13 +1698,24 @@ async function submitToSlack() {
         work: document.getElementById('inf-work')?.value || '',
         join: document.getElementById('inf-join')?.value || '',
         date: document.getElementById('inf-date')?.value || '',
-        cases: b64(JSON.stringify(caseData)),
       });
     }
 
-    // 전송 (no-cors GET — Apps Script 안정 방식)
-    const _sendUrl = SHEETS_API_URL + '?' + sheetsParams.toString();
-    fetch(_sendUrl, { method: 'GET', mode: 'no-cors' }).catch(() => {});
+    // 전송 — POST(JSON)로 보내서 URL 길이 제한 없이 사례 전체 저장
+    const _postBody = {};
+    sheetsParams.forEach((v, k) => { _postBody[k] = v; });
+    // cases는 이미 b64이므로 JSON 전송 시 디코딩해서 객체로 보냄
+    if (_postBody.cases) {
+      try {
+        _postBody.cases = JSON.parse(decodeURIComponent(atob(unescape(encodeURIComponent(_postBody.cases)))));
+      } catch(e) { /* cases를 그대로 유지 */ }
+    }
+    fetch(SHEETS_API_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(_postBody)
+    }).catch(() => {});
   }
 
   function onSubmitDone() {

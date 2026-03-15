@@ -2798,29 +2798,21 @@ function renderViewer(resultUrl, type, evaluator) {
     const avg = count > 0 ? (total / count).toFixed(1) : '-';
     tableHtml += '<div style="text-align:right;padding:12px 0;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg + '</div>';
 
-    // 사례 렌더링 함수
-    function buildCaseHtml(casesObj) {
-      if(!casesObj || Object.keys(casesObj).length === 0) return '';
-      let html = '<div class="admin-viewer-section">작성 사례</div>';
-      Object.entries(casesObj).forEach(([idx, val]) => {
-        if(!val) return;
-        const item = itemList[parseInt(idx)];
-        html += '<div class="admin-case-box"><div class="admin-case-label">' + (item ? item[1] : idx) + '</div><div class="admin-case-text">' + val + '</div></div>';
-      });
-      return html;
+    // 서술형 렌더링 함수
+    function buildCaseHtml(text) {
+      if(!text || !text.trim()) return '';
+      return '<div class="admin-viewer-section">서술형 사례</div>'
+           + '<div class="admin-case-box"><div class="admin-case-text">' + text.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div></div>';
     }
 
-    // URL에 사례 있으면 바로, 없으면 Sheets에서 불러오기
-    if(Object.keys(cases).length > 0) {
-      content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(cases) + '</div>';
-    } else if(info.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-      const casesAction = type === 'down' ? 'get_cases_down' : 'get_cases_by_name';
-      const casesName = type === 'down' ? (info.name + (evaluator ? '|' + evaluator : '')) : info.name;
-      content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">📝 서술형 사례 불러오는 중...</div></div>';
+    // 항상 Sheets에서 서술형 불러오기
+    if(info.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+      content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">📝 서술형 불러오는 중...</div></div>';
       fetch(SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(info.name) + (type === 'down' && evaluator ? '&evaluator=' + encodeURIComponent(evaluator) : '') + '&type=' + type)
         .then(r => r.json())
         .then(res => {
-          content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
+          const text = (res.cases && res.cases['0']) ? res.cases['0'] : '';
+          content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(text) + '</div>';
         })
         .catch(() => {
           content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>';

@@ -1543,6 +1543,8 @@ function restoreFromURL() {
       // c가 URL에 있으면 그대로, 없으면 Sheets에서 비동기 로드
       if(data.c) {
         Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
+        // viewerMode면 즉시 사례 카드 렌더링
+        setTimeout(() => { if(viewerMode) renderViewerCases(data.c); }, 200);
       } else if(data.i?.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
         fetch(SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name))
           .then(r => r.json())
@@ -1552,6 +1554,8 @@ function restoreFromURL() {
                 const el = document.querySelector('.case-val[data-idx="'+idx+'"]');
                 if(el) el.value = v;
               });
+              // viewerMode면 Sheets에서 가져온 사례도 카드 렌더링
+              if(viewerMode) renderViewerCases(res.cases);
             }
           }).catch(() => {});
       }
@@ -2043,6 +2047,49 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
 // 구 함수 호환성 유지
 function loadSelfPanel() {}
 
+// ── 원본보기 모드: 서술형 사례 카드 렌더링 ────────────────────
+function renderViewerCases(casesObj) {
+  if(document.getElementById('viewer-cases-section')) {
+    document.getElementById('viewer-cases-section').remove();
+  }
+  // 로딩 안내 제거
+  var _ld = document.getElementById('viewer-cases-loading');
+  if(_ld) _ld.remove();
+  if(!casesObj || Object.keys(casesObj).length === 0) return;
+
+  const itemList = ITEMS || ITEMS_DEV;
+  let html = '<div id="viewer-cases-section" class="table-card" style="padding:24px 28px; margin-bottom:24px;">';
+  html += '<div style="font-size:15px; font-weight:800; color:#1A1F27; margin-bottom:16px;">';
+  html += '<span style="background:#EEF2FF; color:#6366F1; border-radius:8px; padding:4px 10px; font-size:12px; font-weight:700;">&#128221; &#49436;&#49696;&#54805; &#49324;&#47168;</span>';
+  html += '</div>';
+
+  let hasAny = false;
+  Object.entries(casesObj).forEach(function(entry) {
+    var idx = entry[0], val = entry[1];
+    if(!val || !val.trim()) return;
+    hasAny = true;
+    var item = itemList[parseInt(idx)];
+    var itemName = item ? item[1] : ('&#54637;&#47785; ' + (parseInt(idx)+1));
+    var itemCategory = item ? item[0] : '';
+    var safeVal = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    html += '<div style="margin-bottom:14px;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">';
+    html += '<div style="background:#F8F9FF;padding:10px 16px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:8px;">';
+    html += '<span style="font-size:11px;color:#94A3B8;font-weight:600;">' + itemCategory + '</span>';
+    html += '<span style="font-size:13px;font-weight:800;color:#4338CA;">' + itemName + '</span>';
+    html += '</div>';
+    html += '<div style="padding:14px 16px;font-size:13px;color:#1E293B;line-height:1.8;white-space:pre-wrap;">' + safeVal + '</div>';
+    html += '</div>';
+  });
+
+  html += '</div>';
+  if(!hasAny) return;
+
+  var evalWrap = document.getElementById('eval-table-wrap');
+  if(evalWrap && evalWrap.parentNode) {
+    evalWrap.insertAdjacentHTML('afterend', html);
+  }
+}
+
 function goHome() {
   if(!confirm('처음 화면으로 돌아갑니다.\n저장되지 않은 내용은 사라집니다. 계속할까요?')) return;
   localStorage.removeItem('hr_temp_save');
@@ -2172,6 +2219,24 @@ if(_urlParams.get('d')) {
     if(_dcDownWrap) _dcDownWrap.style.display = 'none';
     const _dSelfOpen = document.getElementById('d-self-open');
     if(_dSelfOpen) _dSelfOpen.style.display = '';
+  }
+
+  // 원본보기 공통: 버튼 영역 숨기기 + 사례 로딩 안내 추가
+  document.querySelectorAll('.action-bar').forEach(el => { el.style.display = 'none'; });
+  // 사례 로딩 안내 (Sheets 비동기 로드 전까지 표시)
+  var _evalWrap = document.getElementById('eval-table-wrap');
+  if(_evalWrap && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    var _loadingDiv = document.createElement('div');
+    _loadingDiv.id = 'viewer-cases-loading';
+    _loadingDiv.className = 'table-card';
+    _loadingDiv.style.cssText = 'padding:20px 28px;margin-bottom:24px;text-align:center;color:#94A3B8;font-size:13px;';
+    _loadingDiv.innerHTML = '&#128203; &#49436;&#49696;&#54805; &#49324;&#47168; &#48520;&#47084;&#50724;&#45716; &#51473;...';
+    _evalWrap.insertAdjacentElement('afterend', _loadingDiv);
+    // 3초 후에도 사례 섹션이 없으면 로딩 안내 제거
+    setTimeout(function() {
+      var _ld = document.getElementById('viewer-cases-loading');
+      if(_ld) _ld.remove();
+    }, 5000);
   }
 } else {
   // 임시저장 데이터 확인
@@ -2711,7 +2776,7 @@ function renderViewer(resultUrl, type) {
 
     // 사례 렌더링 함수
     function buildCaseHtml(casesObj) {
-      if(type !== 'self' || !casesObj || Object.keys(casesObj).length === 0) return '';
+      if(!casesObj || Object.keys(casesObj).length === 0) return '';
       let html = '<div class="admin-viewer-section">작성 사례</div>';
       Object.entries(casesObj).forEach(([idx, val]) => {
         if(!val) return;
@@ -2724,9 +2789,11 @@ function renderViewer(resultUrl, type) {
     // URL에 사례 있으면 바로, 없으면 Sheets에서 불러오기
     if(Object.keys(cases).length > 0) {
       content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(cases) + '</div>';
-    } else if(type === 'self' && info.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    } else if(info.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+      const casesAction = type === 'down' ? 'get_cases_down' : 'get_cases_by_name';
+      const casesName = type === 'down' ? (info.name + (evaluator ? '|' + evaluator : '')) : info.name;
       content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">📝 서술형 사례 불러오는 중...</div></div>';
-      fetch(SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(info.name))
+      fetch(SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(info.name) + (type === 'down' && evaluator ? '&evaluator=' + encodeURIComponent(evaluator) : '') + '&type=' + type)
         .then(r => r.json())
         .then(res => {
           content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';

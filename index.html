@@ -817,7 +817,7 @@ const WEBHOOK_CONFIG = {
   probation: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbwMUXL39holTqzFBSezz4MQ11M7q34daPVZ0muk1Gk0XB8xV7pvL_cnKjRwDhR2zALCag/exec';
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbxmCbQR_OLLA13UR5v7eFp7osa8I9ot_QRrFfQhtCzCGkfm9_QBr4PxQLIsKeCTo7blbA/exec';
 
 const ITEMS_DEV=[
   ['팀워크&조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
@@ -1645,7 +1645,6 @@ async function submitToSlack() {
   // Sheets 저장 (셀프/하향/수습리뷰 — 단 한 번만)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
     const isProbSave = (ITEMS === ITEMS_PROBATION);
-    const caseData = getCaseData();
     let sheetsParams;
 
     if(isProbSave) {
@@ -1667,7 +1666,6 @@ async function submitToSlack() {
         prob_q2: probQ2,
         prob_q3: probQ3,
         prob_q4: probQ4,
-        cases: JSON.stringify(caseData)
       });
     } else if(mode === 'self') {
       // 셀프리뷰
@@ -1682,7 +1680,6 @@ async function submitToSlack() {
         work: document.getElementById('inf-work')?.value || '',
         join: document.getElementById('inf-join')?.value || '',
         date: document.getElementById('inf-date')?.value || '',
-        cases: JSON.stringify(caseData)
       });
     } else {
       // 하향리뷰
@@ -1699,7 +1696,6 @@ async function submitToSlack() {
         work: document.getElementById('inf-work')?.value || '',
         join: document.getElementById('inf-join')?.value || '',
         date: document.getElementById('inf-date')?.value || '',
-        cases: JSON.stringify(caseData)
       });
     }
 

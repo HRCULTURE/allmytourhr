@@ -2721,20 +2721,29 @@ function closeViewer() {
 }
 
 function openViewer(resultUrl, name, type, evaluator) {
-  // 대시보드 안에서 직접 렌더링 (새 탭 X)
   const overlay = document.getElementById('admin-viewer-overlay');
   const titleEl = document.getElementById('viewer-title');
-  const content = document.getElementById('viewer-content');
+  const contentEl = document.getElementById('viewer-content');
+
+  if(!overlay || !titleEl || !contentEl) {
+    alert('뷰어를 열 수 없습니다. 페이지를 새로고침해주세요.');
+    return;
+  }
+
+  // viewer-overlay를 body로 이동 (admin-overlay와 z-index 충돌 방지)
+  if(overlay.parentNode !== document.body) {
+    document.body.appendChild(overlay);
+  }
 
   if(!resultUrl || !resultUrl.includes('?d=')) {
-    content.innerHTML = '<div style="text-align:center;color:#EF4444;padding:60px;font-size:14px;">⚠️ 저장된 원본 데이터가 없습니다.<br><small style="color:#94A3B8;margin-top:8px;display:block;">테스트 데이터이거나 정상적으로 제출되지 않은 항목입니다.</small></div>';
+    contentEl.innerHTML = '<div style="text-align:center;color:#EF4444;padding:60px;font-size:14px;">⚠️ 저장된 원본 데이터가 없습니다.<br><small style="color:#94A3B8;margin-top:8px;display:block;">테스트 데이터이거나 정상적으로 제출되지 않은 항목입니다.</small></div>';
     titleEl.textContent = '📋 ' + (name || '리뷰 원본');
     overlay.classList.add('open');
     return;
   }
 
   titleEl.textContent = '📋 ' + (name || '리뷰 원본') + (type === 'down' ? ' (하향리뷰)' : ' (셀프리뷰)');
-  content.innerHTML = '<div style="text-align:center;padding:60px;color:#94A3B8;font-size:14px;">🔄 불러오는 중...</div>';
+  contentEl.innerHTML = '<div style="text-align:center;padding:60px;color:#94A3B8;font-size:14px;">🔄 불러오는 중...</div>';
   overlay.classList.add('open');
 
   renderViewer(resultUrl, type, evaluator);
@@ -2742,6 +2751,7 @@ function openViewer(resultUrl, name, type, evaluator) {
 
 function renderViewer(resultUrl, type, evaluator) {
   const content = document.getElementById('viewer-content');
+  if(!content) return;
   try {
     let dParam = null;
     try { dParam = new URL(resultUrl).searchParams.get('d'); } catch(e) {
@@ -2933,5 +2943,13 @@ function renderViewer(resultUrl, type, evaluator) {
   </div>
 </div>
 
+<!-- 리뷰 원본 뷰어 (body 직속) -->
+<div class="admin-viewer-overlay" id="admin-viewer-overlay">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:#1E293B; flex-shrink:0; width:100%; box-sizing:border-box;">
+    <div style="font-size:16px; font-weight:800; color:#fff;" id="viewer-title">📋 리뷰 원본</div>
+    <button onclick="closeViewer()" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;">✕ 닫기</button>
+  </div>
+  <div id="viewer-content" style="flex:1; overflow-y:auto; background:#F8FAFC; padding:24px;"></div>
+</div>
 </body>
 </html>

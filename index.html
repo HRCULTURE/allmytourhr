@@ -2550,9 +2550,11 @@ async function checkAdminPw() {
 }
 async function openAdmin() {
   const el = document.getElementById('admin-overlay');
-  document.body.appendChild(el); // body 직접 자식으로 이동
+  document.body.appendChild(el);
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
+  // appendChild 후 DOM 안정화 대기
+  await new Promise(r => setTimeout(r, 0));
   await refreshAdminData();
 }
 function closeAdmin() {
@@ -2858,4 +2860,93 @@ function renderViewer(resultUrl, type, evaluator) {
       <div style="display:flex;gap:8px;">
         <button class="admin-close" onclick="refreshAdminData()">🔄 새로고침</button>
         <button class="admin-close" onclick="closeAdmin()">✕ 닫기</button>
-      </d
+      </div>
+    </div>
+    <div class="admin-stats" style="grid-template-columns:repeat(4,1fr);">
+      <div class="admin-stat" style="cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);transition:all 0.2s;" onclick="toggleTargetPanel()" onmouseover="this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div class="admin-stat-val" id="stat-target">0</div>
+          <span style="font-size:20px;">👥</span>
+        </div>
+        <div class="admin-stat-label">이번달 대상자 <span style="font-size:10px;color:#818CF8;">▼ 클릭</span></div>
+        <div style="margin-top:6px;font-size:10px;color:#64748B;" id="stat-target-sub">-</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-self">0</div>
+        <div class="admin-stat-label">셀프리뷰 제출</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-down">0</div>
+        <div class="admin-stat-label">하향리뷰 제출</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-avg">-</div>
+        <div class="admin-stat-label">셀프리뷰 평균점수</div>
+      </div>
+    </div>
+
+    <!-- 이번달 대상자 패널 -->
+    <div id="target-panel" style="display:none; background:rgba(255,255,255,0.05); border-radius:14px; padding:20px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.1);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div style="color:#fff;font-size:15px;font-weight:800;">📋 이번달 평가 대상자 현황</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span id="target-month-label" style="font-size:12px;color:#94A3B8;"></span>
+          <button onclick="reloadTargetPanel()" style="background:rgba(99,102,241,0.3);color:#A5B4FC;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;">🔄 새로고침</button>
+          <button onclick="toggleTargetPanel()" style="background:rgba(255,255,255,0.1);color:#fff;border:none;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;">✕ 닫기</button>
+        </div>
+      </div>
+      <!-- 진행 현황 바 -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:12px;color:#94A3B8;">제출 진행률</span>
+          <span style="font-size:12px;font-weight:700;color:#818CF8;" id="target-progress-text">0 / 0명</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.08);border-radius:99px;height:8px;overflow:hidden;">
+          <div id="target-progress-bar" style="height:100%;background:linear-gradient(90deg,#6366F1,#818CF8);border-radius:99px;transition:width 0.5s;width:0%"></div>
+        </div>
+      </div>
+      <!-- 탭 -->
+      <div style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
+        <button id="tp-tab-all"     onclick="switchTargetTab('all')"     style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:#6366F1;color:#fff;">이번달 대상자</button>
+        <button id="tp-tab-retired" onclick="switchTargetTab('retired')" style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#94A3B8;">⚫ 같은달 퇴직자</button>
+        <button id="tp-tab-done"    onclick="switchTargetTab('done')"    style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#94A3B8;">✅ 제출완료</button>
+        <button id="tp-tab-todo"    onclick="switchTargetTab('todo')"    style="padding:5px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:700;background:rgba(255,255,255,0.1);color:#94A3B8;">⏳ 미제출</button>
+      </div>
+      <!-- 대상자 목록 -->
+      <div id="target-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;max-height:400px;overflow-y:auto;"></div>
+    </div>
+    <div class="admin-tabs">
+      <button class="admin-tab active" onclick="switchAdminTab('self', this)">셀프리뷰 결과</button>
+      <button class="admin-tab" onclick="switchAdminTab('down', this)">하향리뷰 결과</button>
+    </div>
+    <div class="admin-filters">
+      <select class="admin-filter-select" id="filter-dept" onchange="applyFilters()">
+        <option value="">🏢 전체 부서</option>
+      </select>
+      <select class="admin-filter-select" id="filter-pos" onchange="applyFilters()">
+        <option value="">👤 전체 직급</option>
+      </select>
+      <select class="admin-filter-select" id="filter-month" onchange="applyFilters()">
+        <option value="">📅 전체 월</option>
+      </select>
+      <button class="admin-filter-reset" onclick="resetFilters()">✕ 초기화</button>
+      <span class="admin-filter-count" id="filter-count"></span>
+    </div>
+    <div class="admin-card">
+      <div id="admin-table-wrap">
+        <div class="admin-empty">🔄 데이터를 불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 리뷰 원본 뷰어 -->
+<div class="admin-viewer-overlay" id="admin-viewer-overlay">
+  <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:#1E293B; flex-shrink:0; width:100%; box-sizing:border-box;">
+    <div style="font-size:16px; font-weight:800; color:#fff;" id="viewer-title">📋 리뷰 원본</div>
+    <button onclick="closeViewer()" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;">✕ 닫기</button>
+  </div>
+  <div id="viewer-content" style="flex:1; overflow-y:auto; background:#F8FAFC; padding:24px;"></div>
+</div>
+</body>
+</html>

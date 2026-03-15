@@ -1474,7 +1474,7 @@ function calculate() {
   }
 }
 
-// ── 현재 상태 전체를 URL 파라미터로 직렬화 (서술형 포함)
+// ── 현재 상태 전체를 URL 파라미터로 직렬화 (점수+기본정보만, 서술형 제외)
 function getSaveData() {
   function compress(obj) {
     return Object.entries(obj).map(([k,v]) => k+':'+v).join(',');
@@ -1489,14 +1489,12 @@ function getSaveData() {
     work: document.getElementById('inf-work').value,
     evaluator: document.getElementById('inf-evaluator')?.value || ''
   };
-  // 서술형 사례도 URL에 직접 포함 → Sheets API 의존 없이 원본보기에서 항상 표시
-  const caseData = getCaseData();
+  // 서술형은 URL에서 제외 → Sheets에 별도 저장, 원본보기 시 Sheets에서 조회
   const compact = {
     s: compress(scores.self),
     d1: compress(scores.d1),
     d2: compress(scores.d2),
-    i: infoData,
-    c: Object.keys(caseData).length > 0 ? caseData : undefined
+    i: infoData
   };
   try { return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(compact))))); } catch(e) { return ''; }
 }
@@ -2550,9 +2548,11 @@ async function checkAdminPw() {
 }
 async function openAdmin() {
   const el = document.getElementById('admin-overlay');
-  document.body.appendChild(el); // body 직접 자식으로 이동
+  document.body.appendChild(el);
   el.classList.add('open');
   document.body.style.overflow = 'hidden';
+  // appendChild 후 DOM 안정화 대기
+  await new Promise(r => setTimeout(r, 0));
   await refreshAdminData();
 }
 function closeAdmin() {
@@ -2561,7 +2561,9 @@ function closeAdmin() {
   document.body.style.overflow = '';
 }
 async function refreshAdminData() {
-  document.getElementById('admin-table-wrap').innerHTML = '<div class="admin-empty">🔄 데이터 불러오는 중...</div>';
+  const wrap = document.getElementById('admin-table-wrap');
+  if(!wrap) { setTimeout(refreshAdminData, 100); return; } // DOM 아직 준비 안됐으면 재시도
+  wrap.innerHTML = '<div class="admin-empty">🔄 데이터 불러오는 중...</div>';
   try {
     const res  = await fetch(SHEETS_API_URL + '?action=admin_all');
     const data = await res.json();
@@ -2570,7 +2572,8 @@ async function refreshAdminData() {
     updateAdminStats();
     renderAdminTable(adminCurrentTab);
   } catch(err) {
-    document.getElementById('admin-table-wrap').innerHTML = '<div class="admin-empty">⚠️ 실패: ' + err.message + '</div>';
+    const w = document.getElementById('admin-table-wrap');
+    if(w) w.innerHTML = '<div class="admin-empty">⚠️ 실패: ' + err.message + '</div>';
   }
 }
 function updateAdminStats() {

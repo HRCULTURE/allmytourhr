@@ -154,6 +154,31 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 
 /* 사례 작성 */
 .case-row td { background: #F8FAFC; border-bottom: 1px dashed var(--border); }
+/* ── 수습평가 리치텍스트 ── */
+.prob-richbox {
+  width:100%; min-height:80px; padding:10px 14px;
+  border:1.5px solid #E2E8F0; border-radius:10px;
+  font-size:13px; font-family:'Pretendard',sans-serif;
+  line-height:1.7; box-sizing:border-box; outline:none;
+  color: var(--text); background:#fff;
+  transition: border-color 0.2s;
+}
+.prob-richbox:empty:before {
+  content: attr(placeholder);
+  color:#CBD5E1; pointer-events:none;
+}
+.prob-richbox:focus { border-color:#6366F1; }
+.prob-toolbar {
+  display:flex; gap:4px; padding:8px 2px 0;
+  border-top:1px solid #F1F5F9; margin-top:4px;
+}
+.prob-toolbar button {
+  width:28px; height:28px; border:1.5px solid #E2E8F0;
+  border-radius:6px; background:#fff; cursor:pointer;
+  font-size:12px; color:#64748B; transition:all 0.15s;
+  font-family:inherit; display:flex; align-items:center; justify-content:center;
+}
+.prob-toolbar button:hover { border-color:#6366F1; color:#6366F1; background:#EEF2FF; }
 .case-lbl { color: var(--primary) !important; font-weight: 700; font-size: 11px; }
 .case-inp textarea { width: 100%; border: 1px solid transparent; border-radius: 8px; outline: none; background: white; padding: 10px 14px; font-size: 12px; transition: border-color 0.2s; font-family: inherit; resize: vertical; min-height: 80px; line-height: 1.7; box-sizing: border-box; display: block; }
 .case-inp textarea:focus { border-color: var(--primary); }
@@ -162,7 +187,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .total-row td { background: var(--navy); color: white; font-weight: 800; font-size: 14px; padding: 16px 10px; border: none; }
 
 /* ── 액션 바 ── */
-.action-bar { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid var(--primary); }
+.action-bar { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow-md); padding: 20px 30px; display: flex; align-items: center; justify-content: space-between; }
 .action-left { display: flex; gap: 10px; }
 .btn { padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 700; transition: all 0.2s; }
 .btn-outline { background: white; color: var(--text); border: 1.5px solid var(--border); }
@@ -427,36 +452,59 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
   </div>
 
   <!-- 수습평가 전용 서술형 섹션 -->
-  <div id="probation-essay" style="display:none; margin-bottom:16px;">
-    <div class="table-card" style="padding:24px 28px;">
-      <div style="font-size:15px; font-weight:700; color:#1A1F27; margin-bottom:20px; padding-bottom:12px; border-bottom:2px solid #E8ECF0;">
-        🌱 수습평가 — 서술형 응답
+  <div id="probation-essay" style="display:none; margin-bottom:8px;">
+    <!-- Q1 -->
+    <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
+      <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:14px;">
+        신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요<span style="color:#EF4444;">*</span>
       </div>
-      <div style="display:flex; flex-direction:column; gap:20px;">
-        <div>
-          <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">
-            1. 신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요 <span style="color:#EF4444;">*</span>
-          </label>
-          <textarea id="prob-q1" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:80px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">
-            2. 신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요 <span style="color:#EF4444;">*</span>
-          </label>
-          <textarea id="prob-q2" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:80px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:8px;">
-            3. 신규 입사자는 어떤 강점을 가지고 있나요? <span style="color:#EF4444;">*</span>
-          </label>
-          <div style="font-size:12px; color:#94A3B8; margin-bottom:6px;">직무 전문성, 역량, 태도 등의 관점에서 작성해주세요</div>
-          <textarea id="prob-q3" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:80px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
-        </div>
+      <div class="prob-richbox" id="prob-q1-box" contenteditable="true" data-target="prob-q1" placeholder="코멘트 입력하기 (필수)"></div>
+      <input type="hidden" id="prob-q1">
+      <div class="prob-toolbar">
+        <button onclick="probFmt('bold')" title="굵게"><b>B</b></button>
+        <button onclick="probFmt('italic')" title="기울임"><i>I</i></button>
+        <button onclick="probFmt('underline')" title="밑줄"><u>U</u></button>
+        <button onclick="probFmt('strikeThrough')" title="취소선"><s>S</s></button>
+        <button onclick="probFmt('insertOrderedList')" title="번호목록">&#8801;</button>
+        <button onclick="probFmt('insertUnorderedList')" title="글머리">&#8942;</button>
+      </div>
+    </div>
+    <!-- Q2 -->
+    <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
+      <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:14px;">
+        신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요<span style="color:#EF4444;">*</span>
+      </div>
+      <div class="prob-richbox" id="prob-q2-box" contenteditable="true" data-target="prob-q2" placeholder="코멘트 입력하기 (필수)"></div>
+      <input type="hidden" id="prob-q2">
+      <div class="prob-toolbar">
+        <button onclick="probFmtTarget('prob-q2-box','bold')"><b>B</b></button>
+        <button onclick="probFmtTarget('prob-q2-box','italic')"><i>I</i></button>
+        <button onclick="probFmtTarget('prob-q2-box','underline')"><u>U</u></button>
+        <button onclick="probFmtTarget('prob-q2-box','strikeThrough')"><s>S</s></button>
+        <button onclick="probFmtTarget('prob-q2-box','insertOrderedList')">&#8801;</button>
+        <button onclick="probFmtTarget('prob-q2-box','insertUnorderedList')">&#8942;</button>
+      </div>
+    </div>
+    <!-- Q3 -->
+    <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
+      <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:6px;">
+        신규 입사자는 어떤 강점을 가지고 있나요?<span style="color:#EF4444;">*</span>
+      </div>
+      <div style="font-size:12px; color:#94A3B8; margin-bottom:10px;">직무 전문성, 역량, 태도 등의 관점에서 작성해주세요</div>
+      <div class="prob-richbox" id="prob-q3-box" contenteditable="true" data-target="prob-q3" placeholder="코멘트 입력하기 (필수)"></div>
+      <input type="hidden" id="prob-q3">
+      <div class="prob-toolbar">
+        <button onclick="probFmtTarget('prob-q3-box','bold')"><b>B</b></button>
+        <button onclick="probFmtTarget('prob-q3-box','italic')"><i>I</i></button>
+        <button onclick="probFmtTarget('prob-q3-box','underline')"><u>U</u></button>
+        <button onclick="probFmtTarget('prob-q3-box','strikeThrough')"><s>S</s></button>
+        <button onclick="probFmtTarget('prob-q3-box','insertOrderedList')">&#8801;</button>
+        <button onclick="probFmtTarget('prob-q3-box','insertUnorderedList')">&#8942;</button>
       </div>
     </div>
   </div>
 
-  <div class="table-card">
+  <div id="eval-table-wrap" class="table-card">
     <table class="eval-table">
       <thead>
         <tr>
@@ -468,24 +516,44 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
         </tr>
       </thead>
       <tbody id="eval-body"></tbody>
-      <tr class="total-row">
+      <tr class="total-row" id="eval-total-row">
         <td colspan="4" style="text-align:right; padding-right:20px;">합계 평균 점수</td>
-        <td colspan="10"></td>
+        <td colspan="10" id="tot-self-inline" style="text-align:left; padding-left:16px;"></td>
       </tr>
     </table>
   </div>
 
-  <div class="action-bar">
+  <div class="action-bar" style="flex-wrap:wrap; align-items:flex-start; gap:16px;">
     <!-- 수습평가 종합 서술형 -->
-    <div id="probation-final" style="display:none; width:100%; margin-bottom:20px;">
-      <div class="table-card" style="padding:24px 28px; margin-bottom:0;">
-        <label style="display:block; font-size:13px; font-weight:700; color:#374151; margin-bottom:6px;">
-          📝 지난 3개월간 팀원의 성과를 돌이켜 생각해본다면? <span style="color:#EF4444;">*</span>
-        </label>
-        <div style="font-size:12px; color:#94A3B8; margin-bottom:10px; line-height:1.7;">구체적인 사례를 함께 적어주시면 보다 정확하게 피드백을 전달하는 데 도움이 됩니다.</div>
-        <textarea id="prob-q4" placeholder="코멘트 입력하기 (필수)" style="width:100%; min-height:120px; padding:12px 14px; border:1.5px solid #E2E8F0; border-radius:10px; font-size:13px; font-family:inherit; resize:vertical; line-height:1.7; box-sizing:border-box; outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea>
+    <div id="probation-final" style="display:none; flex:1; min-width:0;">
+      <div style="background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-md); padding:22px 24px;">
+        <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:12px;">
+          지난 3개월간 팀원의 성과를 돌이켜 생각해본다면?<span style="color:#EF4444;">*</span>
+        </div>
+        <div style="font-size:12px; color:#4E5968; background:#F8F9FF; border:1px solid #E8ECF8; border-radius:10px; padding:14px 16px; margin-bottom:14px; line-height:1.9;">
+          구체적인 사례를 함께 적어주시면 보다 정확하게 피드백을 전달하는 데 도움이 됩니다.<br>
+          <b>· 첫째, 수습기간 동안 신규 입사자가 수행한 업무에 대해 어떤 성과를 냈고, 이를 어떻게 평가하는지 적어주세요.</b><br>
+          <span style="color:#64748B; padding-left:12px;">: 직원이 기여한 부분을 중심으로 이루어낸 성과와 결과를 구체적으로 작성해주세요. 예를 들어, 업무 목표 달성 정도, 팀워크, 프로젝트 기여도 등을 평가해주시면 됩니다.</span><br>
+          <b>· 둘째, 수습기간 동안 신규 입사자가 어떤 부분에서 성장했고, 어떤 역량을 발휘했는지 구체적으로 적어주세요.</b><br>
+          <span style="color:#64748B; padding-left:12px;">: 이 항목은 직원이 잘한 부분과 성장을 보여주는 사례나 점수를 통해, 직원의 긍정적인 면을 명확히 해주는 부분입니다.</span><br>
+          <b>· 셋째, 개선이 필요한 점에 대해 구체적으로 기재해주세요.</b><br>
+          <span style="color:#64748B; padding-left:12px;">: 직원이 향후 더 성장할 수 있도록 도울 수 있는 개선이 필요한 부분을 상세히 작성해주세요. 예를 들어, 업무 처리 속도, 커뮤니케이션 능력, 리더십, 문제 해결 능력 등 구체적인 피드백을 제공해 주세요.</span>
+        </div>
+        <div class="prob-richbox" id="prob-q4-box" contenteditable="true" data-target="prob-q4" placeholder="코멘트 입력하기 (필수)" style="min-height:120px;"></div>
+        <input type="hidden" id="prob-q4">
+        <div class="prob-toolbar">
+          <button onclick="probFmtTarget('prob-q4-box','bold')"><b>B</b></button>
+          <button onclick="probFmtTarget('prob-q4-box','italic')"><i>I</i></button>
+          <button onclick="probFmtTarget('prob-q4-box','underline')"><u>U</u></button>
+          <button onclick="probFmtTarget('prob-q4-box','strikeThrough')"><s>S</s></button>
+          <button onclick="probFmtTarget('prob-q4-box','insertOrderedList')">&#8801;</button>
+          <button onclick="probFmtTarget('prob-q4-box','insertUnorderedList')">&#8942;</button>
+        </div>
       </div>
     </div>
+  </div>
+  <!-- 하단 버튼 영역 -->
+  <div class="action-bar" style="margin-top:12px; justify-content:space-between;">
     <div style="display:flex; flex-direction:column; gap:6px;">
       <div class="action-left">
         <button class="btn btn-outline" onclick="tempSave()">💾 임시저장</button>
@@ -495,7 +563,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
       </div>
       <span style="font-size:10px; color:#B0B8C1; padding-left:2px;">같은 브라우저·기기에서만 유지됩니다</span>
     </div>
-    <div style="display:flex; gap:10px;">
+    <div style="display:flex; gap:10px; align-items:center;">
       <button class="btn btn-admin" onclick="openAdminPw()">🔐 관리자</button>
       <button class="btn btn-primary" onclick="submitToSlack()" style="padding:12px 32px; font-size:15px; font-weight:700; border-radius:12px; min-width:140px;">리뷰완료</button>
     </div>
@@ -711,7 +779,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
             </svg>
           </div>
           <div>
-            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">수습평가 🌱</b>
+            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">수습리뷰 🌱</b>
             <span style="font-size:13px;color:#8B95A1;">신규 입사자 수습기간 평가를 작성합니다.</span>
           </div>
         </div>
@@ -833,24 +901,24 @@ const ITEMS_DEV_DOWN = [
 ];
 // 수습평가 항목 (평가자가 작성) - PDF 기준
 const ITEMS_PROBATION = [
-  ['빠른실행력','신속한실행','ㆍ업무를 시작할 때 완벽한 준비보다 빠른 실행을 우선한다.',false],
-  ['빠른실행력','결과공유','ㆍ실행 후 결과를 빠르게 공유하고 다음 실행에 반영한다.',false],
-  ['성장 마인드셋과 Fast Learner','도전자세','ㆍ실패를 회피하기보다 도전하고 학습하려는 자세를 가진다.',false],
-  ['성장 마인드셋과 Fast Learner','피드백수용','ㆍ피드백을 수용하는 자세를 가진다.',false],
-  ['성장 마인드셋과 Fast Learner','자기학습','ㆍ스스로 학습 기회를 찾고 이를 업무에 적용한다.',false],
-  ['실시간 소통과 협업','즉시공유','ㆍ문제 발생 시 즉시 리더 또는 동료에게 공유한다.',false],
-  ['실시간 소통과 협업','명확한표현','ㆍ회의 또는 업무상 소통할 일이 있을 때 명확하고 간결하게 표현한다.',false],
-  ['GRIT 및 이익 중심 사고','책임완수','ㆍ업무 수행에 어려움이 생겨도 책임감을 가지고 끝까지 해결하려고 노력한다.',false],
-  ['GRIT 및 이익 중심 사고','목표이해','ㆍ맡은 업무가 팀과 회사의 목표에 어떤 방식으로 기여하는지 이해하고 있다.',false],
-  ['고객중심 주도적 문제해결','선제대응','ㆍ고객 또는 유관 부서의 요청사항에 대해 소극적으로 기다리기보다 먼저 파악하고 선제적으로 대응한다.',false],
-  ['고객중심 주도적 문제해결','개선제안','ㆍ업무 중 비효율이나 문제점을 발견하면 이를 방치하지 않고 개선 방안을 주도적으로 제안한다.',false],
-  ['직무이해도','우선순위','ㆍ업무의 우선순위와 기준을 스스로 정리하고 실행할 수 있다.',false],
-  ['업무 실행력','완수태도','ㆍ업무를 중간에 놓지 않고 끝까지 완수하려는 태도를 보인다.',false],
-  ['문제 해결력','원인분석','ㆍ동일한 문제의 재발을 방지하기 위해 원인을 분석한다.',false],
-  ['문제 해결력','구조적해결','ㆍ문제에 대해 즉흥적인 대응이 아닌, 구조적인 해결을 위한 실행안을 제시한다.',false],
-  ['도구/시스템 활용 능력','빠른적용','ㆍ새로 접한 툴도 학습해서 빠르게 적용하는 모습을 보인다.',false],
-  ['도구/시스템 활용 능력','도구제안','ㆍ실무에 유용한 도구 또는 자동화 방식을 스스로 제안한 경험이 있다.',false],
-  ['업무 성취도','종합성취','ㆍ입사 이후 업무 성취도를 종합적으로 평가한다.',false],
+  ['빠른실행력','신속한실행','업무를 시작할 때 완벽한 준비보다 빠른 실행을 우선한다.',false,''],
+  ['빠른실행력','결과공유','실행 후 결과를 빠르게 공유하고 다음 실행에 반영한다.',false,''],
+  ['성장 마인드셋과 Fast Learner','도전자세','실패를 회피하기보다 도전하고 학습하려는 자세를 가진다.',false,''],
+  ['성장 마인드셋과 Fast Learner','피드백수용','피드백을 수용하는 자세를 가진다.',false,''],
+  ['성장 마인드셋과 Fast Learner','자기학습','스스로 학습 기회를 찾고 이를 업무에 적용한다.',false,''],
+  ['실시간 소통과 협업','즉시공유','문제 발생 시 즉시 리더 또는 동료에게 공유한다.',false,''],
+  ['실시간 소통과 협업','명확한표현','회의 또는 업무상 소통할 일이 있을 때 명확하고 간결하게 표현한다.',false,''],
+  ['GRIT 및 이익 중심 사고','책임완수','업무 수행에 어려움이 생겨도 책임감을 가지고 끝까지 해결하려고 노력한다.',false,''],
+  ['GRIT 및 이익 중심 사고','목표이해','맡은 업무가 팀과 회사의 목표에 어떤 방식으로 기여하는지 이해하고 있다.',false,''],
+  ['고객 중심의 주도적 문제해결 능력','선제대응','고객 또는 유관 부서의 요청사항에 대해 소극적으로 기다리기보다 먼저 파악하고 선제적으로 대응한다.',false,''],
+  ['고객 중심의 주도적 문제해결 능력','개선제안','업무 중 비효율이나 문제점을 발견하면 이를 방치하지 않고 개선 방안을 주도적으로 제안한다.',false,''],
+  ['직무이해도','우선순위','업무의 우선순위와 기준을 스스로 정리하고 실행할 수 있다.',false,'직무이해도\n: 본인의 역할과 목표를 명확히 이해하고, 업무를 그에 맞춰 수행하고 있는가?'],
+  ['업무 실행력','완수태도','업무를 중간에 놓지 않고 끝까지 완수하려는 태도를 보인다.',false,'업무 실행력\n: 주어진 업무를 마감기한과 품질기준에 맞게 완수하고 있는가?'],
+  ['문제 해결력','원인분석','동일한 문제의 재발을 방지하기 위해 원인을 분석한다.',false,'문제해결력\n: 예상치 못한 문제 상황에서도 원인을 파악하고, 해결을 위한 구체적 방안을 실행하는가?'],
+  ['문제 해결력','구조적해결','문제에 대해 즉흥적인 대응이 아닌, 구조적인 해결을 위한 실행안을 제시한다.',false,'문제해결력\n: 예상치 못한 문제 상황에서도 원인을 파악하고, 해결을 위한 구체적 방안을 실행하는가?'],
+  ['도구/시스템 활용 능력','빠른적용','새로 접한 툴도 학습해서 빠르게 적용하는 모습을 보인다.',false,'도구/시스템 활용 능력\n: 업무에 필요한 협업 툴, 문서 포맷, 데이터 툴 등을 익히고 실제 활용하고 있는가?'],
+  ['도구/시스템 활용 능력','도구제안','실무에 유용한 도구 또는 자동화 방식을 스스로 제안한 경험이 있다.',false,'도구/시스템 활용 능력\n: 업무에 필요한 협업 툴, 문서 포맷, 데이터 툴 등을 익히고 실제 활용하고 있는가?'],
+  ['업무 성취도','종합성취','입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.',true,''],
 ];
 
 let ITEMS = ITEMS_DEV;
@@ -858,6 +926,32 @@ let ITEMS_DOWN = ITEMS_DEV_DOWN;
 
 // ── 온보딩 3단계 플로우 ────────────────────────────────────────
 // ── 온보딩 초기화 ─────────────────────────────────────────────
+// ── 수습평가 리치텍스트 헬퍼 ──
+function probFmt(cmd) {
+  document.execCommand(cmd, false, null);
+}
+function probFmtTarget(boxId, cmd) {
+  const box = document.getElementById(boxId);
+  if(box) { box.focus(); document.execCommand(cmd, false, null); }
+}
+function syncAchieveVal(idx) {
+  const box = document.getElementById('achieve-box-' + idx);
+  const inp = document.getElementById('achieve-val-' + idx);
+  if(box && inp) inp.value = box.innerHTML;
+}
+// sync hidden inputs from richbox on submit
+function syncProbRichInputs() {
+  ['prob-q1','prob-q2','prob-q3','prob-q4'].forEach(id => {
+    const box = document.getElementById(id + '-box');
+    const inp = document.getElementById(id);
+    if(box && inp) inp.value = box.innerHTML;
+  });
+  // sync achieve comment
+  ITEMS_PROBATION.forEach((it, idx) => {
+    if(it[3]) syncAchieveVal(idx);
+  });
+}
+
 function obInit() {
   renderObDeptGrid();
   const card = document.getElementById('ob-card');
@@ -938,7 +1032,7 @@ function obSelectMode(m) {
     ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
   }
   // 헤더 배지 업데이트
-  document.getElementById('dept-badge-text').textContent = isProbation ? '🌱 수습평가' : (currentDept.emoji + ' ' + currentDept.label);
+  document.getElementById('dept-badge-text').textContent = isProbation ? '🌱 수습리뷰' : (currentDept.emoji + ' ' + currentDept.label);
   // 온보딩 닫기
   const ob = document.getElementById('onboarding');
   ob.style.transition = 'opacity 0.4s ease';
@@ -955,8 +1049,9 @@ function obSelectMode(m) {
   const tabSelf = document.getElementById('tab-self');
   const tabDown = document.getElementById('tab-down');
   if(isProbation) {
+    // 수습리뷰 모드: 탭 모두 숨김 (배지에만 표시)
     if(tabSelf) tabSelf.style.display = 'none';
-    if(tabDown) { tabDown.style.display = ''; tabDown.classList.remove('locked'); tabDown.classList.add('active-down'); }
+    if(tabDown) tabDown.style.display = 'none';
   } else if(actualMode === 'self') {
     if(tabSelf) tabSelf.style.display = '';
     if(tabDown) tabDown.style.display = 'none';
@@ -1039,7 +1134,7 @@ const GRADES_PROB = [
   { label: 'C', score: 65 },
   { label: 'B', score: 75 },
   { label: 'A', score: 85 },
-  { label: 'S', score: 95 },
+  { label: 'S', score: 100 },
 ];
 const SV = GRADES.map(g => g.score); // 호환성 유지
 
@@ -1054,45 +1149,107 @@ function buildTable() {
   if(probEssay) probEssay.style.display = isProbMode ? '' : 'none';
   if(probFinal) probFinal.style.display = isProbMode ? '' : 'none';
 
-  // ── 수습평가 전용 렌더링 ──
+  // ── 수습평가 전용 렌더링 (카드형) ──
   if(isProbMode) {
-    // 테이블 헤더를 5단계로 교체
-    const thead = document.querySelector('.eval-table thead tr');
-    if(thead) {
-      thead.innerHTML = `
-        <th style="width:50px;">No.</th>
-        <th style="width:120px;">역량요소</th>
-        <th style="width:100px;">리뷰항목</th>
-        <th style="text-align:left; padding-left:20px; min-width:200px;">리 뷰 기 준</th>
-        <th style="width:60px;">D</th>
-        <th style="width:60px;">C</th>
-        <th style="width:60px;">B</th>
-        <th style="width:60px;">A</th>
-        <th style="width:60px;">S</th>
-        <th style="min-width:160px; text-align:left; padding-left:12px;">코멘트</th>
-      `;
+    // 기존 테이블(헤더 포함) 숨기기
+    const evalTableWrap = document.getElementById('eval-table-wrap');
+    if(evalTableWrap) evalTableWrap.style.display = 'none';
+    const tableCard = evalTableWrap || document.querySelector('.table-card');
+    if(tableCard) tableCard.style.display = 'none';
+
+    let cardContainer = document.getElementById('prob-card-container');
+    if(!cardContainer) {
+      cardContainer = document.createElement('div');
+      cardContainer.id = 'prob-card-container';
+      tableCard.parentNode.insertBefore(cardContainer, tableCard);
     }
-    const rowSpanCounts = {};
-    ITEMS_PROBATION.forEach(it => { rowSpanCounts[it[0]] = (rowSpanCounts[it[0]] || 0) + 1; });
-    const usedFactors = {};
+    cardContainer.innerHTML = '';
+    cardContainer.style.display = '';
+
     ITEMS_PROBATION.forEach((it, idx) => {
-      const factor = it[0];
-      const tr = document.createElement('tr');
-      let factorHtml = '';
-      if(!usedFactors[factor]) {
-        factorHtml = `<td style="font-weight:700;" rowspan="${rowSpanCounts[factor]}">${factor}</td>`;
-        usedFactors[factor] = true;
+      const isAchieve = (it[3] === true); // 업무 성취도 (코멘트 필수)
+      const desc = it[4] || '';           // 역량 설명 박스
+      let descHtml = '';
+      if(desc) {
+        const parts = desc.split('\n');
+        const title = parts[0];
+        const body  = parts.slice(1).join('<br>');
+        descHtml = `<div style="background:#F8F9FF;border:1px solid #E8ECF0;border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:12px;color:#374151;line-height:1.7;">
+          <b>${title}</b><br>${body}
+        </div>`;
       }
-      let scoreBtns = '';
+
+      let scoreBtnsHtml = '';
       GRADES_PROB.forEach(g => {
-        scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
+        scoreBtnsHtml += `<td style="flex:1;text-align:center;padding:0 3px;">
+          <button class="sbtn prob-grade-btn" id="b-${idx}-${g.score}"
+            onclick="clickScore(${idx}, ${g.score})"
+            style="width:100%;height:36px;font-size:12px;font-weight:700;border-radius:6px;"
+            title="${g.label}">${g.label}</button>
+        </td>`;
       });
-      const commentTd = `<td style="padding:6px 8px;"><textarea class="case-val" data-idx="${idx}" placeholder="코멘트 입력 (선택)" style="width:100%;min-height:48px;padding:6px 8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:11px;font-family:inherit;resize:vertical;line-height:1.6;box-sizing:border-box;outline:none;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='#E2E8F0'"></textarea></td>`;
-      tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="font-size:12px;font-weight:700;">${it[1]}</td><td style="text-align:left;padding:10px 16px;font-size:12px;line-height:1.8;color:#374151;word-break:keep-all;min-width:200px;">${it[2]}</td>${scoreBtns}${commentTd}`;
-      tbody.appendChild(tr);
+
+      let commentHtml = '';
+      if(isAchieve) {
+        commentHtml = `<div style="margin-top:14px;">
+          <div class="prob-richbox" id="achieve-box-${idx}" contenteditable="true"
+            data-achieve="${idx}" placeholder="코멘트 입력하기 (필수)"
+            style="min-height:80px;border-color:#FCA5A5;"
+            oninput="syncAchieveVal(${idx})"></div>
+          <input type="hidden" id="achieve-val-${idx}">
+          <div class="prob-toolbar">
+            <button onclick="probFmtTarget('achieve-box-${idx}','bold')"><b>B</b></button>
+            <button onclick="probFmtTarget('achieve-box-${idx}','italic')"><i>I</i></button>
+            <button onclick="probFmtTarget('achieve-box-${idx}','underline')"><u>U</u></button>
+            <button onclick="probFmtTarget('achieve-box-${idx}','strikeThrough')"><s>S</s></button>
+            <button onclick="probFmtTarget('achieve-box-${idx}','insertOrderedList')">&#8801;</button>
+            <button onclick="probFmtTarget('achieve-box-${idx}','insertUnorderedList')">&#8942;</button>
+          </div>
+        </div>`;
+      }
+
+      const card = document.createElement('div');
+      card.className = 'table-card';
+      card.style.cssText = 'padding:18px 22px; margin-bottom:8px;';
+      card.innerHTML = `
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px;">
+          <div style="font-size:13px;font-weight:700;color:#1A1F27;line-height:1.5;flex:1;">
+            [${it[0]}] ${it[2]}<span style="color:#EF4444;"> *</span>
+          </div>
+
+        </div>
+        ${descHtml}
+        <table style="width:100%;border-collapse:collapse;"><tbody><tr>${scoreBtnsHtml}</tr></tbody></table>
+        ${commentHtml}
+      `;
+      cardContainer.appendChild(card);
     });
+    // 합계 평균 점수 카드 (수습리뷰 전용, 최하단)
+    let totalCard = document.getElementById('prob-total-card');
+    if(!totalCard) {
+      totalCard = document.createElement('div');
+      totalCard.id = 'prob-total-card';
+      totalCard.className = 'table-card';
+      totalCard.style.cssText = 'padding:18px 28px; margin-bottom:8px; background:var(--navy); border-radius:var(--radius);';
+      totalCard.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:14px;font-weight:700;color:#94A3B8;">합계 평균 점수</span>
+          <span id="prob-total-val" style="font-size:32px;font-weight:900;color:#818CF8;">0.0</span>
+        </div>`;
+      cardContainer.appendChild(totalCard);
+    }
+    totalCard.style.display = '';
+
     return; // 수습평가는 여기서 종료
   }
+
+  // 일반모드에서 카드 컨테이너 숨기기
+  const cardCont = document.getElementById('prob-card-container');
+  if(cardCont) cardCont.style.display = 'none';
+  const probTotalCard = document.getElementById('prob-total-card');
+  if(probTotalCard) probTotalCard.style.display = 'none';
+  const evalTableWrap2 = document.getElementById('eval-table-wrap');
+  if(evalTableWrap2) evalTableWrap2.style.display = '';
 
   // ── 일반 평가 렌더링 (기존 로직) ──
   // 테이블 헤더 원복
@@ -1193,14 +1350,15 @@ function setMode(m) {
   updatePhaseTabs();
 
   // ITEMS 교체 (셀프↔하향) — currentDept 기준
-  const newItems = (m === 'self') ? ITEMS_DEV : ITEMS_DEV_DOWN; // fallback
-  // 실제는 currentDept 기준으로 이미 ITEMS/ITEMS_DOWN 세팅되어 있음
-  const itemsForMode = (m === 'self')
-    ? (currentDept ? (function(){ const map={dev:ITEMS_DEV,nondev:ITEMS_NONDEV}; return map[currentDept.items]||ITEMS_DEV; })() : ITEMS_DEV)
-    : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN);
-  const needRebuild = (ITEMS !== itemsForMode) || (prevMode !== m);
-  ITEMS = itemsForMode;
-  if(needRebuild) buildTable();
+  // 수습평가 모드일 경우 ITEMS 교체하지 않음
+  if(ITEMS !== ITEMS_PROBATION) {
+    const itemsForMode = (m === 'self')
+      ? (currentDept ? (function(){ const map={dev:ITEMS_DEV,nondev:ITEMS_NONDEV}; return map[currentDept.items]||ITEMS_DEV; })() : ITEMS_DEV)
+      : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN);
+    const needRebuild = (ITEMS !== itemsForMode) || (prevMode !== m);
+    ITEMS = itemsForMode;
+    if(needRebuild) buildTable();
+  }
 
   // ── 결과 칸 표시 (셀프:vs- 표시 / 하향:v1- 표시) ──
   const isSelf = (m === 'self');
@@ -1308,6 +1466,11 @@ function calculate() {
   const mergeInput = document.getElementById('merge-input');
   if(dDown && (!mergeInput || !mergeInput.value.trim())) {
     dDown.textContent = d1Avg === 0 ? '0.0' : d1Avg.toFixed(1);
+  }
+  // 수습리뷰 전용 합계 카드
+  const probTotalVal = document.getElementById('prob-total-val');
+  if(probTotalVal) {
+    probTotalVal.textContent = d1Avg === 0 ? '0.0' : d1Avg.toFixed(1);
   }
 }
 
@@ -1418,6 +1581,9 @@ async function submitToSlack() {
   const nameInput = document.getElementById('inf-name').value.trim();
   if(!nameInput) return alert("성함을 입력해주세요.");
 
+  // 수습평가: 리치텍스트 hidden input 동기화
+  if(ITEMS === ITEMS_PROBATION) syncProbRichInputs();
+
   showModal("전송 중...", "데이터를 슬랙으로 안전하게 보내고 있습니다.");
 
   const triggerUrl = (ITEMS === ITEMS_PROBATION) ? WEBHOOK_CONFIG.probation : (mode === 'self') ? WEBHOOK_CONFIG.self : WEBHOOK_CONFIG.down;
@@ -1456,7 +1622,7 @@ async function submitToSlack() {
 
   let successMsg = '';
   if(ITEMS === ITEMS_PROBATION) {
-    successMsg = `<strong>${nameInput}</strong> 님의 수습평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
+    successMsg = `<strong>${nameInput}</strong> 님의 수습리뷰가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
   } else if(mode === 'self') {
     successMsg = `<strong>${nameInput}</strong> 님의 소중한 성과가 정상적으로 전달되었습니다. 📩<br>작성해주신 내용은 공정한 평가에 반영됩니다.<br><br>한 해 동안의 노고에 감사드립니다. 🙏`;
   } else {
@@ -1577,6 +1743,26 @@ function syncNameLabels() {
 }
 
 function updatePhaseTabs() {
+  // 수습평가 모드면 탭 텍스트 + 대시보드 레이블 수습평가용으로 유지
+  if(ITEMS === ITEMS_PROBATION) {
+    const tabDown = document.getElementById('tab-down');
+    if(tabDown) tabDown.style.display = 'none';
+    const tabSelf = document.getElementById('tab-self');
+    if(tabSelf) tabSelf.style.display = 'none';
+    // 대시보드: 하향리뷰 패널 텍스트를 수습평가로
+    const dDownLabel = document.querySelector('#d-down-panel .score-label');
+    if(dDownLabel && !dDownLabel.innerHTML.includes('수습리뷰')) {
+      dDownLabel.innerHTML = '🌱 수습리뷰 총점<span class="score-desc">PROBATION REVIEW</span>';
+    }
+    return;
+  }
+  // 일반 모드 복원
+  const tabDownEl = document.getElementById('tab-down');
+  if(tabDownEl && tabDownEl.innerHTML.includes('수습리뷰')) {
+    tabDownEl.innerHTML = '하향리뷰 <span class="tab-lock-icon" id="tab-lock-icon">🔒</span>';
+  }
+  const tabSelfEl = document.getElementById('tab-self');
+  if(tabSelfEl) tabSelfEl.style.display = '';
   const tabSelf = document.getElementById('tab-self');
   const tabDown = document.getElementById('tab-down');
   const lockIcon = document.getElementById('tab-lock-icon');
@@ -1840,6 +2026,18 @@ function tempSave() {
     savedAt: new Date().toLocaleString('ko-KR')
   };
   document.querySelectorAll('.case-val').forEach(el => { data.cases[el.dataset.idx] = el.value; });
+  // 수습평가 리치텍스트 임시저장
+  data.probRich = {};
+  ['prob-q1','prob-q2','prob-q3','prob-q4'].forEach(id => {
+    const box = document.getElementById(id + '-box');
+    if(box) data.probRich[id] = box.innerHTML;
+  });
+  // achieve 코멘트 저장
+  if(ITEMS === ITEMS_PROBATION) {
+    ITEMS_PROBATION.forEach((it, idx) => {
+      if(it[3]) { const box = document.getElementById('achieve-box-' + idx); if(box) data.probRich['achieve-' + idx] = box.innerHTML; }
+    });
+  }
   localStorage.setItem('hr_temp_save', JSON.stringify(data));
   alert('✅ 임시저장 완료!\n다음에 페이지를 열면 자동으로 불러옵니다.');
 }
@@ -1865,6 +2063,21 @@ function tempLoad(silent) {
           if(data.cases[el.dataset.idx]) el.value = data.cases[el.dataset.idx];
         });
       }, 150);
+    }
+    // 수습평가 리치텍스트 복원
+    if(data.probRich) {
+      setTimeout(() => {
+        ['prob-q1','prob-q2','prob-q3','prob-q4'].forEach(id => {
+          const box = document.getElementById(id + '-box');
+          if(box && data.probRich[id]) box.innerHTML = data.probRich[id];
+        });
+        Object.keys(data.probRich).forEach(k => {
+          if(k.startsWith('achieve-')) {
+            const box = document.getElementById(k.replace('achieve-','achieve-box-'));
+            if(box && data.probRich[k]) box.innerHTML = data.probRich[k];
+          }
+        });
+      }, 200);
     }
     ITEMS.forEach((_, idx) => refreshRow(idx));
     calculate();

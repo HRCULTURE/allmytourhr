@@ -1905,6 +1905,13 @@ function syncNameLabels() {
   const name = document.getElementById('inf-name')?.value?.trim() || '';
   const display = name || '평가대상자';
   document.querySelectorAll('.label-target-name').forEach(el => el.textContent = display);
+
+  // 하향리뷰 패널이 열려 있고 이름이 있으면 패널 입력창도 동기화
+  const panel = document.getElementById('self-ref-panel');
+  const panelInput = document.getElementById('panel-name-input');
+  if(panel && panel.classList.contains('visible') && panelInput && name && panelInput.value !== name) {
+    panelInput.value = name;
+  }
 }
 
 function updatePhaseTabs() {
@@ -2031,6 +2038,17 @@ function autoMerge() {
 function showSelfPanel(show) {
   const panel = document.getElementById('self-ref-panel');
   if(panel) panel.classList.toggle('visible', show);
+
+  // 하향리뷰 패널이 열릴 때, 이미 기본정보에 이름이 입력되어 있으면 자동으로 조회
+  if(show) {
+    const existingName = document.getElementById('inf-name')?.value?.trim() || '';
+    const panelInput = document.getElementById('panel-name-input');
+    if(existingName && panelInput) {
+      panelInput.value = existingName;
+      // 약간의 딜레이 후 자동 조회 (패널 렌더링 완료 후)
+      setTimeout(() => { searchSelfByName(existingName); }, 100);
+    }
+  }
 }
 
 function onPanelNameInput(val) {

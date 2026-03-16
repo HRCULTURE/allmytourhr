@@ -2625,28 +2625,26 @@ function getSubmittedNames() {
 function renderTargetList() {
   const submittedNames = getSubmittedNames();
   const now = new Date();
-  const thisMonth = now.getMonth() + 1; // 현재 월 (1~12)
+  const thisMonth = now.getMonth() + 1;
 
   document.getElementById('target-month-label').textContent =
     now.getFullYear() + '년 ' + thisMonth + '월 기준';
 
-  // 입사월 기준 대상자: 재직/휴직 중이고 입사월 = 이번 달인 사람
-  const joinMonthMatch = t => {
-    if(!t.joinDate) return false;
-    const parts = t.joinDate.replace(/\./g, '-').replace(/\//g, '-').split('-');
-    if(parts.length < 2) return false;
-    return parseInt(parts[1], 10) === thisMonth;
+  const getMonth = joinDate => {
+    if(!joinDate) return 0;
+    const parts = joinDate.replace(/\./g, '-').replace(/\//g, '-').split('-');
+    return parts.length >= 2 ? parseInt(parts[1], 10) : 0;
   };
   const isActive = t => t.status === '재직' || (t.status && t.status.includes('휴직'));
 
-  // 일반 평가 대상자 (evalType === 'regular')
-  const regularTargets   = evalTargets.filter(t => t.evalType === 'regular'  && isActive(t) && joinMonthMatch(t));
-  // 수습 평가 대상자 (evalType === 'probation')
+  // 일반 평가 대상자: 재직 + 최근 계약 시작월 = 이번달
+  const regularTargets   = evalTargets.filter(t => t.evalType === 'regular'   && isActive(t) && getMonth(t.joinDate) === thisMonth);
+  // 수습 평가 대상자: 첫 계약 +2개월 = 이번달 (백엔드에서 evalType:'probation'으로 옴)
   const probationTargets = evalTargets.filter(t => t.evalType === 'probation' && isActive(t));
 
-  const allThisMonth = [...regularTargets, ...probationTargets];
-  const doneCount = allThisMonth.filter(t => submittedNames.has(t.name)).length;
-  const total     = allThisMonth.length;
+  const allTargets = [...regularTargets, ...probationTargets];
+  const doneCount  = allTargets.filter(t => submittedNames.has(t.name)).length;
+  const total      = allTargets.length;
 
   document.getElementById('stat-target').textContent = total;
   document.getElementById('stat-target-sub').textContent =
@@ -2658,76 +2656,63 @@ function renderTargetList() {
   // 탭 필터
   let regularList   = regularTargets;
   let probationList = probationTargets;
-  if(targetTabState === 'done') {
-    regularList   = regularTargets.filter(t => submittedNames.has(t.name));
-    probationList = probationTargets.filter(t => submittedNames.has(t.name));
-  }
-  if(targetTabState === 'todo') {
-    regularList   = regularTargets.filter(t => !submittedNames.has(t.name));
-    probationList = probationTargets.filter(t => !submittedNames.has(t.name));
-  }
+  if(targetTabState === 'retired') { regularList = []; probationList = []; }
+  if(targetTabState === 'done')    { regularList = regularTargets.filter(t => submittedNames.has(t.name)); probationList = probationTargets.filter(t => submittedNames.has(t.name)); }
+  if(targetTabState === 'todo')    { regularList = regularTargets.filter(t => !submittedNames.has(t.name)); probationList = probationTargets.filter(t => !submittedNames.has(t.name)); }
 
-  // 카드 생성 함수
-  function makeCard(t, isProbation) {
-    const done = submittedNames.has(t.name);
-    const s    = statusStyle(t.status);
-    const hist = t.salHistory || t.history || [];
+  // 카드 렌더 함수
+  const makeCard = (t, isProbation) => {
+    const done  = submittedNames.has(t.name);
+    const s     = statusStyle(t.status);
+    const hist  = t.salHistory || t.history || [];
     const latest = hist.length ? hist[hist.length - 1] : null;
-
     const historyRows = hist.map((h, idx) => {
       const isLatest = idx === hist.length - 1;
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);gap:8px;">'
         + '<span style="font-size:10px;color:#64748B;white-space:nowrap;">' + (h.start||'-') + ' ~ ' + (h.end||'-') + '</span>'
-        + '<span style="font-size:11px;font-weight:' + (isLatest ? '800' : '500') + ';color:' + (isLatest ? '#A5B4FC' : '#475569') + ';white-space:nowrap;">'
+        + '<span style="font-size:11px;font-weight:' + (isLatest?'800':'500') + ';color:' + (isLatest?'#A5B4FC':'#475569') + ';white-space:nowrap;">'
         + fmtSalaryFull(h.salary)
         + (isLatest ? '&nbsp;<span style="font-size:9px;background:#4F46E5;color:#fff;padding:1px 5px;border-radius:3px;vertical-align:middle;">현재</span>' : '')
         + '</span></div>';
     }).join('');
 
-    // 수습 카드는 주황 테두리로 구분
-    const cardBorder = isProbation ? '1px solid rgba(245,158,11,0.5)' : '1px solid ' + s.border;
     const cardBg     = isProbation ? 'rgba(245,158,11,0.08)' : s.bg;
+    const cardBorder = isProbation ? '1px solid rgba(245,158,11,0.45)' : '1px solid ' + s.border;
 
     return '<div style="background:' + cardBg + ';border:' + cardBorder + ';border-radius:12px;padding:14px 16px;">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">'
       +   '<div style="display:flex;align-items:center;gap:6px;">'
       +     '<span style="font-size:14px;font-weight:800;color:' + s.nameColor + ';">' + t.name + '</span>'
       +     '<span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:' + s.badge + ';color:#fff;">' + s.badgeTxt + '</span>'
-      +     (isProbation ? '<span style="font-size:9px;background:#B45309;color:#FCD34D;padding:2px 6px;border-radius:4px;font-weight:700;">수습중</span>' : '')
+      +     (isProbation ? '<span style="font-size:9px;background:#B45309;color:#FCD34D;padding:2px 6px;border-radius:4px;font-weight:700;">🌱 수습중</span>' : '')
       +     (done ? '<span style="font-size:9px;background:#16A34A;color:#fff;padding:2px 6px;border-radius:4px;font-weight:700;">✅ 제출</span>' : '')
       +   '</div>'
       + '</div>'
       + '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">'
-      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📅 입사일</span><span style="color:#94A3B8;">' + (t.joinDate||'-') + '</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📅 ' + (isProbation ? '입사일' : '계약시작일') + '</span><span style="color:#94A3B8;">' + (t.joinDate||latest?.start||'-') + '</span></div>'
       +   (isProbation
           ? '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#F59E0B;">⏰ 수습만료일</span><span style="color:#FCD34D;font-weight:700;">' + (t.probExpiry||'-') + '</span></div>'
           : '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📋 계약만료일</span><span style="color:#94A3B8;">' + (latest?.end||'-') + '</span></div>')
       +   '<div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#64748B;">💰 현재연봉</span><span style="font-weight:800;color:#A5B4FC;">' + fmtSalaryFull(latest?.salary||t.salary) + '</span></div>'
       + '</div>'
       + (hist.length > 1
-        ? '<details style="margin-top:4px;">'
-          + '<summary style="font-size:10px;color:#6366F1;cursor:pointer;font-weight:700;list-style:none;">📈 연봉 이력 ' + hist.length + '건 보기</summary>'
-          + '<div style="margin-top:6px;">' + historyRows + '</div>'
-          + '</details>'
+        ? '<details style="margin-top:4px;"><summary style="font-size:10px;color:#6366F1;cursor:pointer;font-weight:700;list-style:none;">📈 연봉 이력 ' + hist.length + '건 보기</summary><div style="margin-top:6px;">' + historyRows + '</div></details>'
         : '')
       + '</div>';
-  }
+  };
 
   const wrap = document.getElementById('target-list');
+  const combined = [
+    ...regularList.map(t => ({t, p: false})),
+    ...probationList.map(t => ({t, p: true}))
+  ].sort((a, b) => a.t.name.localeCompare(b.t.name, 'ko'));
 
-  // 일반 + 수습 합쳐서 이름순 정렬 후 한 목록에 렌더링
-  const combinedList = [
-    ...regularList.map(t => ({ ...t, _isProbation: false })),
-    ...probationList.map(t => ({ ...t, _isProbation: true }))
-  ].sort((a, b) => a.name.localeCompare(b.name, 'ko'));
-
-  const wrap = document.getElementById('target-list');
-  if(!combinedList.length) {
+  if(!combined.length) {
     wrap.innerHTML = '<div style="color:#64748B;font-size:13px;grid-column:1/-1;padding:20px 0;text-align:center;">해당하는 직원이 없습니다.</div>';
     return;
   }
 
-  wrap.innerHTML = combinedList.map(t => makeCard(t, t._isProbation)).join('');
+  wrap.innerHTML = combined.map(({t, p}) => makeCard(t, p)).join('');
 }
 
 // ── 탭 전환 ──────────────────────────────────────────────────
@@ -2754,8 +2739,8 @@ function updateTargetStat() {
   const isActiveT = t => t.status === '재직' || (t.status && t.status.includes('휴직'));
   const regularT   = evalTargets.filter(t => t.evalType === 'regular'   && isActiveT(t) && parseInt((t.joinDate||'').replace(/[./]/g,'-').split('-')[1]||'0',10) === thisMonth);
   const probationT = evalTargets.filter(t => t.evalType === 'probation' && isActiveT(t));
-  const total     = regularT.length + probationT.length;
-  const doneCount = [...regularT, ...probationT].filter(t => submittedNames.has(t.name)).length;
+  const total      = regularT.length + probationT.length;
+  const doneCount  = [...regularT, ...probationT].filter(t => submittedNames.has(t.name)).length;
   document.getElementById('stat-target').textContent = total;
   document.getElementById('stat-target-sub').textContent = '✅ ' + doneCount + '명 / ⏳ ' + (total - doneCount) + '명';
 }

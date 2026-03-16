@@ -3009,7 +3009,7 @@ function renderViewer(resultUrl, type, evaluator) {
     const downScores = data.d1 !== undefined ? expandScores(data.d1) : (data.scores?.d1 || {});
     const cases      = data.c || data.cases || {};
     const showScores = type === 'self' ? selfScores : downScores;
-    const itemList   = ITEMS_DEV; // 기본 항목 (추후 부서별 분기 가능)
+    const itemList   = (type === 'prob') ? ITEMS_PROBATION : ITEMS_DEV;
 
     // 기본정보
     let infoHtml = '<div class="admin-viewer-info">';
@@ -3023,7 +3023,7 @@ function renderViewer(resultUrl, type, evaluator) {
     infoHtml += '</div>';
 
     // 항목별 점수 테이블
-    let tableHtml = '<div class="admin-viewer-section">' + (type === 'self' ? '셀프리뷰 항목별 점수' : '하향리뷰 항목별 점수') + '</div>';
+    let tableHtml = '<div class="admin-viewer-section">' + (type === 'prob' ? '🌱 수습리뷰 항목별 점수' : type === 'self' ? '셀프리뷰 항목별 점수' : '하향리뷰 항목별 점수') + '</div>';
     tableHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">';
     let total = 0, count = 0;
     itemList.forEach((it, idx) => {
@@ -3052,7 +3052,7 @@ function renderViewer(resultUrl, type, evaluator) {
     const avg = count > 0 ? (total / count).toFixed(1) : '-';
     tableHtml += '<div style="text-align:right;padding:10px 0 4px;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg + '</div>';
 
-    // 서술형 렌더링 함수 - 항목별 사례 + 서술형 7개 문항
+    // 서술형 렌더링 함수
     const essayLabels = [
       '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
       '개발관련 빠른 테스트/실험 사례 (지난 1년)',
@@ -3062,10 +3062,41 @@ function renderViewer(resultUrl, type, evaluator) {
       '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
       '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
     ];
+    const probEssayLabels = [
+      '수습기간 동안 수행한 업무와 성과',
+      '수습기간 동안의 성장과 역량 발휘',
+      '강점 및 개선점',
+      '종합 소견',
+    ];
     function buildCaseHtml(casesObj) {
       if(!casesObj || Object.keys(casesObj).length === 0) return '';
       let html = '';
-      // 항목별 사례 (case-val)
+
+      // 수습리뷰 서술형 (key: '0','1','2','3')
+      if(type === 'prob') {
+        const entries = Object.entries(casesObj).filter(([k]) => !isNaN(parseInt(k)));
+        if(entries.length > 0) {
+          html += '<div class="admin-viewer-section">🌱 수습 서술형</div>';
+          html += '<div style="display:flex;flex-direction:column;gap:10px;">';
+          entries.forEach(([idx, val]) => {
+            if(!val || !val.trim()) return;
+            const i = parseInt(idx);
+            const label = probEssayLabels[i] || ('서술형 ' + (i+1));
+            const safeVal = val.replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+            html += '<div style="background:#fff;border:1px solid #D1FAE5;border-radius:10px;overflow:hidden;">'
+              + '<div style="padding:8px 14px;background:#F0FDF4;border-bottom:1px solid #D1FAE5;display:flex;align-items:center;gap:6px;">'
+              + '<span style="background:#10B981;color:#fff;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:800;">Q' + (i+1) + '</span>'
+              + '<span style="font-size:11px;font-weight:700;color:#065F46;">' + label + '</span>'
+              + '</div>'
+              + '<div style="font-size:12px;color:#374151;padding:12px 14px;line-height:1.8;">' + safeVal + '</div>'
+              + '</div>';
+          });
+          html += '</div>';
+        }
+        return html;
+      }
+
+      // 셀프/하향 - 항목별 사례
       const itemCases = Object.entries(casesObj).filter(([k]) => !k.startsWith('essay_'));
       if(itemCases.length > 0) {
         html += '<div class="admin-viewer-section">항목별 사례</div>';
@@ -3106,7 +3137,7 @@ function renderViewer(resultUrl, type, evaluator) {
         });
         html += '</div>';
       }
-      // 구버전 호환 (key가 '0'인 경우 전체 텍스트)
+      // 구버전 호환
       if(casesObj['0'] && Object.keys(casesObj).length === 1) {
         html = '<div class="admin-viewer-section">서술형 사례</div>'
              + '<div class="admin-case-box"><div class="admin-case-text">' + casesObj['0'].replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div></div>';

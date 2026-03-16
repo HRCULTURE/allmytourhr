@@ -2147,6 +2147,18 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
       return out;
     }
 
+    // result_url 안의 data.i로 기본정보 자동 채우기 (Sheets API 미반환 필드 보완)
+    if(data.i) {
+      function fillFromUrl(id, val) { const el = document.getElementById(id); if(el && !el.value && val) el.value = val; }
+      fillFromUrl("inf-id",   data.i.id);
+      fillFromUrl("inf-name", data.i.name);
+      fillFromUrl("inf-pos",  data.i.pos);
+      fillFromUrl("inf-dept", data.i.dept);
+      fillFromUrl("inf-join", data.i.join);
+      fillFromUrl("inf-work", data.i.work);
+      syncNameLabels();
+    }
+
     const selfScores = data.s !== undefined ? expandScores(data.s) : (data.scores?.self || {});
     const cases = data.c || data.cases || {};
     const selfItemList = ITEMS_SELF_REF || ITEMS;

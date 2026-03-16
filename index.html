@@ -2535,8 +2535,8 @@ let targetTabState = 'all';
 let targetLoaded   = false;
 
 async function loadEvalTargets() {
-  // Apps Script로 직원목록 + 연봉이력 조회
-  const res  = await fetch(SHEETS_API_URL + '?action=get_salary_list');
+  // Apps Script로 직원목록 + 연봉이력 조회 (_t로 캐시 방지)
+  const res  = await fetch(SHEETS_API_URL + '?action=get_salary_list&_t=' + Date.now());
   const data = await res.json();
   if(!data.success) throw new Error(data.error || '조회 실패');
   evalTargets  = data.targets || [];
@@ -2841,6 +2841,13 @@ function refreshAdminData() {
     adminData = data;
     updateAdminStats();
     renderAdminTable(adminCurrentTab);
+    // 연봉/대상자 데이터도 항상 최신으로 재로드
+    targetLoaded = false;
+    loadEvalTargets().then(() => {
+      updateTargetStat();
+      const panel = document.getElementById('target-panel');
+      if(panel && panel.style.display !== 'none') renderTargetList();
+    }).catch(() => {});
   };
 
   script.onerror = function() {

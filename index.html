@@ -2299,6 +2299,8 @@ function tempSave() {
       if(it[3]) { const box = document.getElementById('achieve-box-' + idx); if(box) data.probRich['achieve-' + idx] = box.innerHTML; }
     });
   }
+  data.mode = mode;
+  data.isProbation = (ITEMS === ITEMS_PROBATION);
   localStorage.setItem('hr_temp_save', JSON.stringify(data));
   alert('✅ 임시저장 완료!\n다음에 페이지를 열면 자동으로 불러옵니다.');
 }
@@ -2424,20 +2426,31 @@ if(_urlParams.get('d')) {
       const _tempData = JSON.parse(_tempRaw);
       const dv = _tempData.info?.deptValue || 'dev';
       const _dept = DEPT_CONFIG.find(d => d.value === dv) || DEPT_CONFIG[0];
-      const _mode = _tempData.mode || 'self';
+      const _mode = _tempData.mode || _tempData.info?.mode || 'self';
+      const _isProb = _tempData.isProbation || false;
       currentDept = _dept;
       // 탭/배지 설정
-      document.getElementById('dept-badge-text').textContent = _dept.emoji + ' ' + _dept.label;
+      document.getElementById('dept-badge-text').textContent = _isProb ? '🌱 수습리뷰' : (_dept.emoji + ' ' + _dept.label);
       document.getElementById('onboarding').style.display = 'none';
       // ITEMS 세팅
       const _itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
       const _downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
-      ITEMS      = _itemsMap[_dept.items]    || ITEMS_DEV;
-      ITEMS_DOWN = _downMap[_dept.itemsDown] || ITEMS_DEV_DOWN;
+      if(_isProb) {
+        ITEMS      = ITEMS_PROBATION;
+        ITEMS_DOWN = ITEMS_PROBATION;
+      } else {
+        ITEMS      = _itemsMap[_dept.items]    || ITEMS_DEV;
+        ITEMS_DOWN = _downMap[_dept.itemsDown] || ITEMS_DEV_DOWN;
+      }
       // 탭 가시성
       const _tabSelf = document.getElementById('tab-self');
       const _tabDown = document.getElementById('tab-down');
-      if(_mode === 'self') {
+      if(_isProb) {
+        // 수습: 탭 모두 숨김
+        if(_tabSelf) _tabSelf.style.display = 'none';
+        if(_tabDown) _tabDown.style.display = 'none';
+        adminMode = true; selfSubmitted = true; selfLockedFromURL = false;
+      } else if(_mode === 'self') {
         if(_tabSelf) _tabSelf.style.display = '';
         if(_tabDown) _tabDown.style.display = 'none';
       } else {
@@ -2446,7 +2459,14 @@ if(_urlParams.get('d')) {
         adminMode = true; selfSubmitted = true; selfLockedFromURL = false;
       }
       buildTable();
-      setMode(_mode);
+      setMode(_isProb ? 'd1' : _mode);
+      if(_isProb) {
+        // 수습 전용 UI 표시
+        const _probEssay = document.getElementById('prob-essay-section');
+        const _probFinal = document.getElementById('prob-final-section');
+        if(_probEssay) _probEssay.style.display = '';
+        if(_probFinal) _probFinal.style.display = '';
+      }
       updatePhaseTabs();
       syncNameLabels();
       setTimeout(() => { tempLoad(true); }, 300);
@@ -3073,7 +3093,7 @@ function renderViewer(resultUrl, type, evaluator) {
       '신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요',
       '신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요',
       '신규 입사자는 어떤 강점을 가지고 있나요?',
-      '지난 3개월간 팀원의 성과를 돌이켜 생각해본다면?',
+      '[업무 성취도] 입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.',
     ];
     function buildCaseHtml(casesObj) {
       if(!casesObj || Object.keys(casesObj).length === 0) return '';

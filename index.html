@@ -2633,7 +2633,10 @@ function renderTargetList() {
   // 입사월 기준 대상자: 재직/휴직 중이고 입사월 = 이번 달인 사람
   const joinMonthMatch = t => {
     if(!t.joinDate) return false;
-    const m = parseInt(t.joinDate.slice(5, 7), 10); // 'YYYY-MM-DD'에서 월 추출
+    // 다양한 날짜 형식 지원: YYYY-MM-DD, YYYY.MM.DD, YYYY/MM/DD
+    const parts = t.joinDate.replace(/\./g, '-').replace(/\//g, '-').split('-');
+    if(parts.length < 2) return false;
+    const m = parseInt(parts[1], 10);
     return m === thisMonth;
   };
   const isActive = t => t.status === '재직' || (t.status && t.status.includes('휴직'));
@@ -2667,12 +2670,15 @@ function renderTargetList() {
   wrap.innerHTML = list.map(t => {
     const done = submittedNames.has(t.name);
     const s    = statusStyle(t.status);
+    // salHistory 또는 history 키 둘 다 지원
+    const hist = t.salHistory || t.history || [];
+    const latest = hist.length ? hist[hist.length - 1] : null;
 
     // 연봉 이력 행들
-    const historyRows = (t.history || []).map((h, idx) => {
-      const isLatest = idx === t.history.length - 1;
+    const historyRows = hist.map((h, idx) => {
+      const isLatest = idx === hist.length - 1;
       return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.05);gap:8px;">'
-        + '<span style="font-size:10px;color:#64748B;white-space:nowrap;">' + (h.contractStart || '-') + ' ~ ' + (h.expiry || '-') + '</span>'
+        + '<span style="font-size:10px;color:#64748B;white-space:nowrap;">' + (h.start||h.contractStart||'-') + ' ~ ' + (h.end||h.expiry||'-') + '</span>'
         + '<span style="font-size:11px;font-weight:' + (isLatest ? '800' : '500') + ';color:' + (isLatest ? '#A5B4FC' : '#475569') + ';white-space:nowrap;">'
         + fmtSalaryFull(h.salary)
         + (isLatest ? '&nbsp;<span style="font-size:9px;background:#4F46E5;color:#fff;padding:1px 5px;border-radius:3px;vertical-align:middle;">현재</span>' : '')
@@ -2691,14 +2697,14 @@ function renderTargetList() {
       + '</div>'
       // 기본 정보
       + '<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px;">'
-      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📅 입사일</span><span style="color:#94A3B8;">' + (t.joinDate || '-') + '</span></div>'
-      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📋 현재계약</span><span style="color:#94A3B8;">' + (t.contractStart||'-') + ' ~ ' + (t.expiry||'-') + '</span></div>'
-      +   '<div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#64748B;">💰 현재연봉</span><span style="font-weight:800;color:#A5B4FC;">' + fmtSalaryFull(t.salary) + '</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📅 계약시작일</span><span style="color:#94A3B8;">' + (t.joinDate||latest?.start||'-') + '</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:10px;"><span style="color:#64748B;">📋 계약만료일</span><span style="color:#94A3B8;">' + (latest?.end||'-') + '</span></div>'
+      +   '<div style="display:flex;justify-content:space-between;font-size:11px;"><span style="color:#64748B;">💰 현재연봉</span><span style="font-weight:800;color:#A5B4FC;">' + fmtSalaryFull(latest?.salary||t.salary) + '</span></div>'
       + '</div>'
-      // 연봉 이력 (2회 이상일 때만)
-      + (t.history && t.history.length > 1
+      // 연봉 이력 (1건 이상일 때 표시)
+      + (hist.length > 0
         ? '<details style="margin-top:4px;">'
-          + '<summary style="font-size:10px;color:#6366F1;cursor:pointer;font-weight:700;list-style:none;">📈 연봉 이력 ' + t.history.length + '건 보기</summary>'
+          + '<summary style="font-size:10px;color:#6366F1;cursor:pointer;font-weight:700;list-style:none;">📈 연봉 이력 ' + hist.length + '건 보기</summary>'
           + '<div style="margin-top:6px;">' + historyRows + '</div>'
           + '</details>'
         : '')
@@ -2729,7 +2735,7 @@ function updateTargetStat() {
   const thisMonth = new Date().getMonth() + 1;
   const thisMonthTargets = evalTargets.filter(t => {
     const isActive = t.status === '재직' || (t.status && t.status.includes('휴직'));
-    const m = t.joinDate ? parseInt(t.joinDate.slice(5,7), 10) : 0;
+    const m = t.joinDate ? parseInt(t.joinDate.replace(/[./]/g,'-').split('-')[1]||'0', 10) : 0;
     return isActive && m === thisMonth;
   });
   const total     = thisMonthTargets.length;

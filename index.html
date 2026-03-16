@@ -3114,17 +3114,27 @@ function renderViewer(resultUrl, type, evaluator) {
       return html;
     }
 
-    // 항상 Sheets에서 서술형 불러오기
+    // 항상 Sheets에서 서술형 불러오기 (JSONP로 CORS 우회)
     if(info.name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
       content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '<div style="text-align:center;padding:20px;color:#94A3B8;font-size:13px;">📝 서술형 불러오는 중...</div></div>';
-      fetch(SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(info.name) + (type === 'down' && evaluator ? '&evaluator=' + encodeURIComponent(evaluator) : '') + '&type=' + type)
-        .then(r => r.json())
-        .then(res => {
-          content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
-        })
-        .catch(() => {
-          content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>';
-        });
+      const cbName = '_casesCb_' + Date.now();
+      const script = document.createElement('script');
+      const cleanup = () => { delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); };
+      const timer = setTimeout(() => {
+        cleanup();
+        content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>';
+      }, 10000);
+      window[cbName] = function(res) {
+        clearTimeout(timer); cleanup();
+        content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
+      };
+      script.onerror = function() { clearTimeout(timer); cleanup(); content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>'; };
+      script.src = SHEETS_API_URL + '?action=get_cases_by_name'
+        + '&name=' + encodeURIComponent(info.name)
+        + '&type=' + type
+        + ((type === 'down' || type === 'prob') && evaluator ? '&evaluator=' + encodeURIComponent(evaluator) : '')
+        + '&callback=' + cbName;
+      document.head.appendChild(script);
     } else {
       content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>';
     }

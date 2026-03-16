@@ -1034,7 +1034,7 @@ function syncProbRichInputs() {
   ['prob-q1','prob-q2','prob-q3','prob-q4'].forEach(id => {
     const box = document.getElementById(id + '-box');
     const inp = document.getElementById(id);
-    if(box && inp) inp.value = box.innerHTML;
+    if(box && inp) inp.value = box.innerText.trim();
   });
   // sync achieve comment
   ITEMS_PROBATION.forEach((it, idx) => {
@@ -3020,6 +3020,13 @@ function renderViewer(resultUrl, type, evaluator) {
     fields.forEach(([label, val]) => {
       infoHtml += '<div class="admin-viewer-field"><div class="admin-viewer-field-label">' + label + '</div><div class="admin-viewer-field-val">' + (val || '-') + '</div></div>';
     });
+    // 수습통과여부 (prob 타입일 때만)
+    if(type === 'prob') {
+      const passRaw = info.prob_pass || '';
+      const passColor = passRaw === 'Y' || passRaw === '통과' ? '#10B981' : passRaw === 'N' || passRaw === '미통과' ? '#EF4444' : '#94A3B8';
+      const passLabel = passRaw === 'Y' ? '✅ 통과 (Y)' : passRaw === 'N' ? '❌ 미통과 (N)' : passRaw || '-';
+      infoHtml += '<div class="admin-viewer-field" style="grid-column:1/-1;"><div class="admin-viewer-field-label">수습통과여부</div><div class="admin-viewer-field-val" style="font-weight:800;color:' + passColor + ';font-size:15px;">' + passLabel + '</div></div>';
+    }
     infoHtml += '</div>';
 
     // 항목별 점수 테이블
@@ -3157,7 +3164,15 @@ function renderViewer(resultUrl, type, evaluator) {
       }, 10000);
       window[cbName] = function(res) {
         clearTimeout(timer); cleanup();
-        content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
+        // prob_pass를 info에 주입해서 infoHtml 재생성
+        let finalInfoHtml = infoHtml;
+        if(type === 'prob' && res.prob_pass !== undefined) {
+          const passRaw = res.prob_pass || '';
+          const passColor = passRaw === 'Y' || passRaw === '통과' ? '#10B981' : passRaw === 'N' || passRaw === '미통과' ? '#EF4444' : '#94A3B8';
+          const passLabel = passRaw === 'Y' ? '✅ 통과 (Y)' : passRaw === 'N' ? '❌ 미통과 (N)' : passRaw || '-';
+          finalInfoHtml = infoHtml.replace('</div>', '') + '<div class="admin-viewer-field" style="grid-column:1/-1;"><div class="admin-viewer-field-label">수습통과여부</div><div class="admin-viewer-field-val" style="font-weight:800;color:' + passColor + ';font-size:15px;">' + passLabel + '</div></div></div>';
+        }
+        content.innerHTML = '<div class="admin-viewer-card">' + finalInfoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
       };
       script.onerror = function() { clearTimeout(timer); cleanup(); content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>'; };
       script.src = SHEETS_API_URL + '?action=get_cases_by_name'

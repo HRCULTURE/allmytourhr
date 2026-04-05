@@ -727,7 +727,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
         진솔한 시선이 우리 팀의 가장 큰 자산입니다.<br>
         올마이투어의 미래를 함께 그려주세요.
       </p>
-      <button onclick="obNext(2)" style="
+      <button onclick="renderObDeptGrid(); obNext(2)" style="
         background:#0052CC; color:white;
         padding:18px 60px; border-radius:50px; border:none;
         font-size:17px; font-weight:600; cursor:pointer;
@@ -881,10 +881,10 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 const DEPT_CONFIG = [
   { value: 'dev',    emoji: '💻', label: '기업연구소 (개발)',   items: 'dev',    itemsDown: 'dev_down' },
   { value: 'nondev', emoji: '📋', label: '기업연구소 (비개발)', items: 'nondev', itemsDown: 'nondev' },
-  { value: 'sales',  emoji: '📈', label: '영업전략팀',          items: 'nondev', itemsDown: 'nondev' },
-  { value: 'b2c',    emoji: '🛒', label: '레비뉴팀',               items: 'nondev', itemsDown: 'nondev' },
-  { value: 'ops',    emoji: '⚙️', label: '운영기획팀',          items: 'nondev', itemsDown: 'nondev' },
-  { value: 'mgmt',   emoji: '🏢', label: '경영지원팀',          items: 'nondev', itemsDown: 'nondev' },
+  { value: 'sales',  emoji: '📈', label: '영업전략팀',          items: 'nondev', itemsDown: 'nondev_down' },
+  { value: 'b2c',    emoji: '🛒', label: '레비뉴팀',               items: 'nondev', itemsDown: 'nondev_down' },
+  { value: 'ops',    emoji: '⚙️', label: '운영기획팀',          items: 'nondev', itemsDown: 'nondev_down' },
+  { value: 'mgmt',   emoji: '🏢', label: '경영지원팀',          items: 'nondev', itemsDown: 'nondev_down' },
 ];
 let currentDept = null; // 선택된 부서 config 객체
 const WEBHOOK_CONFIG = {
@@ -922,32 +922,33 @@ const ITEMS_DEV=[
   ['성과 및 결과물','납기준수','ㆍ명확한 결과물을 기한 내에 낼 수 있었는가?',false],
   ['성과 및 결과물','품질관리','ㆍ결과물의 품질, 안정성, 사용자 피드백은 어땠는가?',false]
 ];
+// 비개발팀 셀프리뷰 항목 — 하향평가_비개발_.pdf 원문 (리더 외)
 const ITEMS_NONDEV=[
-  ['팀워크&조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
-  ['팀워크&조직문화','팀 소통','ㆍ회사라는 공동체 생활에 나 아닌 우리를 생각하며, 모든 협조를 하려고 노력하는가?',false],
-  ['업무태도','피드백반영','ㆍ동료와 상사의 피드백을 수용하고, 피드백을 업무에 반영해 개선을 실천했는가?',false],
-  ['업무태도','수용성','ㆍ지시나 요청을 수동적으로 따르기보다, 이해하고 더 나은 방법을 제안했는가?',false],
-  ['업무태도','직급별 책임','ㆍ자신의 직급에 부합하는 태도와 리더십을 발휘하며, 후배에게는 모범이 되고 선배에게는 신뢰를 주는가?',false],
-  ['업무태도','일정 관리','ㆍ현실적인 일정을 수립하고, 어려움이 있는경우, 추가 노력을 기울이고 있다고 생각하는가?',false],
-  ['업무처리','지속성','ㆍ모든 업무에 대해 꾸준히 노력하며 포기하지 않고 끝까지 해내는가?',false],
-  ['업무처리','우선순위관리','ㆍ중요한 업무를 우선적으로 처리하고, 우선순위에 관련된 부분을 스스로 분배하여 요청 할 수 있었는가?',false],
-  ['업무결과','정확성','ㆍ본인이 수행한 업무 결과가, 객관적인 시선으로, 신뢰할 만한 수준으로 정확하게 완료되었는가?',false],
-  ['업무결과','꼼꼼함','ㆍ세부 사항까지 놓치지 않고 철저히 처리하며, 이후 에러및 유지보수가 적었는가?',false],
-  ['업무결과','성 과','ㆍ업무 성과가 내용이나 결과 면에서 기대치를 뛰어넘었는가?',false],
-  ['문제해결 및 성장','문제 분석','ㆍ고객이나 내부팀의 문제를 능동적으로 인식하고 해결하려고 했는가?',false],
-  ['문제해결 및 성장','책임감','ㆍ단순 지시에만 의존하지 않고, 회사의 입장에 입각하여, 주도적으로 접근했는가?',false],
-  ['문제해결 및 성장','연구심','ㆍ새로운 기술(AI, 자동화 등)을 시도하고 익히려는 노력을 했는가?',false],
-  ['창의적 역량','창의성','ㆍ업무에 창의적인 아이디어와 접근 방식을 제시하는가?',false],
-  ['창의적 역량','감 각','ㆍ기획 : 프로젝트를 체계적으로 기획하고 목표 달성을 위한 구체적인 계획을 세웠는가?\nㆍ디자이너 : 디자인 작업에서 사용자 경험을 고려한 직관적이고 심미적인 결과물을 제공했는가?',false],
-  ['창의적 역량','협업 능력','ㆍ디자이너 or 기획자로서 팀원들과의 협업에서 원활한 소통과 조율을 보였는가?',false],
-  ['빠른 실행력','신속한시도','ㆍ주어진 문제점이 불확실하거나 미정된 상황에서 빠르게 MVP 또는 실험적 시도를 했는가?',true],
-  ['빠른 실행력','실행중심','ㆍ실행 이후, 개선 루프(피드백-반영)를 통해 결과를 반복 개선했는가?',false],
-  ['자동화/효율화 노력','프로세스개선','ㆍ반복 업무에 대해 자동화, 툴 도입 등으로 개선 시도를 했는가?\n   (자동화에 국한되지 않고 툴 개선이나 체크리스트 도입 등 기획/디자인 관점의 개선도 포함)',true],
-  ['자동화/효율화 노력','효율성제안','ㆍ업무 효율을 높이기 위해 프로세스나 협업 방식 개선을 제안한 적이 있는가?',true],
-  ['데이터 기반 사고','근거기반판단','ㆍ업무 판단 시, 수치화된 근거나 과거 데이터를 논리적으로 활용했는가?',false],
-  ['데이터 기반 사고','정량적접근','ㆍ여러가지 테스트로 문제점의 상황을 데이터 기반으로 제시한 적이 있었는가?',false],
-  ['성과 및 결과물','납기준수','ㆍ명확한 결과물을 기한 내에 낼 수 있었는가?',false],
-  ['성과 및 결과물','품질관리','ㆍ결과물의 품질, 안정성, 사용자 피드백은 어땠는가?',false]
+  ['빠른 실행력','누락없는실행','과업 관련하여 누락됨이 없이 실행하여 빠르게 피드백을 주는 편이다.',false],
+  ['빠른 실행력','기한내처리','시간 압박 상황에서 숙련도를 기반으로 기한 내 업무처리를 이루어 낸다.',false],
+  ['성장 마인드셋과 Fast Learner','정보활용','업무에 도움이 될 수 있는 새로운 정보와 지식을 적극적으로 찾아서 활용하려고 노력한다.',false],
+  ['성장 마인드셋과 Fast Learner','개선방향도출','기대한 성과가 나오지 않을 때, 이를 학습 기회로 여기고 빠르게 개선 방향을 도출하여 긍정적 결과로 이끌어낸다.',false],
+  ['성장 마인드셋과 Fast Learner','주도적학습','주도적으로 빠르게 학습하여 이를 실제 업무에 적용하여 팀에 보탬이 되었다.',false],
+  ['실시간 소통과 긴밀한 협업','이슈공유','현안이나 이슈가 있을 때 이를 빠르게 실시간으로 리더와 팀에 공유한다.',false],
+  ['실시간 소통과 긴밀한 협업','오너십협업','과업에 대해 오너십을 가지고 주도적으로 리드하며, 임무 완수를 위해 다른 팀원들과 활발하게 소통하고 긴밀히 협업한다.',false],
+  ['실시간 소통과 긴밀한 협업','논리적표현','의사소통 시 데이터와 근거를 기반으로 간결하고 논리적으로 표현할 줄 안다.',false],
+  ['GRIT 및 이익 중심 사고','완수의지','업무 수행 중 어려움이 있더라도 이를 극복하거나 과정을 수정하여 반드시 완수한다.',false],
+  ['GRIT 및 이익 중심 사고','개인희생','업무상 필요가 있다고 판단되면 개인적 희생을 감수하고 문제해결에 참여한다.',false],
+  ['GRIT 및 이익 중심 사고','이익이해','본인 업무가 전사적으로 회사에 어떤 이익을 창출하고 있는지 명확하게 이해하고 있다.',false],
+  ['GRIT 및 이익 중심 사고','끈기열정','해당 팀원이 업무에 임하는 자세를 보면 끈기와 열정이 느껴진다.',false],
+  ['고객 중심의 주도적 문제해결 능력','개선목소리','업무를 진행하며 현업의 문제점을 개선하기 위해 적극적으로 목소리를 내는 편이다.',false],
+  ['고객 중심의 주도적 문제해결 능력','빠른액션','같은 팀 동료/타 부서 팀원/파트너사/외부고객의 요청사항에 대해서 빠르게 액션을 취하고 피드백을 주려고 노력한다.',false],
+  ['대담한 목표 설정','도전의식','도전적 목표에 거부감과 난색을 표현하기 보다 도전 의식을 갖고 목표 달성을 위해 노력하는 자세를 보인다.',false],
+  ['대담한 목표 설정','새로운방법연구','기존의 성과에 만족하지 않고 더 폭발적이고 효율적인 성장을 만들어 내기 위한 새로운 방법, 아이디어, 기술을 연구하고 고민한다.',false],
+  ['AI 등 최신 자동화 기술의 내재화','자동화제안','AI나 자동화툴 또는 외주화 등 다양한 방법을 통해 본인 과업을 효율화하기 위한 구체방안을 제안하고 실행에 옮긴다.',true],
+  ['AI 등 최신 자동화 기술의 내재화','AI툴활용','최소 1개 이상의 AI툴을 사용하고 있으며 구체적으로 현업에 어떻게 적용하고 있는지 구체적으로 설명할 수 있다.',true],
+  ['데이터와 맥락 기반의 통합적 사고','데이터소통','보고 및 의사소통 시 막연한 근거가 아닌 명확한 데이터 및 구체적인 근거를 가지고 소통한다.',false],
+  ['데이터와 맥락 기반의 통합적 사고','여행산업맥락','여행산업에 관심과 열정이 있으며 맡은 업무와 회사의 목표 및 여행산업과 어떻게 연결되는지 맥락을 이해한다.',false],
+  ['종합평가','컬처덱롤모델','나는 우리 회사 컬처덱에 부합하는 롤모델로서의 모습을 보여주었다.',false],
+  ['종합평가','리더십잠재력','나는 향후 올마이투어 성장을 위해 리더로 적극 육성할 필요성이 있는 리더십과 잠재력을 가진 재원이다.',false],
+  ['종합평가','성실헌신','나는 컬처덱에 100% 부합한다고 보기는 힘들지만 매우 성실한 자세로 회사에 헌신적인 모습을 보여주었다.',false],
+  ['종합평가','핵심인재','나는 대체 불가능한 핵심인재이며 퇴사할 경우 회사에 큰 손해 또는 목표 달성에 차질이 예상된다.',false],
+  ['종합평가','AI대체불가','나의 업무는 향후 10년 후에도 AI나 기술의 발달 또는 외주화 등을 통해 대체되기 힘들 것이다.',false],
 ];
 
 const ITEMS_DEV_DOWN = [
@@ -977,6 +978,46 @@ const ITEMS_DEV_DOWN = [
   ['성과 및 결과물','납기준수','ㆍ명확한 결과물을 기한 내에 낼 수 있었는가?',false],
   ['성과 및 결과물','품질관리','ㆍ결과물의 품질, 안정성, 사용자 피드백은 어땠는가?',false]
 ];
+// 비개발팀 하향평가 항목 (기업연구소 외 모든팀) — 하향리뷰_비개발_.pdf 원문
+// [역량, 항목명, 문항, 타입] — 타입: false=점수없음/사례없음, true=사례입력, 'yn'=Y/N선택
+const ITEMS_NONDEV_DOWN = [
+  ['빠른 실행력','누락없는실행','과업 관련하여 누락됨이 없이 실행하여 빠르게 피드백을 주는 편이다.',false],
+  ['빠른 실행력','기한내처리','시간 압박 상황에서 숙련도를 기반으로 기한 내 업무처리를 이루어 낸다.',false],
+  ['빠른 실행력','진척피드백없음','지시한 사항에 대해 진척과 피드백이 없거나 느린 업무처리로 답답한 편이다.','yn'],
+  ['빠른 실행력','난색표함','먼저 시도해 보기보다 내외부적인 요인이나 여러 이유를 들어 난색을 표하는 경우가 종종 있다.','yn'],
+  ['성장 마인드셋과 Fast Learner','정보활용','업무에 도움이 될 수 있는 새로운 정보와 지식을 적극적으로 찾아서 활용하려고 노력한다.',false],
+  ['성장 마인드셋과 Fast Learner','개선방향도출','기대한 성과가 나오지 않을 때, 이를 학습 기회로 여기고 빠르게 개선 방향을 도출하여 긍정적 결과로 이끌어낸다.',false],
+  ['성장 마인드셋과 Fast Learner','주도적학습','주도적으로 빠르게 학습하여 이를 실제 업무에 적용하여 팀에 보탬이 되었다.',false],
+  ['성장 마인드셋과 Fast Learner','방어적태도','새로운 업무 및 신규 프로젝트 부여에 대해 방어적이며, 부정적인 감정을 표출하는 경향이 있다.','yn'],
+  ['성장 마인드셋과 Fast Learner','자기개발부족','사내 교육/외부 교육 참여 및 사내 도서 신청, 신규 기술 습득 등의 자기개발 노력이 잘 보이지 않는다.','yn'],
+  ['실시간 소통과 긴밀한 협업','이슈공유','현안이나 이슈가 있을 때 이를 빠르게 실시간으로 리더와 팀에 공유한다.',false],
+  ['실시간 소통과 긴밀한 협업','오너십협업','과업에 대해 오너십을 가지고 주도적으로 리드하며, 임무 완수를 위해 다른 팀원들과 활발하게 소통하고 긴밀히 협업한다.',false],
+  ['실시간 소통과 긴밀한 협업','논리적표현','의사소통 시 데이터와 근거를 기반으로 간결하고 논리적으로 표현할 줄 안다.',false],
+  ['실시간 소통과 긴밀한 협업','거친언행','동료 팀원을 존중하지 않는 거친 언행을 하거나 동료 팀원에게 짜증 등 부정적인 감정을 보인 적이 있다.','yn'],
+  ['실시간 소통과 긴밀한 협업','협업소극적','본인이 맡은 업무 외에는 큰 관심이 없어 보이며 협업과 소통에 소극적이다.','yn'],
+  ['GRIT 및 이익 중심 사고','완수의지','업무 수행 중 어려움이 있더라도 이를 극복하거나 과정을 수정하여 반드시 완수한다.',false],
+  ['GRIT 및 이익 중심 사고','개인희생','업무상 필요가 있다고 판단되면 개인적 희생을 감수하고 문제해결에 참여한다.',false],
+  ['GRIT 및 이익 중심 사고','이익이해','본인 업무가 전사적으로 회사에 어떤 이익을 창출하고 있는지 명확하게 이해하고 있다.',false],
+  ['GRIT 및 이익 중심 사고','끈기열정','해당 팀원이 업무에 임하는 자세를 보면 끈기와 열정이 느껴진다.',false],
+  ['GRIT 및 이익 중심 사고','무단이탈','중요한 팀 업무 완수가 꼭 필요한 시점에, 특별한 사유 없이 혼자만 일찍 퇴근하거나 연차를 사용해 업무에 차질을 준 적이 있다.','yn'],
+  ['고객 중심의 주도적 문제해결 능력','개선목소리','업무를 진행하며 현업의 문제점을 개선하기 위해 적극적으로 목소리를 내는 편이다.',false],
+  ['고객 중심의 주도적 문제해결 능력','빠른액션','같은 팀 동료/타 부서 팀원/파트너사/외부고객의 요청사항에 대해서 빠르게 액션을 취하고 피드백을 주려고 노력한다.',false],
+  ['고객 중심의 주도적 문제해결 능력','회의침묵','회의나 미팅 시간에 거의 의견을 내지 않거나 말을 하지 않는 편이다.','yn'],
+  ['대담한 목표 설정','도전의식','도전적 목표에 거부감과 난색을 표현하기 보다 도전 의식을 갖고 목표 달성을 위해 노력하는 자세를 보인다.',false],
+  ['대담한 목표 설정','새로운방법연구','기존의 성과에 만족하지 않고 더 폭발적이고 효율적인 성장을 만들어 내기 위한 새로운 방법, 아이디어, 기술을 연구하고 고민한다.',false],
+  ['AI 등 최신 자동화 기술의 내재화','자동화제안','해당 팀원은 AI나 자동화툴 또는 외주화 등 다양한 방법을 통해 본인 과업을 효율화 하기 위한 구체방안을 제안하고 실행에 옮겼다.',false],
+  ['AI 등 최신 자동화 기술의 내재화','AI툴활용','최소 1개 이상의 AI툴을 사용하고 있으며 구체적으로 현업에 어떻게 적용하고 있는지 구체적으로 설명할 수 있다.',false],
+  ['데이터와 맥락 기반의 통합적 사고','데이터소통','보고 및 의사소통 시 막연한 근거가 아닌 명확한 데이터 및 구체적인 근거를 가지고 소통한다.',false],
+  ['데이터와 맥락 기반의 통합적 사고','여행산업맥락','여행산업에 관심과 열정이 있으며 맡은 업무와 회사의 목표 및 여행산업과 어떻게 연결되는지 맥락을 이해한다.',false],
+  ['데이터와 맥락 기반의 통합적 사고','험담','객관적 데이터와 성과 중심이 아닌, 사내 역학관계, 친소관계에 따라 특정 팀원에 대한 근거 없는 비난, 험담 등의 모습을 보인다.','yn'],
+  ['종합평가','컬처덱롤모델','해당 팀원은 우리 회사 컬처덱에 부합하는 롤모델로서의 모습을 보여주었다.',false],
+  ['종합평가','리더십잠재력','해당 팀원은 향후 올마이투어 성장을 위해 리더로 적극 육성할 필요성이 있는 리더십과 잠재력을 가진 재원이다.',false],
+  ['종합평가','성실헌신','해당 팀원은 컬처덱에 100% 부합한다고 보기는 힘들지만 매우 성실한 자세로 회사에 헌신적인 모습을 보여주었다.',false],
+  ['종합평가','핵심인재','해당 팀원은 대체 불가능한 핵심인재이며 퇴사할 경우 회사에 큰 손해 또는 목표 달성에 차질이 예상된다.',false],
+  ['종합평가','AI대체불가','해당 팀원의 업무는 향후 10년 후에도 AI나 기술의 발달 또는 외주화 등을 통해 대체되기 힘들 것이다.',false],
+  ['종합평가','부정적여론','해당 팀원은 변화와 성장, 소통 및 협업에 무관심하며 부정적인 여론을 조성하여 오히려 주변 팀원의 성장과 팀의 사기를 저하시킨다.','yn'],
+];
+
 // 수습평가 항목 (평가자가 작성) - PDF 기준
 const ITEMS_PROBATION = [
   ['빠른실행력','신속한실행','업무를 시작할 때 완벽한 준비보다 빠른 실행을 우선한다.',false,''],
@@ -1113,7 +1154,7 @@ function obSelectMode(m) {
   const isProbation = (m === 'probation');
   // 부서 평가지 적용
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
-  const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
+  const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
   if(isProbation) {
     ITEMS      = ITEMS_PROBATION;
     ITEMS_DOWN = ITEMS_PROBATION;
@@ -1179,7 +1220,7 @@ function openDeptModal() {
 function selectDept(dept) {
   currentDept = dept;
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
-  const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
+  const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
   ITEMS      = itemsMap[dept.items]      || ITEMS_DEV;
   ITEMS_DOWN = downMap[dept.itemsDown]   || ITEMS_DEV_DOWN;
   document.getElementById('dept-badge-text').textContent = dept.emoji + ' ' + dept.label;
@@ -1218,6 +1259,14 @@ const GRADES = [
   { label: 'D+', score: 60  },
   { label: 'D',  score: 55  },
 ];
+// 비개발팀 셀프/하향리뷰 전용 5단계 등급 (S/A/B/C/D)
+const GRADES_SIMPLE = [
+  { label: 'S', score: 100 },
+  { label: 'A', score: 85  },
+  { label: 'B', score: 75  },
+  { label: 'C', score: 65  },
+  { label: 'D', score: 55  },
+];
 // 수습평가 전용 5단계 등급 (PDF 기준: D/C/B/A/S)
 const GRADES_PROB = [
   { label: 'D', score: 55 },
@@ -1227,6 +1276,14 @@ const GRADES_PROB = [
   { label: 'S', score: 100 },
 ];
 const SV = GRADES.map(g => g.score); // 호환성 유지
+
+// 현재 활성 등급 배열 반환 (부서/모드 기반)
+function activeGrades() {
+  if(ITEMS === ITEMS_PROBATION) return GRADES_PROB;
+  // 기업연구소 외 비개발팀(영업전략/레비뉴/운영기획/경영지원)만 5단계
+  if(currentDept && currentDept.itemsDown === 'nondev_down') return GRADES_SIMPLE;
+  return GRADES;
+}
 
 function buildTable() {
   const tbody = document.getElementById('eval-body');
@@ -1349,11 +1406,10 @@ function buildTable() {
       <th style="width:50px;">No.</th>
       <th style="width:100px;">역량요소</th>
       <th style="text-align:left; padding-left:20px; min-width:200px;">리 뷰 기 준</th>
-      <th colspan="10">등급 선택 (S+ ~ D)</th>
+      <th colspan="${activeGrades().length}">등급 선택 (${activeGrades() === GRADES_SIMPLE ? 'S ~ D' : activeGrades() === GRADES_PROB ? 'D ~ S' : 'S+ ~ D'})</th>
     `;
   }
   // rowspan: 하향 모드에서는 사례행 제외해서 계산
-  const rowSpanCounts = {};
   ITEMS.forEach(it => {
     const caseRows = (it[3] && isSelfMode) ? 1 : 0;
     rowSpanCounts[it[0]] = (rowSpanCounts[it[0]] || 0) + 1 + caseRows;
@@ -1368,9 +1424,17 @@ function buildTable() {
       usedFactors[factor] = true;
     }
     let scoreBtns = '';
-    GRADES.forEach(g => {
-      scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
-    });
+    if(it[3] === 'yn') {
+      // Y/N 항목
+      scoreBtns = `<td colspan="10" style="text-align:left;padding:6px 12px;">
+        <button class="sbtn yn-btn" id="b-${idx}-Y" onclick="clickYN(${idx},'Y')" style="width:56px;font-size:12px;font-weight:700;">Y</button>
+        <button class="sbtn yn-btn" id="b-${idx}-N" onclick="clickYN(${idx},'N')" style="width:56px;font-size:12px;font-weight:700;margin-left:6px;">N</button>
+      </td>`;
+    } else {
+      activeGrades().forEach(g => {
+        scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
+      });
+    }
     tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="text-align:left; padding:10px 16px; font-size:12px; line-height:1.8; color:#374151; word-break:keep-all; min-width:200px;">${it[2]}</td>${scoreBtns}`;
     tbody.appendChild(tr);
     if(it[3]){
@@ -1380,6 +1444,9 @@ function buildTable() {
       tbody.appendChild(trCase);
     }
   });
+  // 총점행 colspan을 등급 수에 맞게 업데이트
+  const _totInline = document.getElementById('tot-self-inline');
+  if(_totInline) _totInline.colSpan = activeGrades().length;
   // 빌드 후 가시성 직접 적용
   const _isSelf = (mode === 'self');
   document.querySelectorAll('[id^="vs-"]').forEach(el => { el.classList.toggle('vres-hidden', !_isSelf); });
@@ -1447,7 +1514,7 @@ function setMode(m) {
   if(ITEMS !== ITEMS_PROBATION) {
     const itemsForMode = (m === 'self')
       ? (currentDept ? (function(){ const map={dev:ITEMS_DEV,nondev:ITEMS_NONDEV}; return map[currentDept.items]||ITEMS_DEV; })() : ITEMS_DEV)
-      : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN);
+      : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV,nondev_down:ITEMS_NONDEV_DOWN}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN);
     const needRebuild = (ITEMS !== itemsForMode) || (prevMode !== m);
     ITEMS = itemsForMode;
     if(needRebuild) buildTable();
@@ -1513,9 +1580,28 @@ function clickScore(idx, val) {
   calculate();
 }
 
+function clickYN(idx, val) {
+  scores[mode][String(idx)] = val;
+  // Y/N 버튼 스타일 갱신
+  const btnY = document.getElementById(`b-${idx}-Y`);
+  const btnN = document.getElementById(`b-${idx}-N`);
+  if(btnY && btnN) {
+    if(val === 'Y') {
+      btnY.style.background='#ECFDF5'; btnY.style.borderColor='#10B981'; btnY.style.color='#065F46';
+      btnN.style.background='#fff';    btnN.style.borderColor='#E2E8F0'; btnN.style.color='#94A3B8';
+    } else {
+      btnN.style.background='#FEF2F2'; btnN.style.borderColor='#EF4444'; btnN.style.color='#991B1B';
+      btnY.style.background='#fff';    btnY.style.borderColor='#E2E8F0'; btnY.style.color='#94A3B8';
+    }
+  }
+  calculate();
+}
+
 function refreshRow(idx) {
   const si = String(idx);
-  SV.forEach(v => {
+  const allScores = [...GRADES, ...GRADES_SIMPLE, ...GRADES_PROB].map(g => g.score);
+  const uniqueScores = [...new Set(allScores)];
+  uniqueScores.forEach(v => {
     const btn = document.getElementById(`b-${idx}-${v}`);
     if(btn) {
       btn.classList.remove('ss', 's1');
@@ -1525,7 +1611,8 @@ function refreshRow(idx) {
   });
   function scoreLabel(v) {
     if(!v) return '';
-    const g = GRADES.find(g => g.score === v);
+    const allG = [...GRADES, ...GRADES_SIMPLE, ...GRADES_PROB];
+    const g = allG.find(g => g.score === v);
     return g ? g.label : v;
   }
   const vsEl = document.getElementById(`vs-${idx}`); if(vsEl){ const lbl=scoreLabel(scores.self[si]); vsEl.innerHTML=lbl?`<div style='display:flex;align-items:center;justify-content:center;width:100%;height:100%;min-height:36px;font-weight:900;font-size:16px;color:white;'>${lbl}</div>`:''; }
@@ -1534,7 +1621,7 @@ function refreshRow(idx) {
 
 function calculate() {
   function modeAvg(m) {
-    const vals = Object.values(scores[m]).filter(v => v > 0);
+    const vals = Object.values(scores[m]).filter(v => typeof v === 'number' && v > 0);
     if(vals.length === 0) return 0;
     return vals.reduce((a,b) => a+b, 0) / vals.length;
   }
@@ -2166,7 +2253,7 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
 
     selfItemList.forEach((it, idx) => {
       const score = selfScores[String(idx)];
-      const grade = score ? (GRADES.find(g => g.score === score)?.label || score) : null;
+      const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
       if(score > 0) { total += score; count++; }
       const criteria = it[2] || '';
       const caseText = cases[String(idx)] || '';
@@ -2211,7 +2298,7 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
           let updatedRows = '';
           selfItemList.forEach((it, idx) => {
             const score = selfScores[String(idx)];
-            const grade = score ? (GRADES.find(g => g.score === score)?.label || score) : null;
+            const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
             const criteria = it[2] || '';
             const caseText = c[String(idx)] || cases[String(idx)] || '';
             updatedRows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
@@ -2428,7 +2515,7 @@ if(_initViewDown) {
   // 하향평가 원문보기: 처음부터 하향 모드로 초기화
   adminMode = true; selfSubmitted = true; selfLockedFromURL = true;
   currentDept = DEPT_CONFIG[0];
-  const _downMap = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
+  const _downMap = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
   ITEMS = _downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
   mode = 'd1';
 } 
@@ -2501,7 +2588,7 @@ if(_urlParams.get('d')) {
       document.getElementById('onboarding').style.display = 'none';
       // ITEMS 세팅
       const _itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
-      const _downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
+      const _downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
       if(_isProb) {
         ITEMS      = ITEMS_PROBATION;
         ITEMS_DOWN = ITEMS_PROBATION;
@@ -2538,12 +2625,20 @@ if(_urlParams.get('d')) {
       syncNameLabels();
       setTimeout(() => { tempLoad(true); }, 300);
     } catch(e) {
+      localStorage.removeItem('hr_temp_save');
       obInit(); obNext(1);
     }
   } else {
     obInit();
     obNext(1);
   }
+}
+
+// ── 버전 체크: 구버전 임시저장 데이터 자동 초기화 ──
+const _CURRENT_VER = 'v20260405_nondev';
+if(localStorage.getItem('hr_data_ver') !== _CURRENT_VER) {
+  localStorage.removeItem('hr_temp_save');
+  localStorage.setItem('hr_data_ver', _CURRENT_VER);
 }
 
 // ── 관리자 대시보드 ──────────────────────────────────────────
@@ -3141,7 +3236,7 @@ function renderViewer(resultUrl, type, evaluator) {
     let total = 0, count = 0;
     itemList.forEach((it, idx) => {
       const score = showScores[String(idx)];
-      const grade = score ? (GRADES.find(g => g.score === score)?.label || '-') : '-';
+      const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || '-') : '-';
       const gradeColor = score >= 90 ? '#6366F1' : score >= 70 ? '#3B82F6' : score >= 50 ? '#10B981' : score > 0 ? '#F59E0B' : '#CBD5E1';
       const gradeTextColor = score > 0 ? '#fff' : '#94A3B8';
       if(score > 0) { total += score; count++; }

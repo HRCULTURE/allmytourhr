@@ -2110,7 +2110,8 @@ async function submitToSlack() {
   const isProbUrl = (ITEMS === ITEMS_PROBATION);
   const resultUrl = baseUrl + '?d=' + savedData
     + (isProbUrl ? '&view=prob' : (mode !== 'self' ? '&view=down' : ''))
-    + (!isProbUrl && mode !== 'self' && evaluatorVal ? '&evaluator=' + encodeURIComponent(evaluatorVal) : '');
+    + (!isProbUrl && mode !== 'self' && evaluatorVal ? '&evaluator=' + encodeURIComponent(evaluatorVal) : '')
+    + (isLeaderMode ? '&leader=1' : '');
 
   // 수습평가 서술형 수집
   const probQ1 = document.getElementById('prob-q1')?.value?.trim() || '';
@@ -3557,9 +3558,14 @@ function renderViewer(resultUrl, type, evaluator) {
   const content = document.getElementById('viewer-content');
   if(!content) return;
   try {
-    let dParam = null;
-    try { dParam = new URL(resultUrl).searchParams.get('d'); } catch(e) {
+    let dParam = null, isLeaderViewer = false;
+    try {
+      const urlObj = new URL(resultUrl);
+      dParam = urlObj.searchParams.get('d');
+      isLeaderViewer = urlObj.searchParams.get('leader') === '1';
+    } catch(e) {
       const m = resultUrl.match(/[?&]d=([^&]+)/); if(m) dParam = m[1];
+      isLeaderViewer = /[?&]leader=1/.test(resultUrl);
     }
     if(!dParam) throw new Error('URL 파싱 실패');
 
@@ -3617,35 +3623,38 @@ function renderViewer(resultUrl, type, evaluator) {
     }
     infoHtml += '</div>';
 
-    // 항목별 점수 테이블
-    let tableHtml = '<div class="admin-viewer-section">' + (type === 'prob' ? '🌱 수습리뷰 항목별 점수' : type === 'self' ? '셀프리뷰 항목별 점수' : '하향리뷰 항목별 점수') + '</div>';
-    tableHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">';
+    // 항목별 점수 테이블 (리더 모드는 객관식 없으므로 생략)
+    let tableHtml = '';
     let total = 0, count = 0;
-    itemList.forEach((it, idx) => {
-      const score = showScores[String(idx)];
-      const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || '-') : '-';
-      const gradeColor = score >= 90 ? '#6366F1' : score >= 70 ? '#3B82F6' : score >= 50 ? '#10B981' : score > 0 ? '#F59E0B' : '#CBD5E1';
-      const gradeTextColor = score > 0 ? '#fff' : '#94A3B8';
-      if(score > 0) { total += score; count++; }
-      tableHtml +=
-        '<div style="display:flex;align-items:stretch;background:#fff;border:1px solid #E8EDFB;border-radius:10px;overflow:hidden;">' +
-          '<div style="flex:1;padding:10px 14px;">' +
-            '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">' +
-              '<span style="background:#EEF2FF;color:#6366F1;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:800;">' + (idx+1) + '</span>' +
-              '<span style="font-size:11px;font-weight:700;color:#94A3B8;">' + it[0] + '</span>' +
+    if(!isLeaderViewer) {
+      tableHtml = '<div class="admin-viewer-section">' + (type === 'prob' ? '🌱 수습리뷰 항목별 점수' : type === 'self' ? '셀프리뷰 항목별 점수' : '하향리뷰 항목별 점수') + '</div>';
+      tableHtml += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;">';
+      itemList.forEach((it, idx) => {
+        const score = showScores[String(idx)];
+        const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || '-') : '-';
+        const gradeColor = score >= 90 ? '#6366F1' : score >= 70 ? '#3B82F6' : score >= 50 ? '#10B981' : score > 0 ? '#F59E0B' : '#CBD5E1';
+        const gradeTextColor = score > 0 ? '#fff' : '#94A3B8';
+        if(score > 0) { total += score; count++; }
+        tableHtml +=
+          '<div style="display:flex;align-items:stretch;background:#fff;border:1px solid #E8EDFB;border-radius:10px;overflow:hidden;">' +
+            '<div style="flex:1;padding:10px 14px;">' +
+              '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">' +
+                '<span style="background:#EEF2FF;color:#6366F1;border-radius:5px;padding:1px 7px;font-size:11px;font-weight:800;">' + (idx+1) + '</span>' +
+                '<span style="font-size:11px;font-weight:700;color:#94A3B8;">' + it[0] + '</span>' +
+              '</div>' +
+              '<div style="font-size:12px;color:#374151;line-height:1.7;word-break:keep-all;">' + (it[2]||'') + '</div>' +
             '</div>' +
-            '<div style="font-size:12px;color:#374151;line-height:1.7;word-break:keep-all;">' + (it[2]||'') + '</div>' +
-          '</div>' +
-          '<div style="display:flex;align-items:center;justify-content:center;min-width:52px;background:' + gradeColor + ';flex-shrink:0;">' +
-            '<span style="font-size:15px;font-weight:900;color:' + gradeTextColor + ';">' + (score ? grade : '-') + '</span>' +
-          '</div>' +
-        '</div>';
+            '<div style="display:flex;align-items:center;justify-content:center;min-width:52px;background:' + gradeColor + ';flex-shrink:0;">' +
+              '<span style="font-size:15px;font-weight:900;color:' + gradeTextColor + ';">' + (score ? grade : '-') + '</span>' +
+            '</div>' +
+          '</div>';
+      });
+      tableHtml += '</div>';
+      const avg2 = count > 0 ? (total / count).toFixed(1) : '-';
+      tableHtml += '<div style="text-align:right;padding:10px 0 4px;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg2 + '</div>';
+    }
     });
     tableHtml += '</div>';
-
-    // 총점
-    const avg = count > 0 ? (total / count).toFixed(1) : '-';
-    tableHtml += '<div style="text-align:right;padding:10px 0 4px;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg + '</div>';
 
     // 서술형 렌더링 함수
     const essayLabels = [

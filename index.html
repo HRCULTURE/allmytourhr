@@ -615,6 +615,27 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
       <div id="leader-essay-wrap"></div>
     </div>
   </div>
+
+  <!-- ── 상향리뷰 전용 주관식 섹션 ── -->
+  <div id="upward-essay-section" style="display:none;">
+    <div class="table-card" style="padding:28px; margin-bottom:8px;">
+      <div style="font-size:15px; font-weight:800; color:#1A1F27; margin-bottom:6px;">객관식으로 평가하기 어려운 리더의 장단점 또는 의견을 자유롭게 남겨 주세요<span style="color:#EF4444;"> *</span></div>
+      <div style="font-size:12px; color:#4E5968; background:#FFF8E8; border:1px solid #FDE68A; border-radius:10px; padding:12px 16px; margin-bottom:16px; line-height:1.7;">
+        해당 피드백도 피평가자(리더)에게 절대 공개되지 않음을 약속드립니다.
+      </div>
+      <div class="prob-richbox" id="upward-essay-box" contenteditable="true" placeholder="코멘트 입력하기 (필수)" style="min-height:140px;"></div>
+      <input type="hidden" id="upward-essay">
+      <div class="prob-toolbar">
+        <button onclick="probFmtTarget('upward-essay-box','bold')"><b>B</b></button>
+        <button onclick="probFmtTarget('upward-essay-box','italic')"><i>I</i></button>
+        <button onclick="probFmtTarget('upward-essay-box','underline')"><u>U</u></button>
+        <button onclick="probFmtTarget('upward-essay-box','strikeThrough')"><s>S</s></button>
+        <button onclick="probFmtTarget('upward-essay-box','insertOrderedList')">&#8801;</button>
+        <button onclick="probFmtTarget('upward-essay-box','insertUnorderedList')">&#8942;</button>
+      </div>
+    </div>
+  </div>
+
   <div id="nondev-down-essay-section" style="display:none;">
     <div class="table-card" style="padding:28px; margin-bottom:8px;">
       <div style="font-size:15px; font-weight:800; color:#1A1F27; margin-bottom:6px;">이번 분기 팀원의 성과를 평가한다면?<span style="color:#EF4444;"> *</span></div>
@@ -921,6 +942,26 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           </div>
         </div>
 
+        <!-- 상향리뷰 -->
+        <div class="review-card" onclick="obSelectMode('upward')"
+          onmouseover="hoverCard(this)" onmouseout="unhoverCard(this)"
+          style="background:#F9FAFB; border:1.5px solid #EAEDF0;
+            padding:16px 18px; border-radius:14px;
+            display:flex; align-items:center; cursor:pointer; transition:all 0.18s;">
+          <div style="width:40px;height:40px;background:#FFF3E0;border-radius:10px;
+            display:flex;align-items:center;justify-content:center;
+            margin-right:14px;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <rect x="3" y="3" width="18" height="18" rx="4" fill="#F59E0B"/>
+              <path d="M12 17V7M7 11l5-5 5 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">상향리뷰 ⬆️</b>
+            <span style="font-size:13px;color:#8B95A1;">리더에 대한 피드백을 전달합니다.</span>
+          </div>
+        </div>
+
       </div>
 
       <button onclick="obNext(2)" style="
@@ -951,7 +992,8 @@ let currentDept = null; // 선택된 부서 config 객체
 const WEBHOOK_CONFIG = {
   self: "https://hooks.slack.com/triggers/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",
   down: "https://hooks.slack.com/triggers/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",
-  probation: "https://hooks.slack.com/triggers/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"
+  probation: "https://hooks.slack.com/triggers/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",
+  upward: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
 const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbznSH4q8gboB2biCwvwqHnrDx8ZEup36low9YPCeAm5BdZzvalviq17pcJSNj6qO-8i/exec';
@@ -1059,8 +1101,65 @@ function renderPerfItems() {
   });
 }
 
+// ── 상향평가 항목 ──────────────────────────────────────────
+const ITEMS_UPWARD = [
+  ['리더십 및 조직문화 부합도','핵심가치실천','회사의 핵심가치(빠른 실행, 성장 마인드셋 등)를 일관되게 실천하고 있다.',false],
+  ['리더십 및 조직문화 부합도','실행중심','리더는 실행 중심이며, \'완벽한 계획보다 실행\'을 중요시한다.',false],
+  ['리더십 및 조직문화 부합도','방향제시','모호한 상황에서도 빠르게 방향을 제시하고 팀을 리드한다.',false],
+  ['리더십 및 조직문화 부합도','의사결정','불확실한 상황에서도 의사결정을 지연하지 않는다.',false],
+  ['리더십 및 조직문화 부합도','가이드라인','팀원들이 주도적으로 움직일 수 있도록 명확한 가이드라인을 제시한다.',false],
+  ['리더십 및 조직문화 부합도','데이터판단','데이터 기반 의사결정 및 논리적 판단을 실천한다.',false],
+  ['리더십 및 조직문화 부합도','목적설명','"왜 이 일을 하는가"에 대해 지속적으로 설명하는 리더이다.',false],
+  ['리더십 및 조직문화 부합도','공정대우','리더는 팀원을 \'감정\'이나 \'친소관계\'가 아닌 \'업무\' 자체만으로 공정하게 대한다.',false],
+  ['팀원 성장 및 동기부여','도전과제','팀원에게 현실에 기반한 목표보다 야심찬 도전 과제를 부여하며 성장을 유도한다.',false],
+  ['팀원 성장 및 동기부여','목표유도','구성원이 스스로 야심찬 목표를 설정할 수 있도록 유도한다.',false],
+  ['팀원 성장 및 동기부여','기술공유','새로운 기술/도구/지식을 팀에 적극적으로 도입하고 공유한다.',false],
+  ['팀원 성장 및 동기부여','1on1피드백','팀원이 성장할 수 있도록 1on1을 통해 구체적인 피드백을 제공한다.',false],
+  ['팀원 성장 및 동기부여','온보딩','신규 팀원의 온보딩에 충분한 시간과 관심을 할애한다.',false],
+  ['팀원 성장 및 동기부여','업무배분','각 팀원별 역량과 성향을 파악하고 업무를 배분한다.',false],
+  ['팀원 성장 및 동기부여','커리어관심','팀원의 커리어 방향성에 관심을 기울인다.',false],
+  ['팀원 성장 및 동기부여','새업무부여','팀원의 기존 업무 외, 익숙하지 않은 새로운 업무를 지속적으로 부여한다.',false],
+  ['공정성과 객관성','업무조율','특정 팀원에게 과도한 업무나 특혜가 주어지지 않도록 조율한다.',false],
+  ['공정성과 객관성','편향없음','특정 팀원과의 친소관계에 따른 편향된 의사결정을 하지 않는다.',false],
+  ['공정성과 객관성','논리판단','보이지 않는 \'정치적 판단\'보다 데이터와 논리에 기반한 판단을 한다.',false],
+  ['공정성과 객관성','의견수용','회의나 의사결정 자리에서 특정 의견만을 고집하지 않는다.',false],
+  ['공정성과 객관성','특혜없음','자신과 가까운 팀원에게 특혜를 주지 않는다.',false],
+  ['공정성과 객관성','전체역량','특정 인물에 의존하지 않고 팀 전체 역량을 고려한다.',false],
+  ['공정성과 객관성','갈등조정','갈등 발생 시 중립적인 입장에서 조정한다.',false],
+  ['공정성과 객관성','이견불이익','반론이나 이견을 제시한 사람에게 불이익을 주지 않는다.',false],
+  ['공정성과 객관성','사적관계','팀원들과의 사적 관계가 업무에 영향을 미치지 않는다.',false],
+  ['공정성과 객관성','공정팀우선','리더는 "좋아하는 사람"보다 "공정한 팀"을 우선시한다.',false],
+  ['실시간 소통과 협업','명확소통','의사소통이 빠르고 명확하게 이루어진다.',false],
+  ['실시간 소통과 협업','부서협업','부서 간 협업에 적극적으로 참여하고 리드한다.',false],
+  ['실시간 소통과 협업','문제공유','업무 중 문제 발생 시 빠르게 공유하고 함께 해결하려 한다.',false],
+  ['실시간 소통과 협업','핵심소통','불필요한 회의나 절차를 줄이고 핵심 소통에 집중한다.',false],
+  ['실시간 소통과 협업','소통수단','이메일, 회의, 문서화, 협업툴 등 커뮤니케이션 수단을 효과적으로 활용한다.',false],
+  ['실시간 소통과 협업','협업환경','팀원 간 실시간 공유가 가능한 협업 환경을 조성한다.',false],
+  ['기술 내재화 마인드셋','자동화언급','리더는 반복되는 업무에 자동화/AI 도입 필요성을 지속적으로 언급한다.',false],
+  ['기술 내재화 마인드셋','팀책무','AI 또는 자동화 도구 도입을 개별 팀원의 의지에 맡기지 않고 팀 전체의 책무로 본다.',false],
+  ['기술 내재화 마인드셋','OKR반영','자동화/AI 기술 적용 여부가 팀의 OKR/성과 지표로 반영되도록 리딩한다.',false],
+  ['기술 내재화 마인드셋','공개인정','리더는 반복 업무를 자동화한 팀원에게 공개적인 인정을 한다.',false],
+  ['기술 내재화 마인드셋','PoC독려','팀 내 자동화 또는 AI 전환 관련 테스트 및 PoC(Proof of Concept)를 독려한다.',false],
+  ['기술 내재화 마인드셋','리더적용','리더 본인의 업무 중 일부라도 자동화 또는 AI 기술을 적용하여, 팀에 공유한 사례가 있다.',false],
+  ['기술 내재화 마인드셋','팀원독려','팀원 스스로 자동화 기획 또는 AI 기술 적용을 할 수 있도록 독려한 적이 있다.',false],
+  ['기술 내재화 마인드셋','정보공유','새로운 AI 기술이나 자동화 툴 관련 정보를 팀원에게 공유한 적이 있다.',false],
+  ['기술 내재화 마인드셋','실패공유','자동화/AX 실패 사례도 적극 공유하며 시도 자체를 장려하는 분위기를 만든다.',false],
+  ['기타 항목','험담','리더가 다른 동료나 팀원에 대해 감정적으로 험담하는 것을 들은 적이 있다.','yn'],
+  ['기타 항목','풍문','리더는 본인과 직접 관련이 없는 부정적인 사내 풍문을 잘 퍼트리는 편이다.','yn'],
+  ['기타 항목','나태','해당 리더는 팀원인 본인보다도 일을 열심히 하지 않는 편이다.','yn'],
+  ['기타 항목','과도업무','리더가 과도한 업무를 부여하여 본인을 힘들게 한다.','yn'],
+  ['기타 항목','새로운롤','리더가 정해진 업무 외의 새로운 업무와 롤을 계속 부여한다.','yn'],
+  ['기타 항목','사적관심','업무 외에 팀원 본인의 사적인 영역에 대해 관심이 불필요하게 많다.','yn'],
+  ['기타 항목','야근잦음','해당 리더의 지시로 야근이 잦고 업무가 과중하여 일과 삶의 균형(워라밸)을 유지하기 어려운 상황이 발생한다.','yn'],
+  ['기타 항목','배우는점','해당 리더와 같이 일하면서 일은 힘들어도 배우는 점이 있다.','yn'],
+  ['기타 항목','성장필요','개인적인 감정과 업무 과중을 떠나 해당 리더는 회사의 빠른 성장을 위해 필요하다.','yn'],
+  ['기타 항목','사내정치','해당 리더는 리더 본인의 역량과 리더십보다도 사내 정치에 더 많은 관심을 보이는 경향이 있다.','yn'],
+  ['기타 항목','성실하지않음','해당 리더는 업무에 있어 성실하지 않은 편이다.','yn'],
+];
+
 // ── 리더 모드 ──────────────────────────────────────────────
 let isLeaderMode = false;
+let isUpwardMode = false;
 
 const LEADER_ESSAY_QUESTIONS = [
   '지난 1년간 내가 주도했거나 기여한 과업 중, 가시적인 성과(매출, 유저, 거래 등) 향상 결과는 무엇이었는지 모두 기술해 주세요.',
@@ -1359,22 +1458,27 @@ function unhoverCard(el) {
 
 function obSelectMode(m) {
   // self_leader는 셀프리뷰와 동일하게 처리
-  const actualMode = (m === 'self_leader') ? 'self' : m;
+  const actualMode = (m === 'self_leader') ? 'self' : (m === 'upward') ? 'd1' : m;
   isLeaderMode = (m === 'self_leader');
+  isUpwardMode = (m === 'upward');
   // 수습평가 모드
   const isProbation = (m === 'probation');
+  const isUpward = (m === 'upward');
   // 부서 평가지 적용
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
   if(isProbation) {
     ITEMS      = ITEMS_PROBATION;
     ITEMS_DOWN = ITEMS_PROBATION;
+  } else if(isUpward) {
+    ITEMS      = ITEMS_UPWARD;
+    ITEMS_DOWN = ITEMS_UPWARD;
   } else {
     ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
     ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
   }
   // 헤더 배지 업데이트
-  document.getElementById('dept-badge-text').textContent = isProbation ? '🌱 수습리뷰' : (currentDept.emoji + ' ' + currentDept.label);
+  document.getElementById('dept-badge-text').textContent = isProbation ? '🌱 수습리뷰' : isUpward ? '⬆️ 상향리뷰' : (currentDept.emoji + ' ' + currentDept.label);
   // 온보딩 닫기
   const ob = document.getElementById('onboarding');
   ob.style.transition = 'opacity 0.4s ease';
@@ -1390,8 +1494,8 @@ function obSelectMode(m) {
   // 선택한 리뷰 탭만 표시
   const tabSelf = document.getElementById('tab-self');
   const tabDown = document.getElementById('tab-down');
-  if(isProbation) {
-    // 수습리뷰 모드: 탭 모두 숨김 (배지에만 표시)
+  if(isProbation || isUpward) {
+    // 수습리뷰/상향리뷰: 탭 모두 숨김
     if(tabSelf) tabSelf.style.display = 'none';
     if(tabDown) tabDown.style.display = 'none';
   } else if(actualMode === 'self') {
@@ -1401,7 +1505,7 @@ function obSelectMode(m) {
     if(tabSelf) tabSelf.style.display = 'none';
     if(tabDown) { tabDown.style.display = ''; tabDown.classList.remove('locked'); tabDown.classList.add('active-down'); }
   }
-  if(isProbation || actualMode === 'd1') {
+  if(isProbation || isUpward || actualMode === 'd1') {
     adminMode = true;
     selfSubmitted = true;
     selfLockedFromURL = false;
@@ -1409,10 +1513,10 @@ function obSelectMode(m) {
   }
   // 온보딩 완료 후 임시저장 자동 복원 (조용히)
   setTimeout(() => { tempLoad(true); }, 500);
-  // 하향리뷰면 패널 표시
-  showSelfPanel(actualMode === 'd1');
+  // 하향리뷰면 패널 표시 (상향리뷰는 패널 숨김)
+  showSelfPanel(actualMode === 'd1' && !isUpward);
   // 셀프 항목 목록 저장 (패널 표시용)
-  if(actualMode === 'd1') {
+  if(actualMode === 'd1' && !isUpward) {
     const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
     ITEMS_SELF_REF = itemsMap[currentDept.items] || ITEMS_DEV;
   }
@@ -1501,6 +1605,7 @@ function buildTable() {
   tbody.innerHTML = '';
   const isSelfMode = (mode === 'self');
   const isProbMode = (ITEMS === ITEMS_PROBATION);
+  const isUpwardBuild = (ITEMS === ITEMS_UPWARD);
   // 수습평가 서술형 섹션 표시/숨김
   const probEssay = document.getElementById('probation-essay');
   const probFinal = document.getElementById('probation-final');
@@ -1746,6 +1851,9 @@ function setMode(m) {
       if(evalTableWrap) evalTableWrap.style.display = 'none';
     }
   }
+  // 상향리뷰 주관식 섹션
+  const upwardEssaySection = document.getElementById('upward-essay-section');
+  if(upwardEssaySection) upwardEssaySection.style.display = isUpwardMode ? '' : 'none';
   // 비개발팀 하향: 주관식 성과 섹션 표시
   const nondevDownEssay = document.getElementById('nondev-down-essay-section');
   const _isNonDevDown = (m === 'd1' && currentDept && currentDept.itemsDown === 'nondev_down');
@@ -1972,6 +2080,14 @@ function getCaseData() {
       }
     });
   }
+  // 상향리뷰 주관식
+  if(isUpwardMode) {
+    const upwardBox = document.getElementById('upward-essay-box');
+    if(upwardBox) {
+      const txt = upwardBox.innerText.trim();
+      if(txt) caseData['upward_essay'] = txt;
+    }
+  }
   // 비개발팀 하향리뷰 주관식 (이번 분기 팀원 성과 평가)
   const nondevDownBox = document.getElementById('nondev-down-perf-box');
   if(nondevDownBox) {
@@ -2096,9 +2212,17 @@ async function submitToSlack() {
     if(firstEmpty !== -1) return alert('[서술형' + (firstEmpty+1) + '] 항목을 입력해주세요.');
   }
 
+  // 상향리뷰: 주관식 hidden 동기화 + 검증
+  if(isUpwardMode) {
+    const upBox = document.getElementById('upward-essay-box');
+    const upInp = document.getElementById('upward-essay');
+    if(upBox && upInp) upInp.value = upBox.innerText.trim();
+    if(!upInp || !upInp.value) return alert('주관식 의견을 입력해주세요.');
+  }
+
   showModal("전송 중...", "데이터를 슬랙으로 안전하게 보내고 있습니다.");
 
-  const triggerUrl = (ITEMS === ITEMS_PROBATION) ? WEBHOOK_CONFIG.probation : (mode === 'self') ? WEBHOOK_CONFIG.self : WEBHOOK_CONFIG.down;
+  const triggerUrl = isUpwardMode ? WEBHOOK_CONFIG.upward : (ITEMS === ITEMS_PROBATION) ? WEBHOOK_CONFIG.probation : (mode === 'self') ? WEBHOOK_CONFIG.self : WEBHOOK_CONFIG.down;
   const selfTotal = parseFloat(document.getElementById('d-self')?.textContent) || parseFloat(document.getElementById('d-down2')?.textContent) || 0;
   const downAvg = document.getElementById('d-down2')?.textContent || document.getElementById('d-down')?.textContent || '0.0';
 
@@ -2109,8 +2233,9 @@ async function submitToSlack() {
   const evaluatorVal = document.getElementById('inf-evaluator')?.value?.trim() || '';
   const isProbUrl = (ITEMS === ITEMS_PROBATION);
   const resultUrl = baseUrl + '?d=' + savedData
-    + (isProbUrl ? '&view=prob' : (mode !== 'self' ? '&view=down' : ''))
-    + (!isProbUrl && mode !== 'self' && evaluatorVal ? '&evaluator=' + encodeURIComponent(evaluatorVal) : '')
+    + (isProbUrl ? '&view=prob' : isUpwardMode ? '&view=upward' : (mode !== 'self' ? '&view=down' : ''))
+    + (!isProbUrl && !isUpwardMode && mode !== 'self' && evaluatorVal ? '&evaluator=' + encodeURIComponent(evaluatorVal) : '')
+    + (isUpwardMode && evaluatorVal ? '&evaluator=' + encodeURIComponent(evaluatorVal) : '')
     + (isLeaderMode ? '&leader=1' : '');
 
   // 수습평가 서술형 수집
@@ -2141,6 +2266,8 @@ async function submitToSlack() {
   let successMsg = '';
   if(ITEMS === ITEMS_PROBATION) {
     successMsg = `<strong>${nameInput}</strong> 님의 수습리뷰가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
+  } else if(isUpwardMode) {
+    successMsg = `<strong>${nameInput}</strong> 리더에 대한 상향리뷰가 정상적으로 전달되었습니다. 📩<br>익명으로 처리되며 피평가자에게 공개되지 않습니다.`;
   } else if(mode === 'self') {
     successMsg = `<strong>${nameInput}</strong> 님의 소중한 성과가 정상적으로 전달되었습니다. 📩<br>작성해주신 내용은 공정한 평가에 반영됩니다.<br><br>한 해 동안의 노고에 감사드립니다. 🙏`;
   } else {
@@ -2201,8 +2328,23 @@ async function submitToSlack() {
         date: document.getElementById('inf-date')?.value || '',
         cases: b64(JSON.stringify(caseData)),
       });
+    } else if(isUpwardMode) {
+      // 상향리뷰
+      const caseData = getCaseData();
+      function b64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
+      sheetsParams = new URLSearchParams({
+        action: 'save_upward',
+        name:        payload.name        || '',
+        dept:        payload.dept        || '',
+        employee_id: payload.employee_id || '',
+        upward_score: document.getElementById('d-down2')?.textContent || '0.0',
+        evaluator:   document.getElementById('inf-evaluator')?.value || '',
+        result_url:  payload.result_url  || '',
+        pos:  document.getElementById('inf-pos')?.value  || '',
+        date: document.getElementById('inf-date')?.value || '',
+        cases: b64(JSON.stringify(caseData)),
+      });
     } else {
-      // 하향리뷰 — 서술형 사례 수집
       const caseData = getCaseData();
       function b64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
       sheetsParams = new URLSearchParams({
@@ -2306,6 +2448,16 @@ function syncNameLabels() {
 }
 
 function updatePhaseTabs() {
+  // 상향평가 모드
+  if(ITEMS === ITEMS_UPWARD) {
+    const tabDown = document.getElementById('tab-down');
+    if(tabDown) tabDown.style.display = 'none';
+    const tabSelf = document.getElementById('tab-self');
+    if(tabSelf) tabSelf.style.display = 'none';
+    const dDownLabel = document.querySelector('#d-down-panel .score-label');
+    if(dDownLabel) dDownLabel.innerHTML = '⬆️ 상향리뷰 총점<span class="score-desc">UPWARD REVIEW</span>';
+    return;
+  }
   // 수습평가 모드면 탭 텍스트 + 대시보드 레이블 수습평가용으로 유지
   if(ITEMS === ITEMS_PROBATION) {
     const tabDown = document.getElementById('tab-down');
@@ -3367,6 +3519,9 @@ function updateAdminStats() {
   document.getElementById('stat-prob').textContent = (adminData.probation || []).length;
   const scores = adminData.self.map(r => parseFloat(r['셀프점수'])).filter(v => !isNaN(v) && v > 0);
   document.getElementById('stat-avg').textContent = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
+  // 상향리뷰 stat (stat-upward가 있으면 표시)
+  const statUpward = document.getElementById('stat-upward');
+  if(statUpward) statUpward.textContent = (adminData.upward || []).length;
   updateTargetStat();
   // 패널이 열려있으면 자동 새로고침
   const panel = document.getElementById('target-panel');
@@ -3407,8 +3562,8 @@ function populateFilters() {
   setOptions('filter-pos',   poses,  '👤 전체 직급');
   setOptions('filter-month', months, '📅 전체 월');
 
-  // 직급 필터는 하향리뷰/수습리뷰에선 숨기기
-  document.getElementById('filter-pos').style.display = (adminCurrentTab === 'down' || adminCurrentTab === 'probation') ? 'none' : '';
+  // 직급 필터는 하향리뷰/수습리뷰/상향리뷰에선 숨기기
+  document.getElementById('filter-pos').style.display = (adminCurrentTab === 'down' || adminCurrentTab === 'probation' || adminCurrentTab === 'upward') ? 'none' : '';
 }
 
 function getFilteredRows() {
@@ -3488,8 +3643,25 @@ function renderAdminTable(tab) {
         + '</tr>';
     });
     wrap.innerHTML = t + '</tbody></table>';
+  } else if(tab === 'upward') {
+    let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>작성자</th><th>리더(평가대상)</th><th>부서</th><th>상향점수</th><th>원본</th></tr></thead><tbody>';
+    rows.forEach((r) => {
+      const safeUrl  = encodeURIComponent(r['result_url'] || '');
+      const safeName = (r['평가대상자'] || '').replace(/"/g, '&quot;');
+      const safeEval = (r['평가자'] || '').replace(/"/g, '&quot;');
+      t += '<tr>'
+        + '<td>' + (r['제출일시']||'-') + '</td>'
+        + '<td>' + (r['평가자']||'-') + '</td>'
+        + '<td><strong>' + (r['평가대상자']||'-') + '</strong></td>'
+        + '<td>' + (r['부서']||'-') + '</td>'
+        + '<td><span class="admin-score" style="background:#F59E0B;">' + (r['상향점수']||r['하향점수']||'-') + '</span></td>'
+        + '<td>' + (r['result_url']
+            ? '<button class="admin-view-btn" data-url="' + safeUrl + '" data-name="' + safeName + '" data-evaluator="' + safeEval + '" data-tab="upward" style="background:none;border:1.5px solid #FDE68A;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#D97706;font-weight:700;">📋 원본 보기</button>'
+            : '-') + '</td>'
+        + '</tr>';
+    });
+    wrap.innerHTML = t + '</tbody></table>';
   } else {
-    let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>평가자</th><th>평가대상자</th><th>부서</th><th>하향점수</th><th>원본</th></tr></thead><tbody>';
     rows.forEach((r) => {
       const safeUrl = encodeURIComponent(r['result_url'] || '');
       const safeName = (r['평가대상자'] || '').replace(/"/g, '&quot;');
@@ -3547,7 +3719,7 @@ function openViewer(resultUrl, name, type, evaluator) {
     return;
   }
 
-  titleEl.textContent = '📋 ' + (name || '리뷰 원본') + (type === 'down' ? ' (하향리뷰)' : type === 'prob' ? ' (수습리뷰)' : ' (셀프리뷰)') + (evaluator && (type === 'down' || type === 'prob') ? '  ·  평가자: ' + evaluator : '');
+  titleEl.textContent = '📋 ' + (name || '리뷰 원본') + (type === 'down' ? ' (하향리뷰)' : type === 'prob' ? ' (수습리뷰)' : type === 'upward' ? ' (상향리뷰)' : ' (셀프리뷰)') + (evaluator && (type === 'down' || type === 'prob' || type === 'upward') ? '  ·  평가자: ' + evaluator : '');
   contentEl.innerHTML = '<div style="text-align:center;padding:60px;color:#94A3B8;font-size:14px;">🔄 불러오는 중...</div>';
   overlay.classList.add('open');
 
@@ -3558,14 +3730,16 @@ function renderViewer(resultUrl, type, evaluator) {
   const content = document.getElementById('viewer-content');
   if(!content) return;
   try {
-    let dParam = null, isLeaderViewer = false;
+    let dParam = null, isLeaderViewer = false, isUpwardViewer = false;
     try {
       const urlObj = new URL(resultUrl);
       dParam = urlObj.searchParams.get('d');
       isLeaderViewer = urlObj.searchParams.get('leader') === '1';
+      isUpwardViewer = urlObj.searchParams.get('view') === 'upward';
     } catch(e) {
       const m = resultUrl.match(/[?&]d=([^&]+)/); if(m) dParam = m[1];
       isLeaderViewer = /[?&]leader=1/.test(resultUrl);
+      isUpwardViewer = /[?&]view=upward/.test(resultUrl);
     }
     if(!dParam) throw new Error('URL 파싱 실패');
 
@@ -3593,6 +3767,8 @@ function renderViewer(resultUrl, type, evaluator) {
     let itemList;
     if(type === 'prob') {
       itemList = ITEMS_PROBATION;
+    } else if(isUpwardViewer) {
+      itemList = ITEMS_UPWARD;
     } else if(type === 'self') {
       itemList = isNonDevViewer ? ITEMS_NONDEV : ITEMS_DEV;
     } else {
@@ -3838,6 +4014,13 @@ function renderViewer(resultUrl, type, evaluator) {
         html = '<div class="admin-viewer-section">서술형 사례</div>'
              + '<div class="admin-case-box"><div class="admin-case-text">' + casesObj['0'].replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</div></div>';
       }
+      // 상향리뷰 주관식
+      if(casesObj['upward_essay']) {
+        html += '<div class="admin-viewer-section">⬆️ 리더 장단점 및 자유 의견</div>';
+        html += '<div style="background:#fff;border:1px solid #FDE68A;border-radius:10px;padding:14px 16px;font-size:13px;color:#374151;line-height:1.8;word-break:break-word;">'
+          + casesObj['upward_essay'].replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')
+          + '</div>';
+      }
       return html;
     }
 
@@ -3908,7 +4091,7 @@ function renderViewer(resultUrl, type, evaluator) {
         <button class="admin-close" onclick="closeAdmin()">✕ 닫기</button>
       </div>
     </div>
-    <div class="admin-stats" style="grid-template-columns:repeat(5,1fr);">
+    <div class="admin-stats" style="grid-template-columns:repeat(6,1fr);">
       <div class="admin-stat" style="cursor:pointer;border:1.5px solid rgba(255,255,255,0.1);transition:all 0.2s;" onclick="toggleTargetPanel()" onmouseover="this.style.background='rgba(255,255,255,0.13)'" onmouseout="this.style.background='rgba(255,255,255,0.07)'">
         <div style="display:flex;align-items:center;justify-content:space-between;">
           <div class="admin-stat-val" id="stat-target">0</div>
@@ -3928,6 +4111,10 @@ function renderViewer(resultUrl, type, evaluator) {
       <div class="admin-stat">
         <div class="admin-stat-val" id="stat-prob">0</div>
         <div class="admin-stat-label">수습리뷰 제출</div>
+      </div>
+      <div class="admin-stat">
+        <div class="admin-stat-val" id="stat-upward">0</div>
+        <div class="admin-stat-label">상향리뷰 제출</div>
       </div>
       <div class="admin-stat">
         <div class="admin-stat-val" id="stat-avg">-</div>
@@ -3969,6 +4156,7 @@ function renderViewer(resultUrl, type, evaluator) {
       <button class="admin-tab active" onclick="switchAdminTab('self', this)">셀프리뷰 결과</button>
       <button class="admin-tab" onclick="switchAdminTab('down', this)">하향리뷰 결과</button>
       <button class="admin-tab" onclick="switchAdminTab('probation', this)">🌱 수습리뷰 결과</button>
+      <button class="admin-tab" onclick="switchAdminTab('upward', this)">⬆️ 상향리뷰 결과</button>
     </div>
     <div class="admin-filters">
       <select class="admin-filter-select" id="filter-dept" onchange="applyFilters()">

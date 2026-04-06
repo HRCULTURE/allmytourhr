@@ -581,22 +581,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 
   <!-- ── 비개발팀(영업전략/레비뉴/운영기획/경영지원) 셀프리뷰 전용 섹션 ── -->
   <div id="nondev-self-section" style="display:none;">
-    <!-- 성과 평가 카드 -->
-    <div class="table-card" style="padding:28px; margin-bottom:8px;">
-      <div style="font-size:15px; font-weight:800; color:#1A1F27; margin-bottom:6px;">이번 분기 나의 성과를 평가한다면?<span style="color:#EF4444;"> *</span></div>
-      <div style="font-size:12px; color:#4E5968; background:#F8F9FF; border:1px solid #E8ECF8; border-radius:10px; padding:12px 16px; margin-bottom:20px; line-height:1.95;">
-        이 질문의 주어는 '회사' 혹은 '팀'이 아닌, '나'입니다. 내가 이루어낸 성취에 집중해주세요.<br>구체적인 사례와 이유를 적어주세요.
-      </div>
-      <div id="perf-items-wrap"></div>
-      <div id="perf-empty-state" style="text-align:center; padding:32px 20px; border:2px dashed #E2E8F0; border-radius:14px;">
-        <div style="color:#94A3B8; font-size:13px; margin-bottom:14px;">성과 추가 버튼을 눌러 성과를 작성해 주세요.</div>
-        <button onclick="addPerfItem()" style="background:#F8FAFC; border:1.5px solid #E2E8F0; color:#4F46E5; border-radius:10px; padding:10px 24px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s;" onmouseover="this.style.background='#EEF2FF'" onmouseout="this.style.background='#F8FAFC'">성과 추가</button>
-      </div>
-      <div id="perf-add-wrap" style="display:none; text-align:center; margin-top:14px;">
-        <button onclick="addPerfItem()" style="background:#EEF2FF; border:1.5px solid #C7D2FE; color:#4F46E5; border-radius:10px; padding:9px 22px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; transition:all 0.2s;" onmouseover="this.style.background='#E0E7FF'" onmouseout="this.style.background='#EEF2FF'">+ 성과 추가</button>
-      </div>
-    </div>
-
     <!-- 연간 총평 카드 -->
     <div class="table-card" style="padding:28px; margin-bottom:8px;">
       <div style="font-size:15px; font-weight:800; color:#1A1F27; margin-bottom:6px;">지난 1년간 나의 업무 성과를 돌이켜 생각해본다면?<span style="color:#EF4444;"> *</span></div>
@@ -1109,8 +1093,8 @@ const ITEMS_NONDEV=[
   ['고객 중심의 주도적 문제해결 능력','빠른액션','같은 팀 동료/타 부서 팀원/파트너사/외부고객의 요청사항에 대해서 빠르게 액션을 취하고 피드백을 주려고 노력한다.',false],
   ['대담한 목표 설정','도전의식','도전적 목표에 거부감과 난색을 표현하기 보다 도전 의식을 갖고 목표 달성을 위해 노력하는 자세를 보인다.',false],
   ['대담한 목표 설정','새로운방법연구','기존의 성과에 만족하지 않고 더 폭발적이고 효율적인 성장을 만들어 내기 위한 새로운 방법, 아이디어, 기술을 연구하고 고민한다.',false],
-  ['AI 등 최신 자동화 기술의 내재화','자동화제안','AI나 자동화툴 또는 외주화 등 다양한 방법을 통해 본인 과업을 효율화하기 위한 구체방안을 제안하고 실행에 옮긴다.',true],
-  ['AI 등 최신 자동화 기술의 내재화','AI툴활용','최소 1개 이상의 AI툴을 사용하고 있으며 구체적으로 현업에 어떻게 적용하고 있는지 구체적으로 설명할 수 있다.',true],
+  ['AI 등 최신 자동화 기술의 내재화','자동화제안','AI나 자동화툴 또는 외주화 등 다양한 방법을 통해 본인 과업을 효율화하기 위한 구체방안을 제안하고 실행에 옮긴다.',false],
+  ['AI 등 최신 자동화 기술의 내재화','AI툴활용','최소 1개 이상의 AI툴을 사용하고 있으며 구체적으로 현업에 어떻게 적용하고 있는지 구체적으로 설명할 수 있다.',false],
   ['데이터와 맥락 기반의 통합적 사고','데이터소통','보고 및 의사소통 시 막연한 근거가 아닌 명확한 데이터 및 구체적인 근거를 가지고 소통한다.',false],
   ['데이터와 맥락 기반의 통합적 사고','여행산업맥락','여행산업에 관심과 열정이 있으며 맡은 업무와 회사의 목표 및 여행산업과 어떻게 연결되는지 맥락을 이해한다.',false],
   ['종합평가','컬처덱롤모델','나는 우리 회사 컬처덱에 부합하는 롤모델로서의 모습을 보여주었다.',false],

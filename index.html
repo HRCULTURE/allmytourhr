@@ -3653,8 +3653,6 @@ function renderViewer(resultUrl, type, evaluator) {
       const avg2 = count > 0 ? (total / count).toFixed(1) : '-';
       tableHtml += '<div style="text-align:right;padding:10px 0 4px;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg2 + '</div>';
     }
-    });
-    tableHtml += '</div>';
 
     // 서술형 렌더링 함수
     const essayLabels = [

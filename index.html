@@ -2873,14 +2873,24 @@ function renderViewerCases(casesObj) {
   html += '</div>';
 
   let hasAny = false;
-  Object.entries(casesObj).forEach(function(entry) {
+
+  // essay_*, leader_q*, nondev_yearend 등 서술형 키 별도 처리
+  const essayEntries = Object.entries(casesObj).filter(([k]) =>
+    k.startsWith('essay_') || k.startsWith('leader_q') || k === 'nondev_yearend' || k === 'nondev_perf_items'
+  );
+  const itemEntries = Object.entries(casesObj).filter(([k]) =>
+    !k.startsWith('essay_') && !k.startsWith('leader_q') && k !== 'nondev_yearend' && k !== 'nondev_perf_items' && !isNaN(parseInt(k))
+  );
+
+  // 항목별 사례 (숫자 인덱스 키)
+  itemEntries.forEach(function(entry) {
     var idx = entry[0], val = entry[1];
-    if(!val || !val.trim()) return;
+    if(!val || !String(val).trim()) return;
     hasAny = true;
     var item = itemList[parseInt(idx)];
-    var itemName = item ? item[1] : ('&#54637;&#47785; ' + (parseInt(idx)+1));
+    var itemName = item ? item[1] : ('항목 ' + (parseInt(idx)+1));
     var itemCategory = item ? item[0] : '';
-    var safeVal = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var safeVal = String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     html += '<div style="margin-bottom:14px;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">';
     html += '<div style="background:#F8F9FF;padding:10px 16px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:8px;">';
     html += '<span style="font-size:11px;color:#94A3B8;font-weight:600;">' + itemCategory + '</span>';
@@ -2889,6 +2899,29 @@ function renderViewerCases(casesObj) {
     html += '<div style="padding:14px 16px;font-size:13px;color:#1E293B;line-height:1.8;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;">' + safeVal + '</div>';
     html += '</div>';
   });
+
+  // 서술형 답변 (essay_*, leader_q*, nondev_yearend)
+  if(essayEntries.length > 0) {
+    essayEntries.sort((a,b) => {
+      const na = parseInt(a[0].replace(/\D/g,'')) || 0;
+      const nb = parseInt(b[0].replace(/\D/g,'')) || 0;
+      return na - nb;
+    }).forEach(function(entry, i) {
+      var k = entry[0], val = entry[1];
+      if(!val || !String(val).trim()) return;
+      hasAny = true;
+      var label = k === 'nondev_yearend' ? '연간 총평'
+        : k.startsWith('essay_') ? ('서술형' + (parseInt(k.split('_')[1])+1))
+        : ('서술형' + (i+1));
+      var safeVal = String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      html += '<div style="margin-bottom:14px;border:1px solid #C7D2FE;border-radius:12px;overflow:hidden;">';
+      html += '<div style="background:#EEF2FF;padding:10px 16px;border-bottom:1px solid #C7D2FE;">';
+      html += '<span style="font-size:13px;font-weight:800;color:#4338CA;">📝 ' + label + '</span>';
+      html += '</div>';
+      html += '<div style="padding:14px 16px;font-size:13px;color:#1E293B;line-height:1.8;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;">' + safeVal + '</div>';
+      html += '</div>';
+    });
+  }
 
   html += '</div>';
   if(!hasAny) return;
@@ -3063,6 +3096,7 @@ if(_urlParams.get('d')) {
   ITEMS      = _initItemsMap[currentDept.items]    || ITEMS_DEV;
   ITEMS_DOWN = _initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
   buildTable(); // deptValue 반영 후 테이블 재빌드
+  setMode('self'); // 서술형 섹션 표시 업데이트
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
   document.getElementById('onboarding').style.display = 'none';
   // viewerMode를 restoreFromURL() 전에 설정해야 updatePhaseTabs()가 올바르게 동작

@@ -2944,12 +2944,12 @@ function renderViewerCases(casesObj) {
 
   let hasAny = false;
 
-  // essay_*, leader_q*, nondev_yearend 등 서술형 키 별도 처리
+  // essay_*, leader_q*, nondev_yearend, down_essay, upward_essay 등 서술형 키 별도 처리
   const essayEntries = Object.entries(casesObj).filter(([k]) =>
-    k.startsWith('essay_') || k.startsWith('leader_q') || k === 'nondev_yearend' || k === 'nondev_perf_items'
+    k.startsWith('essay_') || k.startsWith('leader_q') || k === 'nondev_yearend' || k === 'nondev_perf_items' || k === 'down_essay' || k === 'upward_essay'
   );
   const itemEntries = Object.entries(casesObj).filter(([k]) =>
-    !k.startsWith('essay_') && !k.startsWith('leader_q') && k !== 'nondev_yearend' && k !== 'nondev_perf_items' && !isNaN(parseInt(k))
+    !k.startsWith('essay_') && !k.startsWith('leader_q') && k !== 'nondev_yearend' && k !== 'nondev_perf_items' && k !== 'down_essay' && k !== 'upward_essay' && !isNaN(parseInt(k))
   );
 
   // 항목별 사례 (숫자 인덱스 키)
@@ -2981,6 +2981,8 @@ function renderViewerCases(casesObj) {
       if(!val || !String(val).trim()) return;
       hasAny = true;
       var label = k === 'nondev_yearend' ? '연간 총평'
+        : k === 'down_essay' ? '하향리뷰 서술형'
+        : k === 'upward_essay' ? '상향리뷰 의견'
         : k.startsWith('essay_') ? ('서술형' + (parseInt(k.split('_')[1])+1))
         : ('서술형' + (i+1));
       var safeVal = String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

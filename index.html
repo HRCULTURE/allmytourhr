@@ -1834,8 +1834,8 @@ function setMode(m) {
   updatePhaseTabs();
 
   // ITEMS 교체 (셀프↔하향) — currentDept 기준
-  // 수습평가 모드일 경우 ITEMS 교체하지 않음
-  if(ITEMS !== ITEMS_PROBATION) {
+  // 수습평가/상향리뷰 모드일 경우 ITEMS 교체하지 않음
+  if(ITEMS !== ITEMS_PROBATION && ITEMS !== ITEMS_UPWARD) {
     const itemsForMode = (m === 'self')
       ? (currentDept ? (function(){ const map={dev:ITEMS_DEV,nondev:ITEMS_NONDEV}; return map[currentDept.items]||ITEMS_DEV; })() : ITEMS_DEV)
       : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV,nondev_down:ITEMS_NONDEV_DOWN}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN);

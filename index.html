@@ -1993,7 +1993,8 @@ function getSaveData() {
     join: document.getElementById('inf-join').value,
     date: document.getElementById('inf-date').value,
     work: document.getElementById('inf-work').value,
-    evaluator: document.getElementById('inf-evaluator')?.value || ''
+    evaluator: document.getElementById('inf-evaluator')?.value || '',
+    deptValue: currentDept ? currentDept.value : ''
   };
   // 서술형은 URL에서 제외 → Sheets에 별도 저장, 원본보기 시 Sheets에서 조회
   const compact = {
@@ -2674,9 +2675,15 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
       syncNameLabels();
     }
 
+    // result_url의 deptValue로 selfItemList 부서 판단
+    // deptValue 없으면 현재 하향리뷰 선택 부서(currentDept) 사용
+    const urlDeptValue = data.i?.deptValue || '';
+    const urlDept = urlDeptValue ? (DEPT_CONFIG.find(d => d.value === urlDeptValue) || null) : null;
+    const effectiveDept = urlDept || currentDept;
+    const selfItemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
+    const selfItemList = selfItemsMap[effectiveDept?.items] || ITEMS_SELF_REF || ITEMS;
     const selfScores = data.s !== undefined ? expandScores(data.s) : (data.scores?.self || {});
     const cases = data.c || data.cases || {};
-    const selfItemList = ITEMS_SELF_REF || ITEMS;
     let rows = '', total = 0, count = 0;
 
     selfItemList.forEach((it, idx) => {
@@ -2747,8 +2754,8 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
           const itemsArea = essayArea.previousElementSibling;
           if(itemsArea) itemsArea.innerHTML = updatedRows;
 
-          // 서술형 표시 — 현재 부서(currentDept) 기준으로 개발/비개발 판단
-          const isNonDevDept = currentDept && currentDept.itemsDown === 'nondev_down';
+          // 서술형 표시 — effectiveDept(result_url 부서 우선, 없으면 currentDept) 기준
+          const isNonDevDept = effectiveDept && effectiveDept.itemsDown === 'nondev_down';
 
           if(isNonDevDept) {
             // ── 비개발팀: nondev 전용 키 우선, 없으면 leader_q* / essay_* / 숫자 키 ──

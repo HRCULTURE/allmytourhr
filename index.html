@@ -2191,7 +2191,21 @@ function searchSelfByName(name) {
     panelName.textContent = data.name + ' 님';
     panelStatus.textContent = '제출일: ' + (data.submitted || '-');
     autoFillInfo(data);
-    renderPanelFromResultUrl(data.result_url, data.self_score);
+
+    // query 응답에서 cases(서술형_json) 직접 파싱 시도
+    let casesFromQuery = null;
+    try {
+      const rawCases = data.cases || data.cases_json || data.essay_json || null;
+      if(rawCases) {
+        let decoded = rawCases;
+        try { decoded = JSON.parse(decodeURIComponent(escape(atob(rawCases)))); } catch(e) {
+          try { decoded = JSON.parse(rawCases); } catch(e2) {}
+        }
+        if(decoded && typeof decoded === 'object') casesFromQuery = decoded;
+      }
+    } catch(e) {}
+
+    renderPanelFromResultUrl(data.result_url, data.self_score, casesFromQuery);
   };
   _qS.onerror = function() {
     clearTimeout(_qTimer); _qCl();
@@ -2219,73 +2233,99 @@ function autoFillInfo(data) {
   syncNameLabels();
 }
 
-function renderPanelFromResultUrl(resultUrl, fallbackScore) {
+function renderPanelFromResultUrl(resultUrl, fallbackScore, casesFromQuery) {
   const panelBody  = document.getElementById('panel-body');
   const panelTotal = document.getElementById('panel-total');
 
-  // ── 서술형은 result_url 파싱과 무관하게 항상 독립 조회 ──
+  // ── 서술형 렌더링 공통 함수 ──
+  const essayLabels = [
+    '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
+    '개발관련 빠른 테스트/실험 사례 (지난 1년)',
+    '리소스 절감 또는 자동화/AI 내재화 경험',
+    '여전히 부족하다고 느끼는 역량 및 한계',
+    '역량과 자질 성장을 위한 노력',
+    '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
+    '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
+  ];
+
+  function parseCasesObj(raw) {
+    if(!raw) return {};
+    if(typeof raw === 'object') return raw;
+    // base64 인코딩 시도
+    try { return JSON.parse(decodeURIComponent(escape(atob(raw)))); } catch(e) {}
+    try { return JSON.parse(raw); } catch(e) {}
+    return {};
+  }
+
+  function renderEssayCases(rawCases) {
+    const essayArea = document.getElementById('panel-essay-area');
+    if(!essayArea) return;
+    const c = parseCasesObj(rawCases);
+
+    // 항목별 사례 업데이트
+    const selfItemList = ITEMS_SELF_REF || ITEMS;
+    let updatedRows = '';
+    selfItemList.forEach((it, idx) => {
+      const score = (window._panelSelfScores || {})[String(idx)];
+      const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
+      const criteria = it[2] || '';
+      const caseText = c[String(idx)] || '';
+      updatedRows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;">'
+        + '<span class="item-name" style="font-weight:700;">' + it[1] + '</span>'
+        + (grade ? '<span class="item-grade">' + grade + '</span>' : '<span class="item-grade empty">-</span>')
+        + '</div>'
+        + (criteria ? '<span style="font-size:11px;color:#64748B;line-height:1.5;white-space:pre-line;">' + criteria + '</span>' : '')
+        + (caseText ? '<div style="margin-top:6px;padding:8px 10px;background:#F0F9FF;border-left:3px solid #6366F1;border-radius:6px;font-size:12px;color:#1E293B;line-height:1.7;white-space:pre-wrap;"><span style="font-size:10px;font-weight:700;color:#6366F1;display:block;margin-bottom:2px;">📝 사례</span>' + caseText + '</div>' : '')
+        + '</div>';
+    });
+    const itemsArea = essayArea.previousElementSibling;
+    if(itemsArea && updatedRows) itemsArea.innerHTML = updatedRows;
+
+    // 서술형 essay_* 키 표시
+    const allEssayKeys = Object.keys(c).filter(k => k.startsWith('essay_'));
+    if(allEssayKeys.length === 0) { essayArea.innerHTML = ''; return; }
+    let eHtml = '<div style="font-size:11px;font-weight:700;color:#6366F1;padding:4px 0 8px;border-bottom:1px solid #EEF0F8;margin-bottom:8px;">📝 서술형 답변</div>';
+    allEssayKeys.sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1])).forEach(key => {
+      const i = parseInt(key.split('_')[1]);
+      const val = c[key];
+      if(!val) return;
+      const label = essayLabels[i] || ('서술형' + (i+1));
+      eHtml += '<div style="margin-bottom:10px;">'
+        + '<div style="font-size:10px;font-weight:700;color:#4338CA;margin-bottom:3px;">[서술형' + (i+1) + '] ' + label + '</div>'
+        + '<div style="font-size:12px;color:#1E293B;line-height:1.6;background:#F0F9FF;border-left:3px solid #6366F1;padding:6px 10px;border-radius:6px;white-space:pre-wrap;">' + val + '</div>'
+        + '</div>';
+    });
+    essayArea.innerHTML = eHtml;
+  }
+
+  // casesFromQuery(query 응답에서 이미 파싱된 경우) 있으면 바로 렌더링, 없으면 API 재조회
   function loadEssayFromSheets(targetName) {
-    if(!targetName || SHEETS_API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') return;
-    const essayLabels = [
-      '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
-      '개발관련 빠른 테스트/실험 사례 (지난 1년)',
-      '리소스 절감 또는 자동화/AI 내재화 경험',
-      '여전히 부족하다고 느끼는 역량 및 한계',
-      '역량과 자질 성장을 위한 노력',
-      '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
-      '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
-    ];
+    if(casesFromQuery) {
+      // query 응답에 cases가 포함된 경우 → 바로 렌더링
+      renderEssayCases(casesFromQuery);
+      return;
+    }
+    if(!targetName || SHEETS_API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+      const a = document.getElementById('panel-essay-area'); if(a) a.innerHTML = ''; return;
+    }
     const _cb2 = '_casesCb2_' + Date.now();
     const _s2 = document.createElement('script');
     const _cl2 = () => { delete window[_cb2]; if(_s2.parentNode) _s2.parentNode.removeChild(_s2); };
-    const _t2 = setTimeout(() => { _cl2(); const a = document.getElementById('panel-essay-area'); if(a) a.innerHTML = ''; }, 10000);
+    const _t2 = setTimeout(() => {
+      _cl2();
+      const a = document.getElementById('panel-essay-area');
+      if(a) a.innerHTML = '<div style="font-size:11px;color:#EF4444;text-align:center;">서술형 로딩 실패 (시간 초과)</div>';
+    }, 12000);
     window[_cb2] = function(res) {
       clearTimeout(_t2); _cl2();
-      const essayArea = document.getElementById('panel-essay-area');
-      if(!essayArea) return;
-      const c = res.cases || {};
-
-      // 항목별 사례 업데이트
-      const selfItemList = ITEMS_SELF_REF || ITEMS;
-      let updatedRows = '';
-      selfItemList.forEach((it, idx) => {
-        const selfScoresEl = window._panelSelfScores || {};
-        const score = selfScoresEl[String(idx)];
-        const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
-        const criteria = it[2] || '';
-        const caseText = c[String(idx)] || '';
-        updatedRows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
-          + '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;">'
-          + '<span class="item-name" style="font-weight:700;">' + it[1] + '</span>'
-          + (grade ? '<span class="item-grade">' + grade + '</span>' : '<span class="item-grade empty">-</span>')
-          + '</div>'
-          + (criteria ? '<span style="font-size:11px;color:#64748B;line-height:1.5;white-space:pre-line;">' + criteria + '</span>' : '')
-          + (caseText ? '<div style="margin-top:6px;padding:8px 10px;background:#F0F9FF;border-left:3px solid #6366F1;border-radius:6px;font-size:12px;color:#1E293B;line-height:1.7;white-space:pre-wrap;"><span style="font-size:10px;font-weight:700;color:#6366F1;display:block;margin-bottom:2px;">📝 사례</span>' + caseText + '</div>' : '')
-          + '</div>';
-      });
-      const itemsArea = essayArea.previousElementSibling;
-      if(itemsArea && updatedRows) itemsArea.innerHTML = updatedRows;
-
-      // 서술형 표시 — essay_* 키가 있으면 모두 표시
-      const allEssayKeys = Object.keys(c).filter(k => k.startsWith('essay_'));
-      if(allEssayKeys.length === 0) { essayArea.innerHTML = ''; return; }
-      let eHtml = '<div style="font-size:11px;font-weight:700;color:#6366F1;padding:4px 0 8px;border-bottom:1px solid #EEF0F8;margin-bottom:8px;">📝 서술형 답변</div>';
-      allEssayKeys.sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1])).forEach(key => {
-        const i = parseInt(key.split('_')[1]);
-        const val = c[key];
-        if(!val) return;
-        const label = essayLabels[i] || ('서술형' + (i+1));
-        eHtml += '<div style="margin-bottom:10px;">'
-          + '<div style="font-size:10px;font-weight:700;color:#4338CA;margin-bottom:3px;">[서술형' + (i+1) + '] ' + label + '</div>'
-          + '<div style="font-size:12px;color:#1E293B;line-height:1.6;background:#F0F9FF;border-left:3px solid #6366F1;padding:6px 10px;border-radius:6px;white-space:pre-wrap;">' + val + '</div>'
-          + '</div>';
-      });
-      essayArea.innerHTML = eHtml;
+      // res.cases 가 base64 문자열이거나 객체이거나 모두 처리
+      renderEssayCases(res.cases);
     };
     _s2.onerror = function() {
       clearTimeout(_t2); _cl2();
-      const essayArea = document.getElementById('panel-essay-area');
-      if(essayArea) essayArea.innerHTML = '';
+      const a = document.getElementById('panel-essay-area');
+      if(a) a.innerHTML = '<div style="font-size:11px;color:#EF4444;text-align:center;">서술형 로딩 실패</div>';
     };
     _s2.src = SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(targetName) + '&type=self&callback=' + _cb2;
     document.head.appendChild(_s2);

@@ -3124,8 +3124,12 @@ if(_urlParams.get('d')) {
     if(_dSelfOpen) _dSelfOpen.style.display = '';
   }
 
-  // 원본보기 공통: 버튼 영역 숨기기 + 사례 로딩 안내 추가
+  // 원본보기 공통: 버튼 영역 + 서술형 입력 섹션 숨기기
   document.querySelectorAll('.action-bar').forEach(el => { el.style.display = 'none'; });
+  ['self-essay-section','nondev-self-section','leader-essay-section','upward-essay-section','probation-essay','probation-final'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = 'none';
+  });
   // 사례 로딩 안내 (Sheets 비동기 로드 전까지 표시)
   var _evalWrap = document.getElementById('eval-table-wrap');
   if(_evalWrap && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {

@@ -632,7 +632,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
       <div style="font-size:15px; font-weight:800; color:#1A1F27; margin-bottom:6px;">이번 분기 팀원의 성과를 평가한다면?<span style="color:#EF4444;"> *</span></div>
       <div style="font-size:12px; color:#4E5968; background:#F8F9FF; border:1px solid #E8ECF8; border-radius:10px; padding:14px 16px; margin-bottom:16px; line-height:1.95;">
         구체적인 사례를 함께 적어주시면 보다 정확하게 피드백을 전달하는 데 도움이 됩니다.<br>
-        <b>· 팀원이 셀프평가 시 설정해둔 각 성과의 가중치(중요도)를 본 후, 해당 성과에 대한 가중치가 너무 높거나/낮다고 판단되면 가중치를 수정하여 평가 가능합니다.</b><br>
         <b>· 코멘트 란에는 평가자가 부여한 하향평가 점수에 대한 사유를 기재해주시면 됩니다.</b>
       </div>
       <div class="prob-richbox" id="down-essay-box" contenteditable="true" placeholder="코멘트 입력하기 (필수)" style="min-height:140px;"></div>
@@ -3046,6 +3045,7 @@ function tempSave() {
   data.isProbation = (ITEMS === ITEMS_PROBATION);
   // 비개발팀 셀프리뷰 성과 아이템 임시저장
   data.isLeaderMode = isLeaderMode;
+  data.isUpwardMode = isUpwardMode;
   // 리더 서술형 임시저장
   if(isLeaderMode) {
     data.leaderRich = {};
@@ -3054,6 +3054,12 @@ function tempSave() {
       if(box) data.leaderRich['leader-q' + i] = box.innerHTML;
     }
   }
+  // 상향리뷰 서술형 임시저장
+  const upwardBox = document.getElementById('upward-essay-box');
+  if(upwardBox) data.upwardEssay = upwardBox.innerHTML;
+  // 하향리뷰 서술형 임시저장
+  const downBox = document.getElementById('down-essay-box');
+  if(downBox) data.downEssay = downBox.innerHTML;
   data.perfItems = perfItems;
   data._perfNextId = _perfNextId;
   const yearendBox = document.getElementById('nondev-yearend-box');
@@ -3123,6 +3129,20 @@ function tempLoad(silent) {
           });
         }, 100);
       }
+    }
+    // 상향리뷰 서술형 복원
+    if(data.upwardEssay) {
+      setTimeout(() => {
+        const box = document.getElementById('upward-essay-box');
+        if(box) box.innerHTML = data.upwardEssay;
+      }, 150);
+    }
+    // 하향리뷰 서술형 복원
+    if(data.downEssay) {
+      setTimeout(() => {
+        const box = document.getElementById('down-essay-box');
+        if(box) box.innerHTML = data.downEssay;
+      }, 150);
     }
     ITEMS.forEach((_, idx) => refreshRow(idx));
     calculate();
@@ -3285,8 +3305,14 @@ if(_urlParams.get('d')) {
         adminMode = true; selfSubmitted = true; selfLockedFromURL = false;
       }
       buildTable();
-      // 리더 모드 복원
+      // 리더/상향 모드 복원
       if(_tempData.isLeaderMode) isLeaderMode = true;
+      if(_tempData.isUpwardMode) {
+        isUpwardMode = true;
+        ITEMS = ITEMS_UPWARD;
+        ITEMS_DOWN = ITEMS_UPWARD;
+        buildTable();
+      }
       setMode(_isProb ? 'd1' : _mode);
       if(_isProb) {
         // 수습 전용 UI 표시

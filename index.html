@@ -3045,6 +3045,14 @@ function tempSave() {
   data.isProbation = (ITEMS === ITEMS_PROBATION);
   // 비개발팀 셀프리뷰 성과 아이템 임시저장
   data.isLeaderMode = isLeaderMode;
+  // 리더 서술형 임시저장
+  if(isLeaderMode) {
+    data.leaderRich = {};
+    for(let i = 0; i < 15; i++) {
+      const box = document.getElementById('leader-q' + i + '-box');
+      if(box) data.leaderRich['leader-q' + i] = box.innerHTML;
+    }
+  }
   data.perfItems = perfItems;
   data._perfNextId = _perfNextId;
   const yearendBox = document.getElementById('nondev-yearend-box');
@@ -3105,6 +3113,15 @@ function tempLoad(silent) {
     if(data.isLeaderMode) {
       isLeaderMode = true;
       setMode('self'); // 리더 서술형 섹션 표시
+      // 리더 서술형 복원
+      if(data.leaderRich) {
+        setTimeout(() => {
+          Object.entries(data.leaderRich).forEach(([id, html]) => {
+            const box = document.getElementById(id + '-box');
+            if(box) box.innerHTML = html;
+          });
+        }, 300);
+      }
     }
     ITEMS.forEach((_, idx) => refreshRow(idx));
     calculate();

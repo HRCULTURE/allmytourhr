@@ -3034,7 +3034,11 @@ const _initViewDown = (_initParams.get('view') === 'down' && _initParams.get('d'
 if(_initViewDown) {
   // 하향평가 원문보기: 처음부터 하향 모드로 초기화
   adminMode = true; selfSubmitted = true; selfLockedFromURL = true;
-  currentDept = DEPT_CONFIG[0];
+  try {
+    const _dRaw2 = JSON.parse(decodeURIComponent(escape(atob(_initParams.get('d')))));
+    const _dv2 = _dRaw2.i?.deptValue || '';
+    currentDept = (_dv2 ? DEPT_CONFIG.find(d => d.value === _dv2) : null) || DEPT_CONFIG[0];
+  } catch(e) { currentDept = DEPT_CONFIG[0]; }
   const _downMap = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
   ITEMS = _downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
   mode = 'd1';
@@ -3047,7 +3051,17 @@ syncNameLabels();
 // URL 파라미터 or 임시저장 데이터 있으면 온보딩 건너뛰고 바로 복원
 const _urlParams = new URLSearchParams(window.location.search);
 if(_urlParams.get('d')) {
-  currentDept = DEPT_CONFIG[0];
+  // deptValue가 URL에 있으면 해당 부서로, 없으면 기본값(기업연구소 개발)
+  try {
+    const _dRaw = JSON.parse(decodeURIComponent(escape(atob(_urlParams.get('d')))));
+    const _dv = _dRaw.i?.deptValue || '';
+    currentDept = (_dv ? DEPT_CONFIG.find(d => d.value === _dv) : null) || DEPT_CONFIG[0];
+  } catch(e) { currentDept = DEPT_CONFIG[0]; }
+  // ITEMS도 부서에 맞게 세팅
+  const _initItemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
+  const _initDownMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
+  ITEMS      = _initItemsMap[currentDept.items]    || ITEMS_DEV;
+  ITEMS_DOWN = _initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
   document.getElementById('onboarding').style.display = 'none';
   // viewerMode를 restoreFromURL() 전에 설정해야 updatePhaseTabs()가 올바르게 동작

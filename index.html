@@ -2223,6 +2223,77 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
   const panelBody  = document.getElementById('panel-body');
   const panelTotal = document.getElementById('panel-total');
 
+  // ── 서술형은 result_url 파싱과 무관하게 항상 독립 조회 ──
+  function loadEssayFromSheets(targetName) {
+    if(!targetName || SHEETS_API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') return;
+    const essayLabels = [
+      '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
+      '개발관련 빠른 테스트/실험 사례 (지난 1년)',
+      '리소스 절감 또는 자동화/AI 내재화 경험',
+      '여전히 부족하다고 느끼는 역량 및 한계',
+      '역량과 자질 성장을 위한 노력',
+      '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
+      '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
+    ];
+    const _cb2 = '_casesCb2_' + Date.now();
+    const _s2 = document.createElement('script');
+    const _cl2 = () => { delete window[_cb2]; if(_s2.parentNode) _s2.parentNode.removeChild(_s2); };
+    const _t2 = setTimeout(() => { _cl2(); const a = document.getElementById('panel-essay-area'); if(a) a.innerHTML = ''; }, 10000);
+    window[_cb2] = function(res) {
+      clearTimeout(_t2); _cl2();
+      const essayArea = document.getElementById('panel-essay-area');
+      if(!essayArea) return;
+      const c = res.cases || {};
+
+      // 항목별 사례 업데이트
+      const selfItemList = ITEMS_SELF_REF || ITEMS;
+      let updatedRows = '';
+      selfItemList.forEach((it, idx) => {
+        const selfScoresEl = window._panelSelfScores || {};
+        const score = selfScoresEl[String(idx)];
+        const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
+        const criteria = it[2] || '';
+        const caseText = c[String(idx)] || '';
+        updatedRows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;">'
+          + '<span class="item-name" style="font-weight:700;">' + it[1] + '</span>'
+          + (grade ? '<span class="item-grade">' + grade + '</span>' : '<span class="item-grade empty">-</span>')
+          + '</div>'
+          + (criteria ? '<span style="font-size:11px;color:#64748B;line-height:1.5;white-space:pre-line;">' + criteria + '</span>' : '')
+          + (caseText ? '<div style="margin-top:6px;padding:8px 10px;background:#F0F9FF;border-left:3px solid #6366F1;border-radius:6px;font-size:12px;color:#1E293B;line-height:1.7;white-space:pre-wrap;"><span style="font-size:10px;font-weight:700;color:#6366F1;display:block;margin-bottom:2px;">📝 사례</span>' + caseText + '</div>' : '')
+          + '</div>';
+      });
+      const itemsArea = essayArea.previousElementSibling;
+      if(itemsArea && updatedRows) itemsArea.innerHTML = updatedRows;
+
+      // 서술형 표시 — essay_* 키가 있으면 모두 표시
+      const allEssayKeys = Object.keys(c).filter(k => k.startsWith('essay_'));
+      if(allEssayKeys.length === 0) { essayArea.innerHTML = ''; return; }
+      let eHtml = '<div style="font-size:11px;font-weight:700;color:#6366F1;padding:4px 0 8px;border-bottom:1px solid #EEF0F8;margin-bottom:8px;">📝 서술형 답변</div>';
+      allEssayKeys.sort((a,b) => parseInt(a.split('_')[1]) - parseInt(b.split('_')[1])).forEach(key => {
+        const i = parseInt(key.split('_')[1]);
+        const val = c[key];
+        if(!val) return;
+        const label = essayLabels[i] || ('서술형' + (i+1));
+        eHtml += '<div style="margin-bottom:10px;">'
+          + '<div style="font-size:10px;font-weight:700;color:#4338CA;margin-bottom:3px;">[서술형' + (i+1) + '] ' + label + '</div>'
+          + '<div style="font-size:12px;color:#1E293B;line-height:1.6;background:#F0F9FF;border-left:3px solid #6366F1;padding:6px 10px;border-radius:6px;white-space:pre-wrap;">' + val + '</div>'
+          + '</div>';
+      });
+      essayArea.innerHTML = eHtml;
+    };
+    _s2.onerror = function() {
+      clearTimeout(_t2); _cl2();
+      const essayArea = document.getElementById('panel-essay-area');
+      if(essayArea) essayArea.innerHTML = '';
+    };
+    _s2.src = SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(targetName) + '&type=self&callback=' + _cb2;
+    document.head.appendChild(_s2);
+  }
+
+  // 서술형 조회용 이름: 패널 검색창 최우선
+  const targetName = document.getElementById('panel-name-input')?.value?.trim() || '';
+
   try {
     let dParam = null;
     try {
@@ -2242,12 +2313,16 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
       const out = {};
       str.split(',').forEach(part => {
         const [k,v] = part.split(':');
-        if(k !== undefined && v !== undefined) out[String(parseInt(k))] = parseInt(v);
+        if(k !== undefined && v !== undefined) {
+          const numVal = parseInt(v);
+          // Y/N 값은 문자 그대로 보존
+          out[String(parseInt(k))] = isNaN(numVal) ? v : numVal;
+        }
       });
       return out;
     }
 
-    // result_url 안의 data.i로 기본정보 자동 채우기 (Sheets API 미반환 필드 보완)
+    // result_url 안의 data.i로 기본정보 자동 채우기
     if(data.i) {
       function fillFromUrl(id, val) { const el = document.getElementById(id); if(el && !el.value && val) el.value = val; }
       fillFromUrl("inf-id",   data.i.id);
@@ -2260,6 +2335,7 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
     }
 
     const selfScores = data.s !== undefined ? expandScores(data.s) : (data.scores?.self || {});
+    window._panelSelfScores = selfScores; // 서술형 콜백에서 참조용
     const cases = data.c || data.cases || {};
     const selfItemList = ITEMS_SELF_REF || ITEMS;
     let rows = '', total = 0, count = 0;
@@ -2267,7 +2343,7 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
     selfItemList.forEach((it, idx) => {
       const score = selfScores[String(idx)];
       const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
-      if(score > 0) { total += score; count++; }
+      if(typeof score === 'number' && score > 0) { total += score; count++; }
       const criteria = it[2] || '';
       const caseText = cases[String(idx)] || '';
       rows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
@@ -2282,87 +2358,24 @@ function renderPanelFromResultUrl(resultUrl, fallbackScore) {
             + '</div>';
     });
 
-    // 서술형 7개 문항 (Sheets에서 조회)
-    const essayLabels = [
-      '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
-      '개발관련 빠른 테스트/실험 사례 (지난 1년)',
-      '리소스 절감 또는 자동화/AI 내재화 경험',
-      '여전히 부족하다고 느끼는 역량 및 한계',
-      '역량과 자질 성장을 위한 노력',
-      '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
-      '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
-    ];
+    // 점수 패널 + 서술형 로딩 영역 렌더링
+    panelBody.innerHTML = '<div class="self-panel-items">' + rows + '</div>'
+      + '<div id="panel-essay-area" style="padding:12px 16px;border-top:1px solid #EEF0F8;">'
+      + '<div style="font-size:11px;color:#94A3B8;text-align:center;">서술형 불러오는 중...</div></div>';
 
-    let essayHtml = '';
-    // 서술형 조회용 이름: 패널 검색창 > result_url 내 이름 순으로 우선
-    const name = document.getElementById('panel-name-input')?.value?.trim()
-              || data.i?.name
-              || document.getElementById('inf-name')?.value?.trim()
-              || '';
-    if(name && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-      // 일단 점수 먼저 표시
-      panelBody.innerHTML = '<div class="self-panel-items">' + rows + '</div><div id="panel-essay-area" style="padding:12px 16px;border-top:1px solid #EEF0F8;"><div style="font-size:11px;color:#94A3B8;text-align:center;">서술형 불러오는 중...</div></div>';
-      const _cb2 = '_casesCb2_' + Date.now();
-      const _s2 = document.createElement('script');
-      const _cl2 = () => { delete window[_cb2]; if(_s2.parentNode) _s2.parentNode.removeChild(_s2); };
-      window[_cb2] = function(res) {
-        _cl2();
-          const essayArea = document.getElementById('panel-essay-area');
-          if(!essayArea) return;
-          const c = res.cases || {};
-
-          // 항목별 사례도 Sheets에서 가져온 걸로 업데이트
-          let updatedRows = '';
-          selfItemList.forEach((it, idx) => {
-            const score = selfScores[String(idx)];
-            const grade = score ? ([...GRADES,...GRADES_SIMPLE,...GRADES_PROB].find(g => g.score === score)?.label || score) : null;
-            const criteria = it[2] || '';
-            const caseText = c[String(idx)] || cases[String(idx)] || '';
-            updatedRows += '<div class="self-panel-item" style="flex-direction:column;align-items:flex-start;gap:4px;">'
-              + '<div style="display:flex;justify-content:space-between;align-items:center;width:100%;">'
-              + '<span class="item-name" style="font-weight:700;">' + it[1] + '</span>'
-              + (grade ? '<span class="item-grade">' + grade + '</span>' : '<span class="item-grade empty">-</span>')
-              + '</div>'
-              + (criteria ? '<span style="font-size:11px;color:#64748B;line-height:1.5;white-space:pre-line;">' + criteria + '</span>' : '')
-              + (caseText ? '<div style="margin-top:6px;padding:8px 10px;background:#F0F9FF;border-left:3px solid #6366F1;border-radius:6px;font-size:12px;color:#1E293B;line-height:1.7;white-space:pre-wrap;"><span style="font-size:10px;font-weight:700;color:#6366F1;display:block;margin-bottom:2px;">📝 사례</span>' + caseText + '</div>' : '')
-              + '</div>';
-          });
-          // 항목별 사례 업데이트
-          const itemsArea = essayArea.previousElementSibling;
-          if(itemsArea) itemsArea.innerHTML = updatedRows;
-
-          // 서술형 7개 표시
-          const hasEssay = essayLabels.some((_, i) => c['essay_' + i]);
-          if(!hasEssay) { essayArea.innerHTML = ''; return; }
-          let eHtml = '<div style="font-size:11px;font-weight:700;color:#6366F1;padding:4px 0 8px;border-bottom:1px solid #EEF0F8;margin-bottom:8px;">📝 서술형 답변</div>';
-          essayLabels.forEach((label, i) => {
-            const val = c['essay_' + i];
-            if(!val) return;
-            eHtml += '<div style="margin-bottom:10px;">'
-              + '<div style="font-size:10px;font-weight:700;color:#4338CA;margin-bottom:3px;">[서술형' + (i+1) + '] ' + label + '</div>'
-              + '<div style="font-size:12px;color:#1E293B;line-height:1.6;background:#F0F9FF;border-left:3px solid #6366F1;padding:6px 10px;border-radius:6px;white-space:pre-wrap;">' + val + '</div>'
-              + '</div>';
-          });
-          essayArea.innerHTML = eHtml;
-      };
-      _s2.onerror = function() {
-        _cl2();
-        const essayArea = document.getElementById('panel-essay-area');
-        if(essayArea) essayArea.innerHTML = '';
-      };
-      _s2.src = SHEETS_API_URL + '?action=get_cases_by_name&name=' + encodeURIComponent(name) + '&type=self&callback=' + _cb2;
-      document.head.appendChild(_s2);
-    } else {
-      panelBody.innerHTML = '<div class="self-panel-items">' + rows + '</div>';
-    }
+    const resolvedName = targetName || data.i?.name || '';
+    loadEssayFromSheets(resolvedName);
 
     const avg = count > 0 ? (total / count).toFixed(1) : (fallbackScore || '0.0');
     document.getElementById('panel-total-val').textContent = avg;
     panelTotal.style.display = 'flex';
 
   } catch(e) {
-    // result_url 파싱 실패 시 총점만 표시
-    panelBody.innerHTML = '<div class="panel-empty">항목별 점수를 불러올 수 없습니다</div>';
+    // result_url 파싱 실패 시 — 서술형만이라도 로드 시도
+    panelBody.innerHTML = '<div class="panel-empty">항목별 점수를 불러올 수 없습니다</div>'
+      + '<div id="panel-essay-area" style="padding:12px 16px;border-top:1px solid #EEF0F8;">'
+      + '<div style="font-size:11px;color:#94A3B8;text-align:center;">서술형 불러오는 중...</div></div>';
+    loadEssayFromSheets(targetName);
     if(fallbackScore) {
       document.getElementById('panel-total-val').textContent = fallbackScore;
       panelTotal.style.display = 'flex';

@@ -2176,8 +2176,8 @@ function restoreFromURL() {
           }
         };
         _s1.onerror = _cl1;
-        const _caseType = (viewerMode === 'down') ? 'down' : 'self';
-        const _evaluatorParam = (viewerMode === 'down' && data.i?.evaluator) ? '&evaluator=' + encodeURIComponent(data.i.evaluator) : '';
+        const _caseType = (viewerMode === 'down') ? 'down' : (viewerMode === 'upward') ? 'upward' : 'self';
+        const _evaluatorParam = ((viewerMode === 'down' || viewerMode === 'upward') && data.i?.evaluator) ? '&evaluator=' + encodeURIComponent(data.i.evaluator) : '';
         _s1.src = SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name) + '&type=' + _caseType + _evaluatorParam + '&callback=' + _cb1;
         document.head.appendChild(_s1);
       }
@@ -3209,18 +3209,25 @@ if(_urlParams.get('d')) {
     const _dv = _dRaw.i?.deptValue || '';
     currentDept = (_dv ? DEPT_CONFIG.find(d => d.value === _dv) : null) || DEPT_CONFIG[0];
   } catch(e) { currentDept = DEPT_CONFIG[0]; }
-  // ITEMS도 부서에 맞게 세팅 (view=down이면 하향리뷰 항목)
+  // ITEMS도 부서에 맞게 세팅 (view=down이면 하향리뷰, view=upward이면 상향리뷰 항목)
   const _initItemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const _initDownMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
-  const _isViewDown = (_urlParams.get('view') === 'down');
-  ITEMS      = _isViewDown ? (_initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN) : (_initItemsMap[currentDept.items] || ITEMS_DEV);
-  ITEMS_DOWN = _initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  const _isViewDown   = (_urlParams.get('view') === 'down');
+  const _isViewUpward = (_urlParams.get('view') === 'upward');
+  if(_isViewUpward) {
+    ITEMS = ITEMS_UPWARD;
+    ITEMS_DOWN = ITEMS_UPWARD;
+    isUpwardMode = true;
+  } else {
+    ITEMS      = _isViewDown ? (_initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN) : (_initItemsMap[currentDept.items] || ITEMS_DEV);
+    ITEMS_DOWN = _initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  }
   buildTable(); // deptValue 반영 후 테이블 재빌드
-  setMode(_isViewDown ? 'd1' : 'self'); // 서술형 섹션 표시 업데이트
+  setMode(_isViewUpward ? 'd1' : _isViewDown ? 'd1' : 'self'); // 서술형 섹션 표시 업데이트
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
   document.getElementById('onboarding').style.display = 'none';
   // viewerMode를 restoreFromURL() 전에 설정해야 updatePhaseTabs()가 올바르게 동작
-  viewerMode = (_urlParams.get('view') === 'down') ? 'down' : 'self';
+  viewerMode = (_urlParams.get('view') === 'down') ? 'down' : (_urlParams.get('view') === 'upward') ? 'upward' : 'self';
   // leader=1이면 리더 모드 활성화
   if(_urlParams.get('leader') === '1') {
     isLeaderMode = true;

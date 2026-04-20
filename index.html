@@ -4272,7 +4272,7 @@ function renderViewer(resultUrl, type, evaluator) {
       script.src = SHEETS_API_URL + '?action=get_cases_by_name'
         + '&name=' + encodeURIComponent(info.name)
         + '&type=' + type
-        + ((type === 'down' || type === 'prob') && evaluator ? '&evaluator=' + encodeURIComponent(evaluator) : '')
+        + ((type === 'down' || type === 'prob' || type === 'upward') && evaluator ? '&evaluator=' + encodeURIComponent(evaluator) : '')
         + '&callback=' + cbName;
       document.head.appendChild(script);
     } else {

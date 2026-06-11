@@ -346,6 +346,9 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           하향리뷰
           <span class="tab-lock-icon" id="tab-lock-icon">🔒</span>
         </button>
+        <button class="phase-tab locked" id="tab-prob" onclick="requestProbPhase()" style="display:none;">
+          수습리뷰 🌱
+        </button>
       </div>
     </div>
   </div>
@@ -355,6 +358,67 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 
   <div class="down-banner" id="down-banner">
     ⚠️ <strong>하향리뷰 모드입니다.</strong> 셀프리뷰 점수는 수정할 수 없습니다. 직원이 작성한 파란색 셀프 점수를 참고하여 하향 점수만 새로 선택해 주세요.
+  </div>
+
+  <!-- 수습리뷰 패널 -->
+  <div id="prob-panel" style="display:none;">
+    <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border:1.5px solid #86EFAC;
+      border-radius:16px; padding:20px 24px; margin-bottom:16px;">
+      <div style="font-size:16px; font-weight:800; color:#15803D; margin-bottom:4px;">🌱 수습리뷰</div>
+      <div style="font-size:12px; color:#16A34A;">수습 기간 동안의 성과와 성장을 기록해주세요</div>
+    </div>
+
+    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
+      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
+        Q1. 신규 입사자에게 부여된 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요 <span style="color:#EF4444;">*</span>
+      </div>
+      <div id="prob-q1" contenteditable="true"
+        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
+          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
+        oninput="probCalc()"
+        onfocus="this.style.borderColor='#22C55E'"
+        onblur="this.style.borderColor='#E2E8F0'"
+        data-placeholder="역할과 업무를 구체적으로 작성해주세요..."></div>
+    </div>
+
+    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
+      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
+        Q2. 수습 기간 동안 가장 잘 해냈다고 생각하는 성과나 기여한 점을 작성해 주세요 <span style="color:#EF4444;">*</span>
+      </div>
+      <div id="prob-q2" contenteditable="true"
+        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
+          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
+        oninput="probCalc()"
+        onfocus="this.style.borderColor='#22C55E'"
+        onblur="this.style.borderColor='#E2E8F0'"
+        data-placeholder="주요 성과를 작성해주세요..."></div>
+    </div>
+
+    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
+      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
+        Q3. 수습 기간 동안 어렵거나 부족했던 점과 앞으로의 개선 계획을 작성해 주세요 <span style="color:#EF4444;">*</span>
+      </div>
+      <div id="prob-q3" contenteditable="true"
+        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
+          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
+        oninput="probCalc()"
+        onfocus="this.style.borderColor='#22C55E'"
+        onblur="this.style.borderColor='#E2E8F0'"
+        data-placeholder="어려웠던 점과 개선 계획을 작성해주세요..."></div>
+    </div>
+
+    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
+      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
+        Q4. 정규직 전환 후 목표와 앞으로의 성장 방향을 작성해 주세요 <span style="color:#EF4444;">*</span>
+      </div>
+      <div id="prob-q4" contenteditable="true"
+        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
+          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
+        oninput="probCalc()"
+        onfocus="this.style.borderColor='#22C55E'"
+        onblur="this.style.borderColor='#E2E8F0'"
+        data-placeholder="목표와 성장 방향을 작성해주세요..."></div>
+    </div>
   </div>
 
   <div class="info-card">
@@ -457,7 +521,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
     </div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-admin" onclick="openAdminPw()">🔐 관리자</button>
-      <button class="btn btn-primary" onclick="submitToSlack()" style="padding:12px 32px; font-size:15px; font-weight:700; border-radius:12px; min-width:140px;">리뷰완료</button>
+      <button class="btn btn-primary" id="btn-submit-main" onclick="document.getElementById('prob-panel').style.display !== 'none' ? submitProbation() : submitToSlack()" style="padding:12px 32px; font-size:15px; font-weight:700; border-radius:12px; min-width:140px;">리뷰완료</button>
     </div>
   </div>
 
@@ -653,6 +717,26 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           <div>
             <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">하향리뷰</b>
             <span style="font-size:13px;color:#8B95A1;">팀원을 향한 피드백을 전달합니다.</span>
+          </div>
+        </div>
+
+        <!-- 수습리뷰 -->
+        <div class="review-card" onclick="obSelectMode('probation')"
+          onmouseover="hoverCard(this)" onmouseout="unhoverCard(this)"
+          style="background:#F9FAFB; border:1.5px solid #EAEDF0;
+            padding:16px 18px; border-radius:14px;
+            display:flex; align-items:center; cursor:pointer; transition:all 0.18s;">
+          <div style="width:40px;height:40px;background:#E8F8EE;border-radius:10px;
+            display:flex;align-items:center;justify-content:center;
+            margin-right:14px;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#22C55E" stroke-width="2"/>
+              <path d="M8 12l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">수습리뷰</b>
+            <span style="font-size:13px;color:#8B95A1;">수습 기간 성과를 기록합니다.</span>
           </div>
         </div>
 
@@ -864,29 +948,48 @@ function unhoverCard(el) {
 }
 
 function obSelectMode(m) {
-  // self_leader는 셀프리뷰와 동일하게 처리
   const actualMode = (m === 'self_leader') ? 'self' : m;
-  // 부서 평가지 적용
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
   ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
   ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
-  // 헤더 배지 업데이트
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
-  // 온보딩 닫기
   const ob = document.getElementById('onboarding');
   ob.style.transition = 'opacity 0.4s ease';
   ob.style.opacity = '0';
   setTimeout(() => { ob.style.display = 'none'; }, 400);
-  // 초기 모드 세팅
   scores = { self: {}, d1: {}, d2: {} };
+
+  // 수습리뷰 모드 처리
+  if(actualMode === 'probation') {
+    buildTable();
+    // 탭
+    const tabSelf = document.getElementById('tab-self');
+    const tabDown = document.getElementById('tab-down');
+    const tabProb = document.getElementById('tab-prob');
+    if(tabSelf) tabSelf.style.display = 'none';
+    if(tabDown) tabDown.style.display = 'none';
+    if(tabProb) { tabProb.style.display = ''; tabProb.classList.remove('locked'); tabProb.classList.add('active'); }
+    // 테이블 숨기고 수습 패널 표시
+    document.getElementById('prob-panel').style.display = '';
+    document.getElementById('score-card-prob').style.display = '';
+    document.getElementById('score-card-self').style.display = 'none';
+    document.getElementById('score-card-down').style.display = 'none';
+    const tbl = document.getElementById('eval-table-wrap') || document.querySelector('.eval-table');
+    if(tbl) tbl.style.display = 'none';
+    showSelfPanel(false);
+    probCalc();
+    return;
+  }
+
   buildTable();
   setMode(actualMode);
   updatePhaseTabs();
   syncNameLabels();
-  // 선택한 리뷰 탭만 표시
   const tabSelf = document.getElementById('tab-self');
   const tabDown = document.getElementById('tab-down');
+  const tabProb = document.getElementById('tab-prob');
+  if(tabProb) tabProb.style.display = 'none';
   if(actualMode === 'self') {
     if(tabSelf) tabSelf.style.display = '';
     if(tabDown) tabDown.style.display = 'none';
@@ -900,13 +1003,9 @@ function obSelectMode(m) {
     selfLockedFromURL = false;
     updatePhaseTabs();
   }
-  // 온보딩 완료 후 임시저장 자동 복원 (조용히)
   setTimeout(() => { tempLoad(true); }, 500);
-  // 하향리뷰면 패널 표시
   showSelfPanel(actualMode === 'd1');
-  // 셀프 항목 목록 저장 (패널 표시용)
   if(actualMode === 'd1') {
-    const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
     ITEMS_SELF_REF = itemsMap[currentDept.items] || ITEMS_DEV;
   }
 }
@@ -1260,6 +1359,59 @@ function clearCurrentMode() {
 
 function clearAll() {
   if(confirm('전체 초기화할까요?')) window.location.href = window.location.origin + window.location.pathname;
+}
+
+
+// ── 수습리뷰 ──────────────────────────────────────────────────
+function requestProbPhase() { /* 이미 활성화된 탭 */ }
+
+function probCalc() {
+  const q1 = (document.getElementById('prob-q1')?.innerText || '').trim();
+  const q2 = (document.getElementById('prob-q2')?.innerText || '').trim();
+  const q3 = (document.getElementById('prob-q3')?.innerText || '').trim();
+  const q4 = (document.getElementById('prob-q4')?.innerText || '').trim();
+  const filled = [q1,q2,q3,q4].filter(Boolean).length;
+  const el = document.getElementById('d-prob');
+  if(el) el.textContent = (filled / 4 * 100).toFixed(1);
+}
+
+function submitProbation() {
+  const q1 = (document.getElementById('prob-q1')?.innerHTML || '').trim();
+  const q2 = (document.getElementById('prob-q2')?.innerHTML || '').trim();
+  const q3 = (document.getElementById('prob-q3')?.innerHTML || '').trim();
+  const q4 = (document.getElementById('prob-q4')?.innerHTML || '').trim();
+  if(!q1 || !q2 || !q3 || !q4) {
+    showModal('입력 확인', '모든 질문에 답변을 작성해주세요.', false); return;
+  }
+  function toB64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
+  const name  = document.getElementById('inf-name')?.value  || '';
+  const dept  = document.getElementById('inf-dept')?.value  || '';
+  const pos   = document.getElementById('inf-pos')?.value   || '';
+  const empId = document.getElementById('inf-id')?.value    || '';
+  const work  = document.getElementById('inf-work')?.value  || '';
+  const join  = document.getElementById('inf-join')?.value  || '';
+  const date  = document.getElementById('inf-date')?.value  || '';
+  const filled = [q1,q2,q3,q4].filter(Boolean).length;
+  const score  = (filled / 4 * 100).toFixed(1);
+  const resultUrl = window.location.href.split('?')[0] + '?d=' +
+    encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify({
+      i:{ name, dept, pos, id:empId, work, join, date }, mode:'probation',
+      q1:toB64(q1), q2:toB64(q2), q3:toB64(q3), q4:toB64(q4), score
+    }))))) + '&view=prob';
+  showModal('제출 중... ⏳', '수습리뷰를 제출하고 있습니다.', false);
+  if(SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    const params = new URLSearchParams({
+      action:'save_probation', name, dept, pos, employee_id:empId,
+      work, join, date,
+      prob_q1:toB64(q1), prob_q2:toB64(q2), prob_q3:toB64(q3), prob_q4:toB64(q4),
+      prob_pass: parseFloat(score) >= 75 ? '통과' : '보류',
+      result_url: resultUrl
+    });
+    fetch(SHEETS_API_URL + '?' + params.toString()).catch(() => {});
+  }
+  setTimeout(() => {
+    showModal('제출 완료! ✅', '수습리뷰가 성공적으로 제출되었습니다.<br><br>수고하셨습니다! 🎉', true);
+  }, 1500);
 }
 
 async function submitToSlack() {

@@ -608,6 +608,26 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           </div>
         </div>
 
+        <!-- 수습리뷰 -->
+        <div class="review-card" onclick="obSelectMode('probation')"
+          onmouseover="hoverCard(this)" onmouseout="unhoverCard(this)"
+          style="background:#F9FAFB; border:1.5px solid #EAEDF0;
+            padding:16px 18px; border-radius:14px;
+            display:flex; align-items:center; cursor:pointer; transition:all 0.18s;">
+          <div style="width:40px;height:40px;background:#E8F8EE;border-radius:10px;
+            display:flex;align-items:center;justify-content:center;
+            margin-right:14px;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="9" stroke="#22C55E" stroke-width="2"/>
+              <path d="M8 12l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div>
+            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">수습리뷰</b>
+            <span style="font-size:13px;color:#8B95A1;">수습 기간 성과를 기록합니다.</span>
+          </div>
+        </div>
+
       </div>
 
       <button onclick="obNext(2)" style="
@@ -630,8 +650,8 @@ const DEPT_CONFIG = [
   { value: 'dev',    emoji: '💻', label: '기업연구소 (개발)',   items: 'dev',    itemsDown: 'dev_down' },
   { value: 'nondev', emoji: '📋', label: '기업연구소 (비개발)', items: 'nondev', itemsDown: 'nondev' },
   { value: 'sales',  emoji: '📈', label: '영업전략팀',          items: 'nondev', itemsDown: 'nondev' },
-  { value: 'b2c',    emoji: '🛒', label: 'B2C팀',               items: 'nondev', itemsDown: 'nondev' },
-  { value: 'ops',    emoji: '⚙️', label: '운영지원팀',          items: 'nondev', itemsDown: 'nondev' },
+  { value: 'b2c',    emoji: '📋', label: '운영기획팀',           items: 'nondev', itemsDown: 'nondev' },
+  { value: 'ops',    emoji: '💰', label: '레비뉴팀',             items: 'nondev', itemsDown: 'nondev' },
   { value: 'mgmt',   emoji: '🏢', label: '경영지원팀',          items: 'nondev', itemsDown: 'nondev' },
 ];
 let currentDept = null; // 선택된 부서 config 객체

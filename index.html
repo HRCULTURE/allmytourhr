@@ -244,9 +244,9 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 }
 
 /* ── 관리자 대시보드 ───────────────────── */
-.admin-overlay { display:none !important; position:fixed !important; top:0 !important; left:0 !important; width:100vw !important; height:100vh !important; background:#0F172A; z-index:99999 !important; overflow-y:auto; }
-.admin-overlay.open { display:block !important; }
-.admin-wrap { width:100%; max-width:100%; margin:0; padding:16px 16px 60px; box-sizing:border-box; }
+.admin-overlay { display:none; position:fixed; inset:0; background:rgba(15,23,42,0.85); z-index:2000; overflow-y:auto; }
+.admin-overlay.open { display:block; }
+.admin-wrap { max-width:1100px; margin:40px auto; padding:0 20px 60px; }
 .admin-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; }
 .admin-title { font-size:22px; font-weight:900; color:#fff; }
 .admin-close { background:rgba(255,255,255,0.1); color:#fff; border:none; border-radius:8px; padding:8px 16px; cursor:pointer; font-size:13px; }
@@ -254,7 +254,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .admin-tabs { display:flex; gap:8px; margin-bottom:20px; }
 .admin-tab { padding:8px 20px; border-radius:8px; border:none; cursor:pointer; font-size:13px; font-weight:700; background:rgba(255,255,255,0.1); color:#CBD5E1; }
 .admin-tab.active { background:#6366F1; color:#fff; }
-.admin-card { background:#fff; border-radius:16px; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.admin-card { background:#fff; border-radius:16px; overflow:hidden; }
 .admin-table { width:100%; border-collapse:collapse; font-size:12px; }
 .admin-table th { background:#F8FAFC; color:#64748B; font-weight:700; padding:12px 14px; text-align:left; border-bottom:2px solid #E2E8F0; white-space:nowrap; }
 .admin-table td { padding:11px 14px; border-bottom:1px solid #F1F5F9; color:#1E293B; }
@@ -262,7 +262,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .admin-score { display:inline-block; background:#6366F1; color:#fff; border-radius:6px; padding:2px 10px; font-weight:700; font-size:13px; }
 .admin-url { color:#6366F1; text-decoration:none; font-size:11px; }
 .admin-empty { text-align:center; padding:40px; color:#94A3B8; font-size:13px; }
-.admin-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.admin-stats { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px; }
 .admin-stat { background:rgba(255,255,255,0.07); border-radius:12px; padding:16px 20px; color:#fff; }
 .admin-stat-val { font-size:28px; font-weight:900; color:#818CF8; }
 .admin-stat-label { font-size:12px; color:#94A3B8; margin-top:4px; }
@@ -282,45 +282,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 .admin-pw-btn { width:100%; padding:12px; background:#6366F1; color:#fff; border:none; border-radius:10px; font-size:15px; font-weight:700; cursor:pointer; }
 .admin-pw-btn:hover { background:#4F46E5; }
 .admin-pw-err { color:#EF4444; font-size:12px; margin-top:8px; display:none; }
-
-/* ── 리뷰 원본 뷰어 ── */
-.admin-viewer-overlay { display:none; position:fixed; top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; background:#0F172A; z-index:9999; overflow:hidden; }
-.admin-viewer-overlay.open { display:flex; flex-direction:column; }
-.admin-viewer-wrap { width:100%; padding:24px 40px 60px; box-sizing:border-box; }
-.admin-viewer-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
-.admin-viewer-title { font-size:18px; font-weight:800; color:#fff; }
-.admin-viewer-card { background:#fff; border-radius:16px; padding:24px 28px; margin-bottom:16px; }
-.admin-viewer-info { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:20px; }
-.admin-viewer-field { background:#F8FAFC; border-radius:10px; padding:10px 14px; }
-.admin-viewer-field-label { font-size:10px; font-weight:700; color:#94A3B8; margin-bottom:3px; }
-.admin-viewer-field-val { font-size:13px; font-weight:700; color:#1E293B; }
-.admin-viewer-table { width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
-.admin-viewer-table th { background:#F1F5FF; color:#4F46E5; font-weight:700; padding:11px 14px; text-align:left; border-bottom:2px solid #C7D2FE; white-space:nowrap; }
-.admin-viewer-table th:nth-child(1) { width:44px; }
-.admin-viewer-table th:nth-child(2) { width:120px; }
-.admin-viewer-table th:nth-child(3) { width:120px; }
-.admin-viewer-table th:nth-child(4) { width:auto; }
-.admin-viewer-table th:nth-child(5) { width:80px; }
-.admin-viewer-table td { padding:12px 14px; border-bottom:1px solid #F1F5F9; color:#1E293B; vertical-align:top; }
-.admin-viewer-table tr:hover td { background:#F8F9FF; }
-.admin-viewer-grade { display:inline-block; padding:4px 12px; border-radius:6px; font-weight:800; font-size:13px; color:#fff; background:#6366F1; }
-.admin-viewer-section { font-size:13px; font-weight:800; color:#6366F1; padding:8px 0 4px; border-bottom:2px solid #EEF0F8; margin:16px 0 8px; }
-.admin-case-box { background:#F8FAFC; border-radius:10px; padding:14px 16px; margin-top:8px; }
-.admin-case-label { font-size:11px; font-weight:700; color:#94A3B8; margin-bottom:6px; }
-.admin-case-text { font-size:13px; color:#1E293B; line-height:1.7; white-space:pre-wrap; }
-
-/* ── 관리자 필터 ── */
-.admin-filters { display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap; align-items:center; }
-.admin-filter-select {
-  background:#1E293B; color:#CBD5E1; border:1.5px solid #334155;
-  border-radius:8px; padding:7px 12px; font-size:13px; font-family:inherit;
-  cursor:pointer; outline:none; min-width:120px;
-}
-.admin-filter-select:focus { border-color:#6366F1; }
-.admin-filter-reset { background:none; border:1.5px solid #475569; color:#94A3B8;
-  border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family:inherit; }
-.admin-filter-reset:hover { border-color:#6366F1; color:#818CF8; }
-.admin-filter-count { font-size:12px; color:#64748B; margin-left:auto; }
 </style>
 </head>
 <body>
@@ -346,9 +307,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           하향리뷰
           <span class="tab-lock-icon" id="tab-lock-icon">🔒</span>
         </button>
-        <button class="phase-tab locked" id="tab-prob" onclick="requestProbPhase()" style="display:none;">
-          수습리뷰 🌱
-        </button>
       </div>
     </div>
   </div>
@@ -358,67 +316,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
 
   <div class="down-banner" id="down-banner">
     ⚠️ <strong>하향리뷰 모드입니다.</strong> 셀프리뷰 점수는 수정할 수 없습니다. 직원이 작성한 파란색 셀프 점수를 참고하여 하향 점수만 새로 선택해 주세요.
-  </div>
-
-  <!-- 수습리뷰 패널 -->
-  <div id="prob-panel" style="display:none;">
-    <div style="background:linear-gradient(135deg,#F0FDF4,#DCFCE7); border:1.5px solid #86EFAC;
-      border-radius:16px; padding:20px 24px; margin-bottom:16px;">
-      <div style="font-size:16px; font-weight:800; color:#15803D; margin-bottom:4px;">🌱 수습리뷰</div>
-      <div style="font-size:12px; color:#16A34A;">수습 기간 동안의 성과와 성장을 기록해주세요</div>
-    </div>
-
-    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
-      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
-        Q1. 신규 입사자에게 부여된 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요 <span style="color:#EF4444;">*</span>
-      </div>
-      <div id="prob-q1" contenteditable="true"
-        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
-          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
-        oninput="probCalc()"
-        onfocus="this.style.borderColor='#22C55E'"
-        onblur="this.style.borderColor='#E2E8F0'"
-        data-placeholder="역할과 업무를 구체적으로 작성해주세요..."></div>
-    </div>
-
-    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
-      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
-        Q2. 수습 기간 동안 가장 잘 해냈다고 생각하는 성과나 기여한 점을 작성해 주세요 <span style="color:#EF4444;">*</span>
-      </div>
-      <div id="prob-q2" contenteditable="true"
-        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
-          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
-        oninput="probCalc()"
-        onfocus="this.style.borderColor='#22C55E'"
-        onblur="this.style.borderColor='#E2E8F0'"
-        data-placeholder="주요 성과를 작성해주세요..."></div>
-    </div>
-
-    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
-      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
-        Q3. 수습 기간 동안 어렵거나 부족했던 점과 앞으로의 개선 계획을 작성해 주세요 <span style="color:#EF4444;">*</span>
-      </div>
-      <div id="prob-q3" contenteditable="true"
-        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
-          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
-        oninput="probCalc()"
-        onfocus="this.style.borderColor='#22C55E'"
-        onblur="this.style.borderColor='#E2E8F0'"
-        data-placeholder="어려웠던 점과 개선 계획을 작성해주세요..."></div>
-    </div>
-
-    <div style="background:var(--card); border-radius:16px; padding:24px; margin-bottom:12px; box-shadow:var(--shadow-sm);">
-      <div style="font-size:13px; font-weight:700; color:#15803D; margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid #DCFCE7;">
-        Q4. 정규직 전환 후 목표와 앞으로의 성장 방향을 작성해 주세요 <span style="color:#EF4444;">*</span>
-      </div>
-      <div id="prob-q4" contenteditable="true"
-        style="min-height:120px; border:1.5px solid #E2E8F0; border-radius:10px; padding:14px 16px;
-          font-size:13px; line-height:1.8; color:#1E293B; outline:none;"
-        oninput="probCalc()"
-        onfocus="this.style.borderColor='#22C55E'"
-        onblur="this.style.borderColor='#E2E8F0'"
-        data-placeholder="목표와 성장 방향을 작성해주세요..."></div>
-    </div>
   </div>
 
   <div class="info-card">
@@ -521,7 +418,7 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
     </div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-admin" onclick="openAdminPw()">🔐 관리자</button>
-      <button class="btn btn-primary" id="btn-submit-main" onclick="document.getElementById('prob-panel').style.display !== 'none' ? submitProbation() : submitToSlack()" style="padding:12px 32px; font-size:15px; font-weight:700; border-radius:12px; min-width:140px;">리뷰완료</button>
+      <button class="btn btn-primary" onclick="submitToSlack()" style="padding:12px 32px; font-size:15px; font-weight:700; border-radius:12px; min-width:140px;">리뷰완료</button>
     </div>
   </div>
 
@@ -619,15 +516,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
       onmouseout="this.style.transform='';this.style.boxShadow='0 10px 25px rgba(0,82,204,0.25)';">
         리뷰 시작
       </button>
-      <div style="margin-top:20px;">
-        <button onclick="openAdminPw()"
-          style="background:none; border:none; color:#CBD5E1; font-size:11px;
-                 cursor:pointer; padding:4px 8px; font-family:inherit;"
-          onmouseover="this.style.color='#6366F1'"
-          onmouseout="this.style.color='#CBD5E1'">
-          🔐 관리자
-        </button>
-      </div>
     </div>
 
     <!-- STEP 2: 부서 선택 -->
@@ -720,26 +608,6 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
           </div>
         </div>
 
-        <!-- 수습리뷰 -->
-        <div class="review-card" onclick="obSelectMode('probation')"
-          onmouseover="hoverCard(this)" onmouseout="unhoverCard(this)"
-          style="background:#F9FAFB; border:1.5px solid #EAEDF0;
-            padding:16px 18px; border-radius:14px;
-            display:flex; align-items:center; cursor:pointer; transition:all 0.18s;">
-          <div style="width:40px;height:40px;background:#E8F8EE;border-radius:10px;
-            display:flex;align-items:center;justify-content:center;
-            margin-right:14px;flex-shrink:0;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="9" stroke="#22C55E" stroke-width="2"/>
-              <path d="M8 12l3 3 5-5" stroke="#22C55E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-          <div>
-            <b style="display:block;font-size:15px;font-weight:700;color:#1A1F27;margin-bottom:2px;">수습리뷰</b>
-            <span style="font-size:13px;color:#8B95A1;">수습 기간 성과를 기록합니다.</span>
-          </div>
-        </div>
-
       </div>
 
       <button onclick="obNext(2)" style="
@@ -762,8 +630,8 @@ const DEPT_CONFIG = [
   { value: 'dev',    emoji: '💻', label: '기업연구소 (개발)',   items: 'dev',    itemsDown: 'dev_down' },
   { value: 'nondev', emoji: '📋', label: '기업연구소 (비개발)', items: 'nondev', itemsDown: 'nondev' },
   { value: 'sales',  emoji: '📈', label: '영업전략팀',          items: 'nondev', itemsDown: 'nondev' },
-  { value: 'b2c',    emoji: '📋', label: '운영기획팀',               items: 'nondev', itemsDown: 'nondev' },
-  { value: 'ops',    emoji: '⚙️', label: '레비뉴팀',          items: 'nondev', itemsDown: 'nondev' },
+  { value: 'b2c',    emoji: '🛒', label: 'B2C팀',               items: 'nondev', itemsDown: 'nondev' },
+  { value: 'ops',    emoji: '⚙️', label: '운영지원팀',          items: 'nondev', itemsDown: 'nondev' },
   { value: 'mgmt',   emoji: '🏢', label: '경영지원팀',          items: 'nondev', itemsDown: 'nondev' },
 ];
 let currentDept = null; // 선택된 부서 config 객체
@@ -772,31 +640,7 @@ const WEBHOOK_CONFIG = {
   down: "https://hooks.slack.com/triggers/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"
 };
 // ▼ Apps Script 배포 후 여기에 웹앱 URL 붙여넣기
-const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbzkJPdbzvBjQ1MIn8-6eCr1TK-UFPiRVUs7VDUZjytyOiXKAziodxHXQPThCX1Osy-c_w/exec';
-
-// JSONP 헬퍼 - CORS 우회
-function jsonpFetch(baseUrl, params) {
-  return new Promise((resolve, reject) => {
-    const cbName = 'cb_' + Date.now() + '_' + Math.random().toString(36).slice(2);
-    const timeout = setTimeout(() => {
-      delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      reject(new Error('요청 시간 초과'));
-    }, 10000);
-    window[cbName] = (data) => {
-      clearTimeout(timeout);
-      delete window[cbName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      resolve(data);
-    };
-    const qs = Object.entries({ ...params, callback: cbName })
-      .map(([k,v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v)).join('&');
-    const script = document.createElement('script');
-    script.src = baseUrl + '?' + qs;
-    script.onerror = () => { clearTimeout(timeout); delete window[cbName]; reject(new Error('네트워크 오류')); };
-    document.head.appendChild(script);
-  });
-}
+const SHEETS_API_URL = 'https://script.google.com/macros/s/AKfycbx05sAm-3Dr3HQIGRskUSpi1mNhcxVjYf9IWGITsIBOv0_eZQzAI2JuMT4o7pKfzGkpSQ/exec';
 
 const ITEMS_DEV=[
   ['팀워크&조직문화','기본소양','ㆍ회사 구성원들과 일상적으로 따뜻한 인사를 나누고, 먼저 배려하는 마음으로 다가가는가?',false],
@@ -948,48 +792,29 @@ function unhoverCard(el) {
 }
 
 function obSelectMode(m) {
+  // self_leader는 셀프리뷰와 동일하게 처리
   const actualMode = (m === 'self_leader') ? 'self' : m;
+  // 부서 평가지 적용
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV };
   ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
   ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  // 헤더 배지 업데이트
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
+  // 온보딩 닫기
   const ob = document.getElementById('onboarding');
   ob.style.transition = 'opacity 0.4s ease';
   ob.style.opacity = '0';
   setTimeout(() => { ob.style.display = 'none'; }, 400);
+  // 초기 모드 세팅
   scores = { self: {}, d1: {}, d2: {} };
-
-  // 수습리뷰 모드 처리
-  if(actualMode === 'probation') {
-    buildTable();
-    // 탭
-    const tabSelf = document.getElementById('tab-self');
-    const tabDown = document.getElementById('tab-down');
-    const tabProb = document.getElementById('tab-prob');
-    if(tabSelf) tabSelf.style.display = 'none';
-    if(tabDown) tabDown.style.display = 'none';
-    if(tabProb) { tabProb.style.display = ''; tabProb.classList.remove('locked'); tabProb.classList.add('active'); }
-    // 테이블 숨기고 수습 패널 표시
-    document.getElementById('prob-panel').style.display = '';
-    document.getElementById('score-card-prob').style.display = '';
-    document.getElementById('score-card-self').style.display = 'none';
-    document.getElementById('score-card-down').style.display = 'none';
-    const tbl = document.getElementById('eval-table-wrap') || document.querySelector('.eval-table');
-    if(tbl) tbl.style.display = 'none';
-    showSelfPanel(false);
-    probCalc();
-    return;
-  }
-
   buildTable();
   setMode(actualMode);
   updatePhaseTabs();
   syncNameLabels();
+  // 선택한 리뷰 탭만 표시
   const tabSelf = document.getElementById('tab-self');
   const tabDown = document.getElementById('tab-down');
-  const tabProb = document.getElementById('tab-prob');
-  if(tabProb) tabProb.style.display = 'none';
   if(actualMode === 'self') {
     if(tabSelf) tabSelf.style.display = '';
     if(tabDown) tabDown.style.display = 'none';
@@ -1003,9 +828,13 @@ function obSelectMode(m) {
     selfLockedFromURL = false;
     updatePhaseTabs();
   }
+  // 온보딩 완료 후 임시저장 자동 복원 (조용히)
   setTimeout(() => { tempLoad(true); }, 500);
+  // 하향리뷰면 패널 표시
   showSelfPanel(actualMode === 'd1');
+  // 셀프 항목 목록 저장 (패널 표시용)
   if(actualMode === 'd1') {
+    const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
     ITEMS_SELF_REF = itemsMap[currentDept.items] || ITEMS_DEV;
   }
 }
@@ -1326,21 +1155,6 @@ function restoreFromURL() {
     }
     ITEMS.forEach((_, i) => refreshRow(i));
     calculate();
-
-    // view=down 파라미터 있으면 하향탭으로 자동 전환
-    const viewMode = params.get('view');
-    if(viewMode === 'down') {
-      selfLockedFromURL = true; // 하향탭 잠금 해제
-      selfSubmitted = true;
-      downUnlocked = true;
-      setTimeout(() => {
-        const d1Tab = document.getElementById('tab-d1');
-        if(d1Tab) d1Tab.click();
-        const banner = document.getElementById('view-mode-banner');
-        if(banner) banner.style.display = 'flex';
-      }, 300);
-    }
-
     updatePhaseTabs();
     syncNameLabels();
   } catch(e) { console.error("Restore failed", e); }
@@ -1359,59 +1173,6 @@ function clearCurrentMode() {
 
 function clearAll() {
   if(confirm('전체 초기화할까요?')) window.location.href = window.location.origin + window.location.pathname;
-}
-
-
-// ── 수습리뷰 ──────────────────────────────────────────────────
-function requestProbPhase() { /* 이미 활성화된 탭 */ }
-
-function probCalc() {
-  const q1 = (document.getElementById('prob-q1')?.innerText || '').trim();
-  const q2 = (document.getElementById('prob-q2')?.innerText || '').trim();
-  const q3 = (document.getElementById('prob-q3')?.innerText || '').trim();
-  const q4 = (document.getElementById('prob-q4')?.innerText || '').trim();
-  const filled = [q1,q2,q3,q4].filter(Boolean).length;
-  const el = document.getElementById('d-prob');
-  if(el) el.textContent = (filled / 4 * 100).toFixed(1);
-}
-
-function submitProbation() {
-  const q1 = (document.getElementById('prob-q1')?.innerHTML || '').trim();
-  const q2 = (document.getElementById('prob-q2')?.innerHTML || '').trim();
-  const q3 = (document.getElementById('prob-q3')?.innerHTML || '').trim();
-  const q4 = (document.getElementById('prob-q4')?.innerHTML || '').trim();
-  if(!q1 || !q2 || !q3 || !q4) {
-    showModal('입력 확인', '모든 질문에 답변을 작성해주세요.', false); return;
-  }
-  function toB64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
-  const name  = document.getElementById('inf-name')?.value  || '';
-  const dept  = document.getElementById('inf-dept')?.value  || '';
-  const pos   = document.getElementById('inf-pos')?.value   || '';
-  const empId = document.getElementById('inf-id')?.value    || '';
-  const work  = document.getElementById('inf-work')?.value  || '';
-  const join  = document.getElementById('inf-join')?.value  || '';
-  const date  = document.getElementById('inf-date')?.value  || '';
-  const filled = [q1,q2,q3,q4].filter(Boolean).length;
-  const score  = (filled / 4 * 100).toFixed(1);
-  const resultUrl = window.location.href.split('?')[0] + '?d=' +
-    encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify({
-      i:{ name, dept, pos, id:empId, work, join, date }, mode:'probation',
-      q1:toB64(q1), q2:toB64(q2), q3:toB64(q3), q4:toB64(q4), score
-    }))))) + '&view=prob';
-  showModal('제출 중... ⏳', '수습리뷰를 제출하고 있습니다.', false);
-  if(SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    const params = new URLSearchParams({
-      action:'save_probation', name, dept, pos, employee_id:empId,
-      work, join, date,
-      prob_q1:toB64(q1), prob_q2:toB64(q2), prob_q3:toB64(q3), prob_q4:toB64(q4),
-      prob_pass: parseFloat(score) >= 75 ? '통과' : '보류',
-      result_url: resultUrl
-    });
-    fetch(SHEETS_API_URL + '?' + params.toString()).catch(() => {});
-  }
-  setTimeout(() => {
-    showModal('제출 완료! ✅', '수습리뷰가 성공적으로 제출되었습니다.<br><br>수고하셨습니다! 🎉', true);
-  }, 1500);
 }
 
 async function submitToSlack() {
@@ -1446,17 +1207,30 @@ async function submitToSlack() {
     successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
   }
 
+  // Sheets에도 저장 (셀프리뷰일 때만)
+  if(mode === 'self' && SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    // GET 방식으로 저장 (CORS 우회)
+    const sheetsParams = new URLSearchParams({
+      action: 'save',
+      mode: 'self',
+      name:        payload.name        || '',
+      dept:        payload.dept        || '',
+      employee_id: payload.employee_id || '',
+      self_score:  payload.self_score  || '',
+      result_url:  payload.result_url  || '',
+      pos:  document.getElementById('inf-pos')?.value  || '',
+      work: document.getElementById('inf-work')?.value || '',
+      join: document.getElementById('inf-join')?.value || '',
+      date: document.getElementById('inf-date')?.value || ''
+    });
+    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
+  }
+
   // Sheets 저장 (셀프/하향 모두)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    // 서술형 사례 수집
-    const casesObj = {};
-    ITEMS.forEach((it, idx) => {
-      const ta = document.getElementById('case-' + idx);
-      if(ta && ta.value && ta.value.trim()) casesObj[String(idx)] = ta.value.trim();
-    });
-    function toB64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
     const sheetsParams = new URLSearchParams({
       action: mode === 'self' ? 'save_self' : 'save_down',
+      mode,
       name:        payload.name        || '',
       dept:        payload.dept        || '',
       employee_id: payload.employee_id || '',
@@ -1467,8 +1241,7 @@ async function submitToSlack() {
       pos:  document.getElementById('inf-pos')?.value  || '',
       work: document.getElementById('inf-work')?.value || '',
       join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || '',
-      cases: toB64(JSON.stringify(casesObj))
+      date: document.getElementById('inf-date')?.value || ''
     });
     fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }
@@ -1584,7 +1357,7 @@ function requestDownPhase() {
 }
 
 function changeEvalType() { openDeptModal(); } // 호환성 유지
-let downUnlocked = (new URLSearchParams(window.location.search).get('view') === 'down');
+let downUnlocked = false;
 
 function unlockDown() {
   if(downUnlocked) return;
@@ -1667,10 +1440,12 @@ async function searchSelfByName(name) {
   panelTotal.style.display = 'none';
 
   try {
-    const data = await jsonpFetch(SHEETS_API_URL, { action: 'query', name });
+    const url = SHEETS_API_URL + '?action=query&name=' + encodeURIComponent(name);
+    const res  = await fetch(url);
+    const data = await res.json();
 
     if(!data.success) {
-      panelBody.innerHTML = '<div class="panel-empty">⚠️ ' + (data.error || '결과를 찾을 수 없습니다') + '</div>';
+      panelBody.innerHTML = '<div class="panel-empty">❌ ' + (data.error || '결과를 찾을 수 없습니다') + '</div>';
       panelName.textContent = '결과 없음';
       return;
     }
@@ -1678,7 +1453,10 @@ async function searchSelfByName(name) {
     panelName.textContent = data.name + ' 님';
     panelStatus.textContent = '제출일: ' + (data.submitted || '-');
 
+    // 기본정보 자동 입력
     autoFillInfo(data);
+
+    // result_url에서 점수 파싱
     renderPanelFromResultUrl(data.result_url, data.self_score);
 
   } catch(err) {
@@ -1793,8 +1571,6 @@ function tempSave() {
 }
 
 function tempLoad(silent) {
-  // URL에 d 파라미터 있으면 (원본보기 모드) 임시저장 완전 무시
-  if(new URLSearchParams(window.location.search).get('d')) return false;
   const raw = localStorage.getItem('hr_temp_save');
   if(!raw) { if(!silent) alert('저장된 데이터가 없습니다.'); return false; }
   try {
@@ -1832,18 +1608,14 @@ syncNameLabels();
 // URL 파라미터 or 임시저장 데이터 있으면 온보딩 건너뛰고 바로 복원
 const _urlParams = new URLSearchParams(window.location.search);
 if(_urlParams.get('d')) {
-  // d 파라미터로 복원 — 임시저장/관리자모달 완전 무시
   currentDept = DEPT_CONFIG[0];
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
   document.getElementById('onboarding').style.display = 'none';
-  // 관리자 pw 모달이 혹시 열려있으면 닫기
-  const _pwModal = document.getElementById('admin-pw-modal');
-  if(_pwModal) _pwModal.classList.remove('open');
   restoreFromURL();
 } else {
   // 임시저장 데이터 확인
   const _tempRaw = localStorage.getItem('hr_temp_save');
-  if(_tempRaw && !_urlParams.get('d') && !_urlParams.get('view')) {
+  if(_tempRaw) {
     try {
       const _tempData = JSON.parse(_tempRaw);
       const dv = _tempData.info?.deptValue || 'dev';
@@ -1880,273 +1652,6 @@ if(_urlParams.get('d')) {
   } else {
     obInit();
     obNext(1);
-  }
-}
-
-// ── 관리자 대시보드 ──────────────────────────────────────────
-const ADMIN_PW = 'allmyhye2026';
-let adminData = { self: [], down: [] };
-let adminCurrentTab = 'self';
-
-function openAdminPw() {
-  document.getElementById('admin-pw-modal').classList.add('open');
-  document.getElementById('admin-pw-input').value = '';
-  document.getElementById('admin-pw-err').style.display = 'none';
-  setTimeout(() => document.getElementById('admin-pw-input').focus(), 100);
-}
-function closeAdminPw() {
-  document.getElementById('admin-pw-modal').classList.remove('open');
-}
-function checkAdminPw() {
-  const val = document.getElementById('admin-pw-input').value;
-  if(val === ADMIN_PW) { closeAdminPw(); openAdmin(); }
-  else {
-    document.getElementById('admin-pw-err').style.display = 'block';
-    document.getElementById('admin-pw-input').value = '';
-    document.getElementById('admin-pw-input').focus();
-  }
-}
-async function openAdmin() {
-  const el = document.getElementById('admin-overlay');
-  document.body.appendChild(el); // body 직접 자식으로 이동
-  el.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  await refreshAdminData();
-}
-function closeAdmin() {
-  const el = document.getElementById('admin-overlay');
-  el.classList.remove('open');
-  document.body.style.overflow = '';
-}
-async function refreshAdminData() {
-  document.getElementById('admin-table-wrap').innerHTML = '<div class="admin-empty">🔄 데이터 불러오는 중...</div>';
-  try {
-    const data = await jsonpFetch(SHEETS_API_URL, { action: 'admin_all' });
-    if(!data.success) throw new Error(data.error || '조회 실패');
-    adminData = data;
-    updateAdminStats();
-    renderAdminTable(adminCurrentTab);
-  } catch(err) {
-    document.getElementById('admin-table-wrap').innerHTML = '<div class="admin-empty">⚠️ 실패: ' + err.message + '</div>';
-  }
-}
-function updateAdminStats() {
-  document.getElementById('stat-self').textContent = adminData.self.length;
-  document.getElementById('stat-down').textContent = adminData.down.length;
-  const scores = adminData.self.map(r => parseFloat(r['셀프점수'])).filter(v => !isNaN(v) && v > 0);
-  document.getElementById('stat-avg').textContent = scores.length ? (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1) : '-';
-}
-function switchAdminTab(tab, el) {
-  adminCurrentTab = tab;
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('filter-dept').value  = '';
-  document.getElementById('filter-pos').value   = '';
-  document.getElementById('filter-month').value = '';
-  renderAdminTable(tab);
-}
-
-// ── 필터 ──────────────────────────────────────
-function populateFilters() {
-  const rows = adminData[adminCurrentTab] || [];
-  const nameKey = adminCurrentTab === 'self' ? '부서' : '부서';
-  const posKey  = adminCurrentTab === 'self' ? '직위' : null;
-
-  const depts  = [...new Set(rows.map(r => r['부서']).filter(Boolean))].sort();
-  const poses  = posKey ? [...new Set(rows.map(r => r[posKey]).filter(Boolean))].sort() : [];
-  const months = [...new Set(rows.map(r => {
-    const d = r['제출일시'] ? String(r['제출일시']) : '';
-    const m = d.match(/(\d{4})\D+(\d{1,2})/);
-    return m ? m[1] + '년 ' + m[2] + '월' : null;
-  }).filter(Boolean))].sort();
-
-  function setOptions(id, items, placeholder) {
-    const el = document.getElementById(id);
-    const cur = el.value;
-    el.innerHTML = '<option value="">' + placeholder + '</option>'
-      + items.map(v => '<option value="'+v+'" '+(v===cur?'selected':'')+'>'+v+'</option>').join('');
-  }
-
-  setOptions('filter-dept',  depts,  '🏢 전체 부서');
-  setOptions('filter-pos',   poses,  '👤 전체 직급');
-  setOptions('filter-month', months, '📅 전체 월');
-
-  // 직급 필터는 하향리뷰에선 숨기기
-  document.getElementById('filter-pos').style.display = adminCurrentTab === 'down' ? 'none' : '';
-}
-
-function getFilteredRows() {
-  const rows  = adminData[adminCurrentTab] || [];
-  const dept  = document.getElementById('filter-dept').value;
-  const pos   = document.getElementById('filter-pos').value;
-  const month = document.getElementById('filter-month').value;
-
-  return rows.filter(r => {
-    if(dept && r['부서'] !== dept) return false;
-    if(pos  && r['직위'] !== pos)  return false;
-    if(month) {
-      const d = String(r['제출일시'] || '');
-      const m = d.match(/(\d{4})\D+(\d{1,2})/);
-      const rm = m ? m[1] + '년 ' + m[2] + '월' : '';
-      if(rm !== month) return false;
-    }
-    return true;
-  });
-}
-
-function applyFilters() {
-  renderAdminTable(adminCurrentTab);
-}
-
-function resetFilters() {
-  document.getElementById('filter-dept').value  = '';
-  document.getElementById('filter-pos').value   = '';
-  document.getElementById('filter-month').value = '';
-  renderAdminTable(adminCurrentTab);
-}
-
-function renderAdminTable(tab) {
-  populateFilters();
-  const allRows = adminData[tab] || [];
-  const rows = getFilteredRows();
-  const wrap = document.getElementById('admin-table-wrap');
-  const countEl = document.getElementById('filter-count');
-  if(countEl) countEl.textContent = rows.length + ' / ' + allRows.length + '명';
-  if(!allRows.length) { wrap.innerHTML = '<div class="admin-empty">아직 제출된 데이터가 없습니다</div>'; return; }
-  if(!rows.length) { wrap.innerHTML = '<div class="admin-empty">필터 조건에 맞는 데이터가 없습니다</div>'; return; }
-
-  // data-idx로 클릭 이벤트 처리 (따옴표 충돌 방지)
-  if(tab === 'self') {
-    let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>성명</th><th>부서</th><th>직위</th><th>셀프점수</th><th>원본</th></tr></thead><tbody>';
-    rows.forEach((r, i) => {
-      t += '<tr>'
-        + '<td style="white-space:nowrap;">' + (r['제출일시']||'-') + '</td>'
-        + '<td><strong>' + (r['성명']||'-') + '</strong></td>'
-        + '<td>' + (r['부서']||'-') + '</td>'
-        + '<td>' + (r['직위']||'-') + '</td>'
-        + '<td><span class="admin-score">' + (r['셀프점수']||'-') + '</span></td>'
-        + '<td>' + (r['result_url']
-            ? '<button class="admin-view-btn" data-idx="' + i + '" data-tab="self" style="background:#6366F1;border:none;border-radius:6px;padding:5px 12px;cursor:pointer;font-size:11px;color:#fff;font-weight:700;white-space:nowrap;">📋 원본 보기</button>'
-            : '-') + '</td>'
-        + '</tr>';
-    });
-    wrap.innerHTML = t + '</tbody></table>';
-  } else {
-    let t = '<table class="admin-table"><thead><tr><th>제출일시</th><th>평가자</th><th>평가대상자</th><th>부서</th><th>하향점수</th><th>원본</th></tr></thead><tbody>';
-    rows.forEach((r, i) => {
-      t += '<tr>'
-        + '<td>' + (r['제출일시']||'-') + '</td>'
-        + '<td>' + (r['평가자']||'-') + '</td>'
-        + '<td><strong>' + (r['평가대상자']||'-') + '</strong></td>'
-        + '<td>' + (r['부서']||'-') + '</td>'
-        + '<td><span class="admin-score" style="background:#3B82F6;">' + (r['하향점수']||'-') + '</span></td>'
-        + '<td>' + (r['result_url']
-            ? '<button class="admin-view-btn" data-idx="' + i + '" data-tab="down" style="background:none;border:1.5px solid #BFD9FF;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:11px;color:#3B82F6;font-weight:700;">📋 원본 보기</button>'
-            : '-') + '</td>'
-        + '</tr>';
-    });
-    wrap.innerHTML = t + '</tbody></table>';
-  }
-
-  // 버튼 클릭 이벤트 위임
-  wrap.querySelectorAll('.admin-view-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-      const idx  = parseInt(this.dataset.idx);
-      const tab2 = this.dataset.tab;
-      const row  = adminData[tab2][idx];
-      const name = row['성명'] || row['평가대상자'] || '';
-      openViewer(row['result_url'], name, tab2);
-    });
-  });
-}
-
-// ── 리뷰 원본 뷰어 ──────────────────────────────────────────
-function closeViewer() {
-  document.getElementById('admin-viewer-overlay').classList.remove('open');
-}
-
-function openViewer(resultUrl, name, type) {
-  if(type === 'down') {
-    // 하향리뷰 원본 보기: URL에 view=down 파라미터 추가
-    const sep = resultUrl.includes('?') ? '&' : '?';
-    window.open(resultUrl + sep + 'view=down', '_blank');
-  } else {
-    window.open(resultUrl, '_blank');
-  }
-}
-
-function renderViewer(resultUrl, type) {
-  const content = document.getElementById('viewer-content');
-  try {
-    let dParam = null;
-    try { dParam = new URL(resultUrl).searchParams.get('d'); } catch(e) {
-      const m = resultUrl.match(/[?&]d=([^&]+)/); if(m) dParam = m[1];
-    }
-    if(!dParam) throw new Error('URL 파싱 실패');
-
-    const data = JSON.parse(decodeURIComponent(atob(dParam)));
-
-    function expandScores(str) {
-      if(!str) return {};
-      const out = {};
-      str.split(',').forEach(part => {
-        const [k,v] = part.split(':');
-        if(k !== undefined && v !== undefined) out[String(parseInt(k))] = parseInt(v);
-      });
-      return out;
-    }
-
-    const info       = data.i || data.info || {};
-    const selfScores = data.s !== undefined ? expandScores(data.s) : (data.scores?.self || {});
-    const downScores = data.d1 !== undefined ? expandScores(data.d1) : (data.scores?.d1 || {});
-    const cases      = data.c || data.cases || {};
-    const showScores = type === 'self' ? selfScores : downScores;
-    const itemList   = ITEMS_DEV; // 기본 항목 (추후 부서별 분기 가능)
-
-    // 기본정보
-    let infoHtml = '<div class="admin-viewer-info">';
-    const fields = [
-      ['성명', info.name], ['사번', info.id], ['부서', info.dept],
-      ['직위', info.pos], ['담당업무', info.work], ['작성일', info.date]
-    ];
-    fields.forEach(([label, val]) => {
-      infoHtml += '<div class="admin-viewer-field"><div class="admin-viewer-field-label">' + label + '</div><div class="admin-viewer-field-val">' + (val || '-') + '</div></div>';
-    });
-    infoHtml += '</div>';
-
-    // 항목별 점수 테이블
-    let tableHtml = '<div class="admin-viewer-section">' + (type === 'self' ? '셀프리뷰 항목별 점수' : '하향리뷰 항목별 점수') + '</div>';
-    tableHtml += '<table class="admin-viewer-table"><thead><tr><th>No.</th><th>역량요소</th><th>리뷰항목</th><th style="min-width:300px;">리뷰기준</th><th>등급</th></tr></thead><tbody>';
-    let total = 0, count = 0;
-    itemList.forEach((it, idx) => {
-      const score = showScores[String(idx)];
-      const grade = score ? (GRADES.find(g => g.score === score)?.label || '-') : '-';
-      const gradeColor = score >= 90 ? '#6366F1' : score >= 70 ? '#3B82F6' : score >= 50 ? '#10B981' : score > 0 ? '#F59E0B' : '#E2E8F0';
-      if(score > 0) { total += score; count++; }
-      tableHtml += '<tr><td style="color:#94A3B8;">' + (idx+1) + '</td><td>' + it[0] + '</td><td style="font-weight:700;">' + it[1] + '</td><td style="font-size:12px;color:#374151;line-height:1.7;word-break:keep-all;">' + (it[2]||'') + '</td><td>' +
-        (score ? '<span class="admin-viewer-grade" style="background:' + gradeColor + '">' + grade + '</span>' : '<span style="color:#CBD5E1;">-</span>') +
-        '</td></tr>';
-    });
-    tableHtml += '</tbody></table>';
-
-    // 총점
-    const avg = count > 0 ? (total / count).toFixed(1) : '-';
-    tableHtml += '<div style="text-align:right;padding:12px 0;font-size:14px;font-weight:800;color:#6366F1;">총점 평균: ' + avg + '</div>';
-
-    // 사례 (셀프리뷰만)
-    let caseHtml = '';
-    if(type === 'self' && Object.keys(cases).length > 0) {
-      caseHtml = '<div class="admin-viewer-section">작성 사례</div>';
-      Object.entries(cases).forEach(([idx, val]) => {
-        if(!val) return;
-        const item = itemList[parseInt(idx)];
-        caseHtml += '<div class="admin-case-box"><div class="admin-case-label">' + (item ? item[1] : idx) + '</div><div class="admin-case-text">' + val + '</div></div>';
-      });
-    }
-
-    content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + caseHtml + '</div>';
-  } catch(e) {
-    content.innerHTML = '<div style="text-align:center;color:#EF4444;padding:40px;">원본 데이터를 불러올 수 없습니다.<br><small>' + e.message + '</small></div>';
   }
 }
 
@@ -2195,34 +1700,12 @@ function renderViewer(resultUrl, type) {
       <button class="admin-tab active" onclick="switchAdminTab('self', this)">셀프리뷰 결과</button>
       <button class="admin-tab" onclick="switchAdminTab('down', this)">하향리뷰 결과</button>
     </div>
-    <div class="admin-filters">
-      <select class="admin-filter-select" id="filter-dept" onchange="applyFilters()">
-        <option value="">🏢 전체 부서</option>
-      </select>
-      <select class="admin-filter-select" id="filter-pos" onchange="applyFilters()">
-        <option value="">👤 전체 직급</option>
-      </select>
-      <select class="admin-filter-select" id="filter-month" onchange="applyFilters()">
-        <option value="">📅 전체 월</option>
-      </select>
-      <button class="admin-filter-reset" onclick="resetFilters()">✕ 초기화</button>
-      <span class="admin-filter-count" id="filter-count"></span>
-    </div>
     <div class="admin-card">
       <div id="admin-table-wrap">
         <div class="admin-empty">🔄 데이터를 불러오는 중...</div>
       </div>
     </div>
   </div>
-</div>
-
-<!-- 리뷰 원본 뷰어 -->
-<div class="admin-viewer-overlay" id="admin-viewer-overlay">
-  <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 28px; background:#1E293B; flex-shrink:0; width:100%; box-sizing:border-box;">
-    <div style="font-size:16px; font-weight:800; color:#fff;" id="viewer-title">📋 리뷰 원본</div>
-    <button onclick="closeViewer()" style="background:rgba(255,255,255,0.15); color:#fff; border:none; border-radius:8px; padding:8px 16px; font-size:13px; cursor:pointer;">✕ 닫기</button>
-  </div>
-  <iframe id="viewer-iframe" src="" style="width:100%; flex:1; border:none; background:#fff; display:block;"></iframe>
 </div>
 </body>
 </html>

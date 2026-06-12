@@ -762,8 +762,8 @@ const DEPT_CONFIG = [
   { value: 'dev',    emoji: '💻', label: '기업연구소 (개발)',   items: 'dev',    itemsDown: 'dev_down' },
   { value: 'nondev', emoji: '📋', label: '기업연구소 (비개발)', items: 'nondev', itemsDown: 'nondev' },
   { value: 'sales',  emoji: '📈', label: '영업전략팀',          items: 'nondev', itemsDown: 'nondev' },
-  { value: 'b2c',    emoji: '🛒', label: 'B2C팀',               items: 'nondev', itemsDown: 'nondev' },
-  { value: 'ops',    emoji: '⚙️', label: '운영지원팀',          items: 'nondev', itemsDown: 'nondev' },
+  { value: 'b2c',    emoji: '📋', label: '운영기획팀',               items: 'nondev', itemsDown: 'nondev' },
+  { value: 'ops',    emoji: '⚙️', label: '레비뉴팀',          items: 'nondev', itemsDown: 'nondev' },
   { value: 'mgmt',   emoji: '🏢', label: '경영지원팀',          items: 'nondev', itemsDown: 'nondev' },
 ];
 let currentDept = null; // 선택된 부서 config 객체
@@ -1446,30 +1446,17 @@ async function submitToSlack() {
     successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
   }
 
-  // Sheets에도 저장 (셀프리뷰일 때만)
-  if(mode === 'self' && SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    // GET 방식으로 저장 (CORS 우회)
-    const sheetsParams = new URLSearchParams({
-      action: 'save',
-      mode: 'self',
-      name:        payload.name        || '',
-      dept:        payload.dept        || '',
-      employee_id: payload.employee_id || '',
-      self_score:  payload.self_score  || '',
-      result_url:  payload.result_url  || '',
-      pos:  document.getElementById('inf-pos')?.value  || '',
-      work: document.getElementById('inf-work')?.value || '',
-      join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || ''
-    });
-    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
-  }
-
   // Sheets 저장 (셀프/하향 모두)
   if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    // 서술형 사례 수집
+    const casesObj = {};
+    ITEMS.forEach((it, idx) => {
+      const ta = document.getElementById('case-' + idx);
+      if(ta && ta.value && ta.value.trim()) casesObj[String(idx)] = ta.value.trim();
+    });
+    function toB64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
     const sheetsParams = new URLSearchParams({
       action: mode === 'self' ? 'save_self' : 'save_down',
-      mode,
       name:        payload.name        || '',
       dept:        payload.dept        || '',
       employee_id: payload.employee_id || '',
@@ -1480,7 +1467,8 @@ async function submitToSlack() {
       pos:  document.getElementById('inf-pos')?.value  || '',
       work: document.getElementById('inf-work')?.value || '',
       join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || ''
+      date: document.getElementById('inf-date')?.value || '',
+      cases: toB64(JSON.stringify(casesObj))
     });
     fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }

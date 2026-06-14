@@ -406,6 +406,13 @@ body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(
     </table>
   </div>
 
+  <!-- 서술형 섹션 (셀프리뷰) -->
+  <div class="table-card" id="essay-section" style="display:none; padding:28px 30px;">
+    <div style="font-size:16px; font-weight:800; color:var(--navy); margin-bottom:6px;">📝 서술형 답변</div>
+    <div style="font-size:12px; color:var(--text-soft); margin-bottom:20px;">아래 항목에 대해 구체적으로 작성해주세요.</div>
+    <div id="essay-list"></div>
+  </div>
+
   <div class="action-bar">
     <div style="display:flex; flex-direction:column; gap:6px;">
       <div class="action-left">
@@ -823,6 +830,51 @@ const ITEMS_PROBATION = [
 let ITEMS = ITEMS_DEV;
 let ITEMS_DOWN = ITEMS_DEV_DOWN;
 
+// ── 셀프리뷰 서술형 문항 ──────────────────────────────────────
+const ESSAY_DEV = [
+  '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
+  '개발관련 빠른 테스트/실험 사례 (지난 1년)',
+  '리소스 절감 또는 자동화/AI 내재화 경험',
+  '여전히 부족하다고 느끼는 역량 및 한계',
+  '역량과 자질 성장을 위한 노력',
+  '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
+  '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
+];
+const ESSAY_NONDEV = [
+  '지난 1년간 기여한 성과 중, 가장 잘했던 내용과 공헌 이유',
+  '업무 중 빠른 실행/시도로 성과를 낸 사례 (지난 1년)',
+  '리소스 절감 또는 자동화/AI 내재화 경험',
+  '여전히 부족하다고 느끼는 역량 및 한계',
+  '역량과 자질 성장을 위한 노력',
+  '팀/조직에 긍정적으로 영향을 준 부분과 그렇지 못한 부분',
+  '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
+];
+function activeEssay() {
+  if(isProbation || isUpward) return [];
+  return (currentDept && currentDept.items === 'dev') ? ESSAY_DEV : ESSAY_NONDEV;
+}
+function renderEssaySection() {
+  const section = document.getElementById('essay-section');
+  const list = document.getElementById('essay-list');
+  if(!section || !list) return;
+  // 셀프리뷰(개발/비개발/리더)에서만 표시. 하향리뷰는 숨김.
+  const show = (mode === 'self') && !isProbation && !isUpward;
+  section.style.display = show ? '' : 'none';
+  if(!show) return;
+  const qs = activeEssay();
+  list.innerHTML = qs.map((q, i) => `
+    <div style="margin-bottom:18px;">
+      <div style="font-size:13px; font-weight:700; color:var(--text); margin-bottom:8px;">${i+1}. ${q}</div>
+      <textarea class="essay-val" data-essay-idx="${i}"
+        placeholder="구체적으로 작성해주세요..."
+        style="width:100%; box-sizing:border-box; min-height:80px; border:1.5px solid var(--border);
+               border-radius:10px; padding:12px 14px; font-size:13px; font-family:inherit;
+               line-height:1.7; color:var(--text); resize:vertical; outline:none;"
+        onfocus="this.style.borderColor='var(--primary)'"
+        onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>`).join('');
+}
+
 // ── 온보딩 3단계 플로우 ────────────────────────────────────────
 // ── 온보딩 초기화 ─────────────────────────────────────────────
 function obInit() {
@@ -1098,6 +1150,7 @@ function buildTable() {
   const _banner = document.getElementById('down-banner');
   if(_banner) _banner.classList.toggle('show', !_isSelf && selfLockedFromURL);
   updateButtonLockState();
+  renderEssaySection();
 }
 
 // ── 대시보드 패널 전환 (셀프/하향 공통)
@@ -1172,6 +1225,7 @@ function setMode(m) {
   const banner = document.getElementById('down-banner');
   if(banner) banner.classList.toggle('show', isDown && selfLockedFromURL);
   updateButtonLockState();
+  renderEssaySection();
 }
 
 function updateButtonLockState() {
@@ -1267,6 +1321,8 @@ function getSaveData() {
   }
   const caseData = {};
   document.querySelectorAll('.case-val').forEach(el => { if(el.value) caseData[el.dataset.idx] = el.value; });
+  // 서술형 답변 essay_N
+  document.querySelectorAll('.essay-val').forEach(el => { if(el.value.trim()) caseData['essay_' + el.dataset.essayIdx] = el.value.trim(); });
   const infoData = {
     id: document.getElementById('inf-id').value,
     name: document.getElementById('inf-name').value,
@@ -1310,7 +1366,14 @@ function restoreFromURL() {
       scores.d1 = expandScores(data.d1);
       scores.d2 = expandScores(data.d2);
       if(data.i) Object.entries(data.i).forEach(([k,v]) => { const el = document.getElementById('inf-'+k); if(el) el.value = v; });
-      if(data.c) Object.entries(data.c).forEach(([idx,v]) => { const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v; });
+      if(data.c) Object.entries(data.c).forEach(([idx,v]) => {
+        if(String(idx).startsWith('essay_')) {
+          const ei = idx.replace('essay_','');
+          const el = document.querySelector('.essay-val[data-essay-idx="'+ei+'"]'); if(el) el.value = v;
+        } else {
+          const el = document.querySelector('.case-val[data-idx="'+idx+'"]'); if(el) el.value = v;
+        }
+      });
     } else if(data.scores) {
       // 구버전 포맷 호환
       scores = data.scores;

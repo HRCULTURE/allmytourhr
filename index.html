@@ -1539,7 +1539,7 @@ function onPanelNameInput(val) {
   if(status) status.textContent = val ? 'Enter 또는 조회 버튼을 누르세요' : '';
 }
 
-async function searchSelfByName(name) {
+function searchSelfByName(name) {
   name = (name || '').trim();
   if(!name) return;
 
@@ -1549,7 +1549,7 @@ async function searchSelfByName(name) {
   const panelTotal  = document.getElementById('panel-total');
 
   if(SHEETS_API_URL === 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    panelBody.innerHTML = '<div class="panel-empty">⚠️ Apps Script URL이<br>설정되지 않았습니다.<br><br>index.html의<br>SHEETS_API_URL을 설정해주세요.</div>';
+    panelBody.innerHTML = '<div class="panel-empty">⚠️ Apps Script URL이<br>설정되지 않았습니다.</div>';
     return;
   }
 
@@ -1557,29 +1557,34 @@ async function searchSelfByName(name) {
   panelStatus.textContent = '';
   panelTotal.style.display = 'none';
 
-  try {
-    const url = SHEETS_API_URL + '?action=query&name=' + encodeURIComponent(name);
-    const res  = await fetch(url);
-    const data = await res.json();
+  const cbName = '_queryCb_' + Date.now();
+  const script = document.createElement('script');
+  const cleanup = () => { delete window[cbName]; if(script.parentNode) script.parentNode.removeChild(script); };
+  const timer = setTimeout(() => {
+    cleanup();
+    panelBody.innerHTML = '<div class="panel-empty">⚠️ 조회 실패<br>응답 시간 초과</div>';
+  }, 10000);
 
+  window[cbName] = function(data) {
+    clearTimeout(timer); cleanup();
     if(!data.success) {
       panelBody.innerHTML = '<div class="panel-empty">❌ ' + (data.error || '결과를 찾을 수 없습니다') + '</div>';
       panelName.textContent = '결과 없음';
       return;
     }
-
     panelName.textContent = data.name + ' 님';
-    panelStatus.textContent = '제출일: ' + (data.submitted || '-');
-
-    // 기본정보 자동 입력
+    panelStatus.textContent = '조회 완료';
     autoFillInfo(data);
-
-    // result_url에서 점수 파싱
     renderPanelFromResultUrl(data.result_url, data.self_score);
+  };
 
-  } catch(err) {
-    panelBody.innerHTML = '<div class="panel-empty">⚠️ 조회 실패<br>' + err.message + '</div>';
-  }
+  script.onerror = function() {
+    clearTimeout(timer); cleanup();
+    panelBody.innerHTML = '<div class="panel-empty">⚠️ 조회 실패<br>네트워크 오류</div>';
+  };
+
+  script.src = SHEETS_API_URL + '?action=query&name=' + encodeURIComponent(name) + '&callback=' + cbName;
+  document.head.appendChild(script);
 }
 
 function autoFillInfo(data) {

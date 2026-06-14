@@ -1731,9 +1731,31 @@ syncNameLabels();
 // URL 파라미터 or 임시저장 데이터 있으면 온보딩 건너뛰고 바로 복원
 const _urlParams = new URLSearchParams(window.location.search);
 if(_urlParams.get('d')) {
-  currentDept = DEPT_CONFIG[0];
-  document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
   document.getElementById('onboarding').style.display = 'none';
+
+  // URL에 저장된 부서명으로 올바른 부서 찾기
+  let _deptFromUrl = null;
+  try {
+    const _data = JSON.parse(decodeURIComponent(atob(_urlParams.get('d'))));
+    const _deptName = (_data.i && _data.i.dept) || (_data.info && _data.info.dept) || '';
+    if(_deptName) {
+      _deptFromUrl = DEPT_CONFIG.find(d => d.label === _deptName || _deptName.indexOf(d.label) !== -1);
+    }
+  } catch(e) {}
+
+  currentDept = _deptFromUrl || DEPT_CONFIG[0];
+  document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
+
+  // 찾은 부서에 맞는 평가 문항 세팅
+  const _itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
+  const _downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
+  ITEMS      = _itemsMap[currentDept.items]    || ITEMS_DEV;
+  ITEMS_DOWN = _downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  ITEMS_SELF_REF = ITEMS;
+
+  buildTable();
+  setMode('self');
+  updatePhaseTabs();
   restoreFromURL();
 } else {
   // 임시저장 데이터 확인

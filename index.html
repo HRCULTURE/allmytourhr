@@ -892,11 +892,19 @@ function unhoverCard(el) {
 function obSelectMode(m) {
   // self_leader는 셀프리뷰와 동일하게 처리
   const actualMode = (m === 'self_leader') ? 'self' : m;
+  isProbation = (actualMode === 'probation');
+  isUpward    = (actualMode === 'upward');
   // 부서 평가지 적용
   const itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
-  ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
-  ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  if(isProbation) {
+    ITEMS = ITEMS_PROBATION;
+  } else if(isUpward) {
+    ITEMS = ITEMS_UPWARD;
+  } else {
+    ITEMS      = itemsMap[currentDept.items]    || ITEMS_DEV;
+    ITEMS_DOWN = downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  }
   // 헤더 배지 업데이트
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
   // 온보딩 닫기
@@ -906,6 +914,20 @@ function obSelectMode(m) {
   setTimeout(() => { ob.style.display = 'none'; }, 400);
   // 초기 모드 세팅
   scores = { self: {}, d1: {}, d2: {} };
+
+  // ── 수습/상향리뷰: 셀프처럼 점수 입력 + 사례 작성 ──
+  if(isProbation || isUpward) {
+    mode = 'self';
+    buildTable();
+    syncNameLabels();
+    const tabSelf = document.getElementById('tab-self');
+    const tabDown = document.getElementById('tab-down');
+    if(tabSelf) { tabSelf.style.display = ''; tabSelf.textContent = isProbation ? '수습리뷰 🌱' : '상향리뷰 ⬆️'; tabSelf.className = 'phase-tab active'; }
+    if(tabDown) tabDown.style.display = 'none';
+    showSelfPanel(false);
+    return;
+  }
+
   buildTable();
   setMode(actualMode);
   updatePhaseTabs();
@@ -966,6 +988,9 @@ function selectDept(dept) {
 }
 
 let mode = 'self';
+let isProbation = false;
+let isUpward = false;
+let ITEMS_UPWARD = [];  // 상향리뷰 문항 (추후 추가)
 let scores = { self: {}, d1: {}, d2: {} };
 let cases = {};
 let info = {};
@@ -1028,13 +1053,22 @@ function buildTable() {
       factorHtml = `<td style="font-weight:700;" rowspan="${rowSpanCounts[factor]}">${factor}</td>`;
       usedFactors[factor] = true;
     }
+    const grds = activeGrades();
     let scoreBtns = '';
-    GRADES.forEach(g => {
-      scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
-    });
+    if(it[3] === 'yn') {
+      // Y/N 부정문항 (비개발 하향)
+      scoreBtns = `<td colspan="${grds.length}" style="text-align:center;">
+        <button class="sbtn yn-btn" id="b-${idx}-Y" onclick="clickYN(${idx},'Y')" style="width:70px;margin:0 4px;">예</button>
+        <button class="sbtn yn-btn" id="b-${idx}-N" onclick="clickYN(${idx},'N')" style="width:70px;margin:0 4px;">아니오</button>
+      </td>`;
+    } else {
+      grds.forEach(g => {
+        scoreBtns += `<td><button class="sbtn" id="b-${idx}-${g.score}" onclick="clickScore(${idx}, ${g.score})" title="${g.label} (${g.score}점)">${g.label}</button></td>`;
+      });
+    }
     tr.innerHTML = `<td>${idx+1}</td>${factorHtml}<td style="font-size:12px; font-weight:700;">${it[1]}</td><td style="text-align:left; padding:10px 16px; font-size:12px; line-height:1.8; color:#374151; word-break:keep-all; min-width:200px;">${it[2]}</td>${scoreBtns}`;
     tbody.appendChild(tr);
-    if(it[3]){
+    if(it[3] && it[3] !== 'yn'){
       const trCase = document.createElement('tr');
       trCase.className = 'case-row';
       trCase.innerHTML = `<td class="case-lbl">사례작성</td><td colspan="15" class="case-inp"><input type="text" class="case-val" data-idx="${idx}" placeholder="구체적인 사례를 입력하세요..."></td>`;
@@ -1098,9 +1132,9 @@ function setMode(m) {
   // ITEMS 교체 (셀프↔하향) — currentDept 기준
   const newItems = (m === 'self') ? ITEMS_DEV : ITEMS_DEV_DOWN; // fallback
   // 실제는 currentDept 기준으로 이미 ITEMS/ITEMS_DOWN 세팅되어 있음
-  const itemsForMode = (m === 'self')
+  const itemsForMode = isProbation ? ITEMS_PROBATION : ((m === 'self')
     ? (currentDept ? (function(){ const map={dev:ITEMS_DEV,nondev:ITEMS_NONDEV}; return map[currentDept.items]||ITEMS_DEV; })() : ITEMS_DEV)
-    : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN);
+    : (currentDept ? (function(){ const map={dev_down:ITEMS_DEV_DOWN,nondev:ITEMS_NONDEV,nondev_down:ITEMS_NONDEV_DOWN}; return map[currentDept.itemsDown]||ITEMS_DEV_DOWN; })() : ITEMS_DEV_DOWN));
   const needRebuild = (ITEMS !== itemsForMode) || (prevMode !== m);
   ITEMS = itemsForMode;
   if(needRebuild) { buildTable(); return; }
@@ -1159,6 +1193,20 @@ function clickScore(idx, val) {
   // 키를 문자열로 통일 (JSON 직렬화/역직렬화 후에도 동일하게 접근 가능)
   scores[mode][String(idx)] = val;
   refreshRow(idx);
+  calculate();
+}
+
+// Y/N 부정문항 (비개발 하향) - 예=문제있음(낮은점수), 아니오=양호(높은점수)
+function clickYN(idx, yn) {
+  scores[mode][String(idx)] = (yn === 'Y') ? 55 : 100;
+  const yBtn = document.getElementById(`b-${idx}-Y`);
+  const nBtn = document.getElementById(`b-${idx}-N`);
+  if(yBtn) yBtn.classList.toggle('s1', yn === 'Y');
+  if(nBtn) nBtn.classList.toggle('s1', yn === 'N');
+  if(yBtn) yBtn.classList.toggle('ss', false);
+  if(nBtn) nBtn.classList.toggle('ss', false);
+  if(yn === 'Y' && yBtn) yBtn.classList.add(mode === 'self' ? 'ss' : 's1');
+  if(yn === 'N' && nBtn) nBtn.classList.add(mode === 'self' ? 'ss' : 's1');
   calculate();
 }
 
@@ -1228,7 +1276,12 @@ function getSaveData() {
     date: document.getElementById('inf-date').value,
     work: document.getElementById('inf-work').value
   };
-  const compact = { s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2), c: caseData, i: infoData };
+  const compact = {
+    s: compress(scores.self), d1: compress(scores.d1), d2: compress(scores.d2),
+    c: caseData, i: infoData,
+    rv: isProbation ? 'prob' : (isUpward ? 'upward' : mode),  // 리뷰유형
+    dv: currentDept ? currentDept.value : 'dev'               // 부서코드
+  };
   return btoa(encodeURIComponent(JSON.stringify(compact)));
 }
 
@@ -1325,41 +1378,38 @@ async function submitToSlack() {
     successMsg = `<strong>${nameInput}</strong> 님에 대한 하향평가가 정상적으로 전달되었습니다. 📩<br>검토 후 평가결과가 안내될 예정입니다.`;
   }
 
-  // Sheets에도 저장 (셀프리뷰일 때만)
-  if(mode === 'self' && SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
-    // GET 방식으로 저장 (CORS 우회)
-    const sheetsParams = new URLSearchParams({
-      action: 'save',
-      mode: 'self',
-      name:        payload.name        || '',
-      dept:        payload.dept        || '',
-      employee_id: payload.employee_id || '',
-      self_score:  payload.self_score  || '',
-      result_url:  payload.result_url  || '',
-      pos:  document.getElementById('inf-pos')?.value  || '',
-      work: document.getElementById('inf-work')?.value || '',
-      join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || ''
+  // Sheets 저장 (모드별 올바른 시트로)
+  if(SHEETS_API_URL && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    // 서술형 사례 수집
+    const casesObj = {};
+    document.querySelectorAll('.case-val').forEach(el => {
+      if(el.value && el.value.trim()) casesObj[el.dataset.idx] = el.value.trim();
     });
-    fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
-  }
+    function toB64(str) { try { return btoa(unescape(encodeURIComponent(str))); } catch(e) { return ''; } }
+    const curScore = (mode === 'self') ? (document.getElementById('d-self')?.textContent || '0') : (document.getElementById('d-down2')?.textContent || '0');
 
-  // Sheets 저장 (셀프/하향 모두)
-  if(SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {
+    let action = 'save_self';
+    if(isProbation)      action = 'save_probation';
+    else if(isUpward)    action = 'save_upward';
+    else if(mode === 'self') action = 'save_self';
+    else                 action = 'save_down';
+
     const sheetsParams = new URLSearchParams({
-      action: mode === 'self' ? 'save_self' : 'save_down',
-      mode,
+      action,
       name:        payload.name        || '',
       dept:        payload.dept        || '',
       employee_id: payload.employee_id || '',
-      self_score:  payload.self_score  || '',
-      down_score:  mode === 'self' ? '' : (document.getElementById('d-down2')?.textContent || ''),
+      self_score:    isProbation || isUpward ? '' : (mode === 'self' ? curScore : ''),
+      down_score:    (!isProbation && !isUpward && mode !== 'self') ? curScore : '',
+      upward_score:  isUpward ? curScore : '',
+      prob_pass:     isProbation ? (parseFloat(curScore) >= 75 ? '통과' : '보류') : '',
       evaluator:   document.getElementById('inf-evaluator')?.value || '',
       result_url:  payload.result_url  || '',
       pos:  document.getElementById('inf-pos')?.value  || '',
       work: document.getElementById('inf-work')?.value || '',
       join: document.getElementById('inf-join')?.value || '',
-      date: document.getElementById('inf-date')?.value || ''
+      date: document.getElementById('inf-date')?.value || '',
+      cases: toB64(JSON.stringify(casesObj))
     });
     fetch(SHEETS_API_URL + '?' + sheetsParams.toString()).catch(() => {});
   }
@@ -1732,30 +1782,32 @@ syncNameLabels();
 const _urlParams = new URLSearchParams(window.location.search);
 if(_urlParams.get('d')) {
   document.getElementById('onboarding').style.display = 'none';
-
-  // URL에 저장된 부서명으로 올바른 부서 찾기
-  let _deptFromUrl = null;
+  // 저장된 데이터에서 부서/리뷰유형 복원
+  let _deptFromUrl = null, _rv = 'self';
   try {
     const _data = JSON.parse(decodeURIComponent(atob(_urlParams.get('d'))));
-    const _deptName = (_data.i && _data.i.dept) || (_data.info && _data.info.dept) || '';
-    if(_deptName) {
-      _deptFromUrl = DEPT_CONFIG.find(d => d.label === _deptName || _deptName.indexOf(d.label) !== -1);
+    _rv = _data.rv || 'self';
+    // 1순위: 부서코드(dv), 2순위: 부서이름(dept)
+    if(_data.dv) _deptFromUrl = DEPT_CONFIG.find(d => d.value === _data.dv);
+    if(!_deptFromUrl) {
+      const _deptName = (_data.i && _data.i.dept) || (_data.info && _data.info.dept) || '';
+      if(_deptName) _deptFromUrl = DEPT_CONFIG.find(d => d.label === _deptName || _deptName.indexOf(d.label) !== -1);
     }
   } catch(e) {}
-
   currentDept = _deptFromUrl || DEPT_CONFIG[0];
+  isProbation = (_rv === 'prob');
+  isUpward    = (_rv === 'upward');
   document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
-
-  // 찾은 부서에 맞는 평가 문항 세팅
+  // 부서/리뷰유형에 맞는 문항 세팅
   const _itemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
   const _downMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
-  ITEMS      = _itemsMap[currentDept.items]    || ITEMS_DEV;
-  ITEMS_DOWN = _downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
-  ITEMS_SELF_REF = ITEMS;
-
+  if(isProbation)      ITEMS = ITEMS_PROBATION;
+  else if(isUpward)    ITEMS = ITEMS_UPWARD;
+  else if(_rv === 'd1' || _rv === 'd2') ITEMS = _downMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
+  else                 ITEMS = _itemsMap[currentDept.items] || ITEMS_DEV;
+  ITEMS_SELF_REF = _itemsMap[currentDept.items] || ITEMS_DEV;
+  mode = (_rv === 'd1' || _rv === 'd2') ? _rv : 'self';
   buildTable();
-  setMode('self');
-  updatePhaseTabs();
   restoreFromURL();
 } else {
   // 임시저장 데이터 확인

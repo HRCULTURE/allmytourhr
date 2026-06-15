@@ -1862,7 +1862,7 @@ if(evalTableWrap) evalTableWrap.style.display = 'none';
 // 상향리뷰 주관식 섹션 + 안내 배너
 const upwardEssaySection = document.getElementById('upward-essay-section');
 const downEssaySection = document.getElementById('down-essay-section');
-if(downEssaySection) downEssaySection.style.display = (m === 'd1' && !isUpwardMode) ? '' : 'none';
+if(downEssaySection) downEssaySection.style.display = (m === 'd1' && !isUpwardMode && ITEMS !== ITEMS_PROBATION) ? '' : 'none';
 const upwardBanner = document.getElementById('upward-banner');
 if(upwardBanner) upwardBanner.style.display = isUpwardMode ? '' : 'none';
 if(upwardEssaySection) upwardEssaySection.style.display = isUpwardMode ? '' : 'none';

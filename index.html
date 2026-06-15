@@ -2171,6 +2171,11 @@ if(res.success && res.cases) {
 Object.entries(res.cases).forEach(([idx,v]) => {
 const el = document.querySelector('.case-val[data-idx="'+idx+'"]');
 if(el) el.value = v;
+if(idx.startsWith('prob_comment_')) {
+const achieveIdx = idx.replace('prob_comment_', '');
+const box = document.getElementById('achieve-box-' + achieveIdx);
+if(box) box.innerText = v;
+}
 });
 if(viewerMode) renderViewerCases(res.cases);
 }

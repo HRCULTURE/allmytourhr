@@ -3014,6 +3014,18 @@ var evalWrap = document.getElementById('eval-table-wrap');
 if(evalWrap && evalWrap.parentNode) {
 evalWrap.insertAdjacentHTML('afterend', html);
 }
+
+// 수습리뷰 원문보기: achieve-box에 코멘트 채우기
+if(viewerMode === 'prob') {
+Object.entries(casesObj).forEach(function(entry) {
+var k = entry[0], v = entry[1];
+if(k.startsWith('prob_comment_')) {
+var achieveIdx = k.replace('prob_comment_', '');
+var box = document.getElementById('achieve-box-' + achieveIdx);
+if(box) box.innerText = v;
+}
+});
+}
 }
 
 function goHome() {

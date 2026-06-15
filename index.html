@@ -2176,7 +2176,7 @@ if(viewerMode) renderViewerCases(res.cases);
 }
 };
 _s1.onerror = _cl1;
-const _caseType = (viewerMode === 'down') ? 'down' : (viewerMode === 'upward') ? 'upward' : 'self';
+const _caseType = (viewerMode === 'down') ? 'down' : (viewerMode === 'upward') ? 'upward' : (viewerMode === 'prob') ? 'prob' : 'self';
 const _evaluatorParam = ((viewerMode === 'down' || viewerMode === 'upward') && data.i?.evaluator) ? '&evaluator=' + encodeURIComponent(data.i.evaluator) : '';
 _s1.src = SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name) + '&type=' + _caseType + _evaluatorParam + '&callback=' + _cb1;
 document.head.appendChild(_s1);
@@ -2957,9 +2957,16 @@ itemEntries.forEach(function(entry) {
 var idx = entry[0], val = entry[1];
 if(!val || !String(val).trim()) return;
 hasAny = true;
+var itemName, itemCategory;
+if(viewerMode === 'prob') {
+var PROB_LABELS = ['신규 입사자에게 부여한 역할과 업무','입사부터 현재까지 진행한 활동과 실적','신규 입사자의 강점','지난 3개월간 팀원의 성과 종합 평가'];
+itemName = PROB_LABELS[parseInt(idx)] || ('수습 서술형 ' + (parseInt(idx)+1));
+itemCategory = '수습 서술형';
+} else {
 var item = itemList[parseInt(idx)];
-var itemName = item ? item[1] : ('항목 ' + (parseInt(idx)+1));
-var itemCategory = item ? item[0] : '';
+itemName = item ? item[1] : ('항목 ' + (parseInt(idx)+1));
+itemCategory = item ? item[0] : '';
+}
 var safeVal = String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 html += '<div style="margin-bottom:14px;border:1px solid #E2E8F0;border-radius:12px;overflow:hidden;">';
 html += '<div style="background:#F8F9FF;padding:10px 16px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;gap:8px;">';
@@ -3214,7 +3221,11 @@ const _initItemsMap = { dev: ITEMS_DEV, nondev: ITEMS_NONDEV };
 const _initDownMap  = { dev_down: ITEMS_DEV_DOWN, nondev: ITEMS_NONDEV, nondev_down: ITEMS_NONDEV_DOWN };
 const _isViewDown   = (_urlParams.get('view') === 'down');
 const _isViewUpward = (_urlParams.get('view') === 'upward');
-if(_isViewUpward) {
+const _isViewProb   = (_urlParams.get('view') === 'prob');
+if(_isViewProb) {
+ITEMS = ITEMS_PROBATION;
+ITEMS_DOWN = ITEMS_PROBATION;
+} else if(_isViewUpward) {
 ITEMS = ITEMS_UPWARD;
 ITEMS_DOWN = ITEMS_UPWARD;
 isUpwardMode = true;
@@ -3222,12 +3233,12 @@ isUpwardMode = true;
 ITEMS      = _isViewDown ? (_initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN) : (_initItemsMap[currentDept.items] || ITEMS_DEV);
 ITEMS_DOWN = _initDownMap[currentDept.itemsDown] || ITEMS_DEV_DOWN;
 }
-buildTable(); // deptValue 반영 후 테이블 재빌드
-setMode(_isViewUpward ? 'd1' : _isViewDown ? 'd1' : 'self'); // 서술형 섹션 표시 업데이트
-document.getElementById('dept-badge-text').textContent = currentDept.emoji + ' ' + currentDept.label;
+buildTable();
+setMode(_isViewProb ? 'd1' : _isViewUpward ? 'd1' : _isViewDown ? 'd1' : 'self');
+document.getElementById('dept-badge-text').textContent = _isViewProb ? '🌱 수습리뷰' : currentDept.emoji + ' ' + currentDept.label;
 document.getElementById('onboarding').style.display = 'none';
 // viewerMode를 restoreFromURL() 전에 설정해야 updatePhaseTabs()가 올바르게 동작
-viewerMode = (_urlParams.get('view') === 'down') ? 'down' : (_urlParams.get('view') === 'upward') ? 'upward' : 'self';
+viewerMode = (_urlParams.get('view') === 'down') ? 'down' : (_urlParams.get('view') === 'upward') ? 'upward' : (_urlParams.get('view') === 'prob') ? 'prob' : 'self';
 // leader=1이면 리더 모드 활성화
 if(_urlParams.get('leader') === '1') {
 isLeaderMode = true;
@@ -3265,6 +3276,27 @@ const vals = Object.values(scores.d1 || {}).filter(v => typeof v === 'number' &&
 const avg = vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '0.0';
 const dSelf = document.getElementById('d-self');
 if(dSelf) dSelf.textContent = avg;
+}, 300);
+} else if(viewerMode === 'prob') {
+// 수습리뷰 원문보기: 셀프리뷰 카드 숨김, 하향 패널에 수습 총점 표시
+const _dDownPanel_p = document.getElementById('d-down-panel');
+if(_dDownPanel_p) {
+_dDownPanel_p.style.display = '';
+const _labelP = _dDownPanel_p.querySelector('.score-label');
+if(_labelP) _labelP.innerHTML = '🌱 수습리뷰 총점<span class="score-desc">PROBATION REVIEW</span>';
+}
+const _dcDownWrap_p = document.getElementById('dc-down-wrap');
+if(_dcDownWrap_p) _dcDownWrap_p.style.display = 'none';
+const _dSelfOpen_p = document.getElementById('d-self-open');
+if(_dSelfOpen_p) _dSelfOpen_p.style.display = 'none';
+const _dSelfLocked_p = document.getElementById('d-self-locked');
+if(_dSelfLocked_p) _dSelfLocked_p.style.display = 'none';
+// 수습리뷰 총점을 d-down2에 표시 (scores.d1 기반)
+setTimeout(() => {
+const vals = Object.values(scores.d1 || {}).filter(v => typeof v === 'number' && v > 0);
+const avg = vals.length > 0 ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '0.0';
+const dDown2 = document.getElementById('d-down2');
+if(dDown2) dDown2.textContent = avg;
 }, 300);
 } else {
 // 셀프리뷰 원문보기: 하향리뷰 관련 UI 모두 숨김

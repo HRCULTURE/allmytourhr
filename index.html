@@ -2179,6 +2179,10 @@ if(box) box.innerText = v;
 });
 if(viewerMode) renderViewerCases(res.cases);
 }
+// 수습리뷰: 통과여부 복원
+if(res.prob_pass) {
+selectProbPass(res.prob_pass);
+}
 };
 _s1.onerror = _cl1;
 const _caseType = (viewerMode === 'down') ? 'down' : (viewerMode === 'upward') ? 'upward' : (viewerMode === 'prob') ? 'prob' : 'self';
@@ -3331,6 +3335,15 @@ document.querySelectorAll('.action-bar').forEach(el => { el.style.display = 'non
 const el = document.getElementById(id);
 if(el) el.style.display = 'none';
 });
+// 수습리뷰 원문보기: 종합 서술형 + 통과여부 영역 다시 표시
+if(_isViewProb) {
+const _probFinal = document.getElementById('probation-final');
+if(_probFinal) {
+_probFinal.style.display = '';
+const _parentBar = _probFinal.closest('.action-bar');
+if(_parentBar) _parentBar.style.display = '';
+}
+}
 // 사례 로딩 안내 (Sheets 비동기 로드 전까지 표시)
 var _evalWrap = document.getElementById('eval-table-wrap');
 if(_evalWrap && SHEETS_API_URL !== 'YOUR_APPS_SCRIPT_WEB_APP_URL_HERE') {

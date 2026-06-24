@@ -2205,10 +2205,13 @@ selfLockedFromURL = true;
 selfSubmitted = true;
 }
 ITEMS.forEach((_, i) => refreshRow(i));
-calculate();
-updatePhaseTabs();
-syncNameLabels();
-} catch(e) { console.error("Restore failed", e); }
+    calculate();
+    updatePhaseTabs();
+    syncNameLabels();
+    // 수습리뷰: URL 데이터의 통과여부로 버튼 즉시 복원 (Sheets 응답 대기 없이)
+    const _pp = (data.i && data.i.prob_pass) || (data.info && data.info.prob_pass);
+    if(_pp) { setTimeout(() => { selectProbPass(_pp); }, 300); }
+  } catch(e) { console.error("Restore failed", e); }
 }
 
 function clearCurrentMode() {

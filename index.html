@@ -2047,8 +2047,9 @@ join: document.getElementById('inf-join').value,
 date: document.getElementById('inf-date').value,
 work: document.getElementById('inf-work').value,
 evaluator: document.getElementById('inf-evaluator')?.value || '',
-deptValue: currentDept ? currentDept.value : ''
-};
+deptValue: currentDept ? currentDept.value : '',
+    prob_pass: document.getElementById('prob-pass')?.value || ''
+  };
 // 서술형은 URL에서 제외 → Sheets에 별도 저장, 원본보기 시 Sheets에서 조회
 const compact = {
 s: compress(scores.self),
@@ -2299,7 +2300,8 @@ prob_q1: probQ1,
 prob_q2: probQ2,
 prob_q3: probQ3,
 prob_q4: probQ4,
-} : {})
+    prob_pass: document.getElementById('prob-pass')?.value || '',
+  } : {})
 };
 
 let successMsg = '';
@@ -3053,8 +3055,9 @@ work:     document.getElementById('inf-work')?.value || '',
 date:     document.getElementById('inf-date')?.value || '',
 deptValue: currentDept ? currentDept.value : 'dev',
 mode: mode,
-evaluator: document.getElementById('inf-evaluator')?.value || ''
-},
+evaluator: document.getElementById('inf-evaluator')?.value || '',
+      prob_pass: document.getElementById('prob-pass')?.value || ''
+    },
 cases: {},
 savedAt: new Date().toLocaleString('ko-KR')
 };
@@ -3124,6 +3127,7 @@ if(data.info.joinDate){ const el = document.getElementById('inf-join'); if(el) e
 if(data.info.work)    { const el = document.getElementById('inf-work'); if(el) el.value = data.info.work; }
 if(data.info.date)    { const el = document.getElementById('inf-date'); if(el) el.value = data.info.date; }
 if(data.info.evaluator){ const el = document.getElementById('inf-evaluator'); if(el) el.value = data.info.evaluator; }
+if(data.info.prob_pass) { setTimeout(() => { selectProbPass(data.info.prob_pass); }, 300); }
 }
 if(data.cases) {
 setTimeout(() => {
@@ -4319,16 +4323,10 @@ cleanup();
 content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>';
 }, 10000);
 window[cbName] = function(res) {
-clearTimeout(timer); cleanup();
-// prob_pass를 info에 주입해서 infoHtml 재생성
-let finalInfoHtml = infoHtml;
-if(type === 'prob' && res.prob_pass !== undefined) {
-const passRaw = res.prob_pass || '';
-const passColor = passRaw === 'Y' || passRaw === '통과' ? '#10B981' : passRaw === 'N' || passRaw === '미통과' ? '#EF4444' : '#94A3B8';
-const passLabel = passRaw === 'Y' ? '✅ 통과 (Y)' : passRaw === 'N' ? '❌ 미통과 (N)' : passRaw || '-';
-finalInfoHtml = infoHtml.replace('</div>', '') + '<div class="admin-viewer-field" style="grid-column:1/-1;"><div class="admin-viewer-field-label">수습통과여부</div><div class="admin-viewer-field-val" style="font-weight:800;color:' + passColor + ';font-size:15px;">' + passLabel + '</div></div></div>';
-}
-content.innerHTML = '<div class="admin-viewer-card">' + finalInfoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
+  clearTimeout(timer); cleanup();
+  // prob_pass는 이제 URL 데이터(info.prob_pass)에 포함되어 있으므로 별도 주입 불필요
+  const finalInfoHtml = infoHtml;
+  content.innerHTML = '<div class="admin-viewer-card">' + finalInfoHtml + tableHtml + buildCaseHtml(res.cases || {}) + '</div>';
 };
 script.onerror = function() { clearTimeout(timer); cleanup(); content.innerHTML = '<div class="admin-viewer-card">' + infoHtml + tableHtml + '</div>'; };
 script.src = SHEETS_API_URL + '?action=get_cases_by_name'

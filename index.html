@@ -2940,6 +2940,48 @@ panelTotal.style.display = 'flex';
 // 구 함수 호환성 유지
 function loadSelfPanel() {}
 
+  // ── 수습리뷰 원문보기: 원래 폼 배치 그대로 답변 채우기 ──
+function fillProbForm(casesObj) {
+  if(!casesObj) casesObj = {};
+  // Q1~Q3: prob-q1~q3-box (키 '0','1','2')
+  ['0','1','2'].forEach(function(k, i){
+    var box = document.getElementById('prob-q' + (i+1) + '-box');
+    if(box && casesObj[k]) {
+      box.innerText = casesObj[k];
+      box.contentEditable = 'false';
+      box.style.background = '#F8FAFC';
+      box.style.color = '#1E293B';
+    }
+  });
+  // 업무 성취도 코멘트: achieve-box-* (prob_comment_* 키)
+  Object.keys(casesObj).forEach(function(k){
+    if(k.indexOf('prob_comment_') === 0) {
+      var idx = k.replace('prob_comment_', '');
+      var box = document.getElementById('achieve-box-' + idx);
+      if(box) {
+        box.innerText = casesObj[k];
+        box.contentEditable = 'false';
+        box.style.background = '#F8FAFC';
+        box.style.color = '#1E293B';
+      }
+    }
+  });
+  // 종합 서술형(지난 3개월): prob-q4-box (키 '3')
+  var q4 = document.getElementById('prob-q4-box');
+  if(q4 && casesObj['3']) {
+    q4.innerText = casesObj['3'];
+    q4.contentEditable = 'false';
+    q4.style.background = '#F8FAFC';
+    q4.style.color = '#1E293B';
+  }
+  // 점수 버튼·통과여부 버튼은 클릭 막기 (보기 전용)
+  document.querySelectorAll('.prob-grade-btn, #prob-pass-y, #prob-pass-n').forEach(function(b){
+    b.style.pointerEvents = 'none';
+  });
+  // 입력 툴바 숨김
+  document.querySelectorAll('.prob-toolbar').forEach(function(t){ t.style.display = 'none'; });
+}
+  
 // ── 원본보기 모드: 서술형 사례 카드 렌더링 ────────────────────
 function renderViewerCases(casesObj) {
 if(document.getElementById('viewer-cases-section')) {
@@ -2948,6 +2990,8 @@ document.getElementById('viewer-cases-section').remove();
 // 로딩 안내 제거
 var _ld = document.getElementById('viewer-cases-loading');
 if(_ld) _ld.remove();
+// 수습리뷰 원문보기: 위쪽 몰아보기 카드 대신 원래 폼 칸에 채움
+if(viewerMode === 'prob') { fillProbForm(casesObj); return; }
 if(!casesObj || Object.keys(casesObj).length === 0) return;
 
 const itemList = ITEMS || ITEMS_DEV;
@@ -3340,10 +3384,14 @@ if(_dSelfOpen) _dSelfOpen.style.display = '';
 document.querySelectorAll('.action-bar').forEach(el => { el.style.display = 'none'; });
 ['self-essay-section','nondev-self-section','leader-essay-section','upward-essay-section','upward-banner','down-essay-section','probation-essay','probation-final'].forEach(id => {
 const el = document.getElementById(id);
+// 수습리뷰 원문보기에서는 수습 폼 섹션을 숨기지 않음 (원래 배치로 표시)
+if(_isViewProb && (id === 'probation-essay' || id === 'probation-final')) return;
 if(el) el.style.display = 'none';
 });
-// 수습리뷰 원문보기: 종합 서술형 + 통과여부 영역 다시 표시
+// 수습리뷰 원문보기: 수습 폼(Q1~Q3 + Q4 + 통과여부) 영역 표시
 if(_isViewProb) {
+const _probEssay = document.getElementById('probation-essay');
+if(_probEssay) _probEssay.style.display = '';
 const _probFinal = document.getElementById('probation-final');
 if(_probFinal) {
 _probFinal.style.display = '';

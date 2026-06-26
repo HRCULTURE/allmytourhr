@@ -1646,7 +1646,13 @@ let cardContainer = document.getElementById('prob-card-container');
 if(!cardContainer) {
 cardContainer = document.createElement('div');
 cardContainer.id = 'prob-card-container';
+// 점수 카드를 Q1~Q3 서술형(probation-essay) 앞에 배치 → 점수가 위로
+const probEssayEl = document.getElementById('probation-essay');
+if(probEssayEl && probEssayEl.parentNode) {
+probEssayEl.parentNode.insertBefore(cardContainer, probEssayEl);
+} else {
 tableCard.parentNode.insertBefore(cardContainer, tableCard);
+}
 }
 cardContainer.innerHTML = '';
 cardContainer.style.display = '';

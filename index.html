@@ -466,7 +466,7 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <!-- Q1 -->
 <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
 <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:14px;">
-신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요<span style="color:#EF4444;">*</span>
+신규 입사자가 입사부터 현재까지 컬처핏 측면에서 보여준 대표적인 긍정적 행동·태도 사례를 작성해 주세요.*<span style="color:#EF4444;">*</span>
 </div>
 <div class="prob-richbox" id="prob-q1-box" contenteditable="true" data-target="prob-q1" placeholder="코멘트 입력하기 (필수)"></div>
 <input type="hidden" id="prob-q1">
@@ -482,7 +482,7 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <!-- Q2 -->
 <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
 <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:14px;">
-신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요<span style="color:#EF4444;">*</span>
+신규 입사자가 입사부터 현재까지 컬처핏 측면에서 우려되거나 보완이 필요하다고 느낀 부분이 있다면 작성해 주세요<span style="color:#EF4444;">*</span>
 </div>
 <div class="prob-richbox" id="prob-q2-box" contenteditable="true" data-target="prob-q2" placeholder="코멘트 입력하기 (필수)"></div>
 <input type="hidden" id="prob-q2">
@@ -1348,13 +1348,11 @@ const ITEMS_PROBATION = [
 ['GRIT 및 이익 중심 사고','목표이해','맡은 업무가 팀과 회사의 목표에 어떤 방식으로 기여하는지 이해하고 있다.',false,''],
 ['고객 중심의 주도적 문제해결 능력','선제대응','고객 또는 유관 부서의 요청사항에 대해 소극적으로 기다리기보다 먼저 파악하고 선제적으로 대응한다.',false,''],
 ['고객 중심의 주도적 문제해결 능력','개선제안','업무 중 비효율이나 문제점을 발견하면 이를 방치하지 않고 개선 방안을 주도적으로 제안한다.',false,''],
-['직무이해도','우선순위','업무의 우선순위와 기준을 스스로 정리하고 실행할 수 있다.',false,'직무이해도\n: 본인의 역할과 목표를 명확히 이해하고, 업무를 그에 맞춰 수행하고 있는가?'],
 ['업무 실행력','완수태도','업무를 중간에 놓지 않고 끝까지 완수하려는 태도를 보인다.',false,'업무 실행력\n: 주어진 업무를 마감기한과 품질기준에 맞게 완수하고 있는가?'],
 ['문제 해결력','원인분석','동일한 문제의 재발을 방지하기 위해 원인을 분석한다.',false,'문제해결력\n: 예상치 못한 문제 상황에서도 원인을 파악하고, 해결을 위한 구체적 방안을 실행하는가?'],
 ['문제 해결력','구조적해결','문제에 대해 즉흥적인 대응이 아닌, 구조적인 해결을 위한 실행안을 제시한다.',false,'문제해결력\n: 예상치 못한 문제 상황에서도 원인을 파악하고, 해결을 위한 구체적 방안을 실행하는가?'],
 ['도구/시스템 활용 능력','빠른적용','새로 접한 툴도 학습해서 빠르게 적용하는 모습을 보인다.',false,'도구/시스템 활용 능력\n: 업무에 필요한 협업 툴, 문서 포맷, 데이터 툴 등을 익히고 실제 활용하고 있는가?'],
 ['도구/시스템 활용 능력','도구제안','실무에 유용한 도구 또는 자동화 방식을 스스로 제안한 경험이 있다.',false,'도구/시스템 활용 능력\n: 업무에 필요한 협업 툴, 문서 포맷, 데이터 툴 등을 익히고 실제 활용하고 있는가?'],
-['업무 성취도','종합성취','입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.',true,''],
 ];
 
 let ITEMS = ITEMS_DEV;
@@ -3023,7 +3021,7 @@ if(!val || !String(val).trim()) return;
 hasAny = true;
 var itemName, itemCategory;
 if(viewerMode === 'prob') {
-var PROB_LABELS = ['신규 입사자에게 부여한 역할과 업무','입사부터 현재까지 진행한 활동과 실적','신규 입사자의 강점','지난 3개월간 팀원의 성과 종합 평가'];
+var PROB_LABELS = ['컬처핏 측면 긍정적 행동·태도 사례','컬처핏 측면 우려/보완 필요 부분','신규 입사자의 강점','지난 3개월간 팀원의 성과 종합 평가'];
 itemName = PROB_LABELS[parseInt(idx)] || ('수습 서술형 ' + (parseInt(idx)+1));
 itemCategory = '수습 서술형';
 } else {
@@ -4180,8 +4178,8 @@ const essayLabels = [
 '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
 ];
 const probEssayLabels = [
-'신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요',
-'신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요',
+'신규 입사자가 입사부터 현재까지 컬처핏 측면에서 보여준 대표적인 긍정적 행동·태도 사례를 작성해 주세요.*',
+'신규 입사자가 입사부터 현재까지 컬처핏 측면에서 우려되거나 보완이 필요하다고 느낀 부분이 있다면 작성해 주세요',
 '신규 입사자는 어떤 강점을 가지고 있나요?',
 '[업무 성취도] 입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.',
 ];
@@ -4192,8 +4190,8 @@ let html = '';
 // 수습리뷰 서술형 (고정 순서: Q1=0, Q2=1, Q3=2, Q4=prob_comment_*, Q5=3)
 if(type === 'prob') {
 const probLabels = [
-{ key: '0',            label: '신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요' },
-{ key: '1',            label: '신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요' },
+{ key: '0',            label: '신규 입사자가 입사부터 현재까지 컬처핏 측면에서 보여준 대표적인 긍정적 행동·태도 사례를 작성해 주세요.*' },
+{ key: '1',            label: '신규 입사자가 입사부터 현재까지 컬처핏 측면에서 우려되거나 보완이 필요하다고 느낀 부분이 있다면 작성해 주세요' },
 { key: '2',            label: '신규 입사자는 어떤 강점을 가지고 있나요?' },
 { key: 'prob_comment', label: '[업무 성취도] 입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.' },
 { key: '3',            label: '지난 3개월간 팀원의 성과를 돌이켜 생각해본다면?' },

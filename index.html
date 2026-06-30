@@ -466,7 +466,7 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <!-- Q1 -->
 <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
 <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:14px;">
-신규 입사자가 입사부터 현재까지 컬처핏 측면에서 보여준 대표적인 긍정적 행동·태도 사례를 작성해 주세요.*<span style="color:#EF4444;">*</span>
+신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요<span style="color:#EF4444;">*</span>
 </div>
 <div class="prob-richbox" id="prob-q1-box" contenteditable="true" data-target="prob-q1" placeholder="코멘트 입력하기 (필수)"></div>
 <input type="hidden" id="prob-q1">
@@ -482,7 +482,7 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <!-- Q2 -->
 <div class="table-card" style="padding:22px 24px; margin-bottom:8px;">
 <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:14px;">
-신규 입사자가 입사부터 현재까지 컬처핏 측면에서 우려되거나 보완이 필요하다고 느낀 부분이 있다면 작성해 주세요<span style="color:#EF4444;">*</span>
+신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요<span style="color:#EF4444;">*</span>
 </div>
 <div class="prob-richbox" id="prob-q2-box" contenteditable="true" data-target="prob-q2" placeholder="코멘트 입력하기 (필수)"></div>
 <input type="hidden" id="prob-q2">
@@ -500,7 +500,7 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:6px;">
 신규 입사자는 어떤 강점을 가지고 있나요?<span style="color:#EF4444;">*</span>
 </div>
-<div style="font-size:12px; color:#94A3B8; margin-bottom:10px;">역량, 태도 등의 관점에서 작성해주세요</div>
+<div style="font-size:12px; color:#94A3B8; margin-bottom:10px;">직무 전문성, 역량, 태도 등의 관점에서 작성해주세요</div>
 <div class="prob-richbox" id="prob-q3-box" contenteditable="true" data-target="prob-q3" placeholder="코멘트 입력하기 (필수)"></div>
 <input type="hidden" id="prob-q3">
 <div class="prob-toolbar">
@@ -672,10 +672,34 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <!-- 수습평가 종합 서술형 -->
 <div id="probation-final" style="display:none; flex:1; min-width:0;">
 <div style="background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow-md); padding:22px 24px;">
-
+<div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:12px;">
+지난 3개월간 팀원의 성과를 돌이켜 생각해본다면?<span style="color:#EF4444;">*</span>
+</div>
+<div style="font-size:12px; color:#4E5968; background:#F8F9FF; border:1px solid #E8ECF8; border-radius:10px; padding:14px 16px; margin-bottom:14px; line-height:1.9;">
+구체적인 사례를 함께 적어주시면 보다 정확하게 피드백을 전달하는 데 도움이 됩니다.<br>
+<b>· 첫째, 수습기간 동안 신규 입사자가 수행한 업무에 대해 어떤 성과를 냈고, 이를 어떻게 평가하는지 적어주세요.</b><br>
+<span style="color:#64748B; padding-left:12px;">: 직원이 기여한 부분을 중심으로 이루어낸 성과와 결과를 구체적으로 작성해주세요. 예를 들어, 업무 목표 달성 정도, 팀워크, 프로젝트 기여도 등을 평가해주시면 됩니다.</span><br>
+<b>· 둘째, 수습기간 동안 신규 입사자가 어떤 부분에서 성장했고, 어떤 역량을 발휘했는지 구체적으로 적어주세요.</b><br>
+<span style="color:#64748B; padding-left:12px;">: 이 항목은 직원이 잘한 부분과 성장을 보여주는 사례나 점수를 통해, 직원의 긍정적인 면을 명확히 해주는 부분입니다.</span><br>
+<b>· 셋째, 개선이 필요한 점에 대해 구체적으로 기재해주세요.</b><br>
+<span style="color:#64748B; padding-left:12px;">: 직원이 향후 더 성장할 수 있도록 도울 수 있는 개선이 필요한 부분을 상세히 작성해주세요. 예를 들어, 업무 처리 속도, 커뮤니케이션 능력, 리더십, 문제 해결 능력 등 구체적인 피드백을 제공해 주세요.</span>
+</div>
+<div class="prob-richbox" id="prob-q4-box" contenteditable="true" data-target="prob-q4" placeholder="코멘트 입력하기 (필수)" style="min-height:120px;"></div>
+<input type="hidden" id="prob-q4">
+<div class="prob-toolbar">
+<button onclick="probFmtTarget('prob-q4-box','bold')"><b>B</b></button>
+<button onclick="probFmtTarget('prob-q4-box','italic')"><i>I</i></button>
+<button onclick="probFmtTarget('prob-q4-box','underline')"><u>U</u></button>
+<button onclick="probFmtTarget('prob-q4-box','strikeThrough')"><s>S</s></button>
+<button onclick="probFmtTarget('prob-q4-box','insertOrderedList')">&#8801;</button>
+<button onclick="probFmtTarget('prob-q4-box','insertUnorderedList')">&#8942;</button>
+</div>
 
 <!-- 수습 통과 여부 -->
 <div style="margin-top:20px; padding-top:18px; border-top:2px solid #F1F5F9;">
+<div style="font-size:14px; font-weight:700; color:#1A1F27; margin-bottom:12px;">
+수습 통과 여부 <span style="color:#EF4444;">*</span>
+</div>
 <div style="display:flex; gap:12px;">
 <button id="prob-pass-y" onclick="selectProbPass('Y')"
 style="flex:1; padding:14px; border-radius:12px; border:2px solid #E2E8F0; background:#fff;
@@ -1329,6 +1353,7 @@ const ITEMS_PROBATION = [
 ['문제 해결력','구조적해결','문제에 대해 즉흥적인 대응이 아닌, 구조적인 해결을 위한 실행안을 제시한다.',false,'문제해결력\n: 예상치 못한 문제 상황에서도 원인을 파악하고, 해결을 위한 구체적 방안을 실행하는가?'],
 ['도구/시스템 활용 능력','빠른적용','새로 접한 툴도 학습해서 빠르게 적용하는 모습을 보인다.',false,'도구/시스템 활용 능력\n: 업무에 필요한 협업 툴, 문서 포맷, 데이터 툴 등을 익히고 실제 활용하고 있는가?'],
 ['도구/시스템 활용 능력','도구제안','실무에 유용한 도구 또는 자동화 방식을 스스로 제안한 경험이 있다.',false,'도구/시스템 활용 능력\n: 업무에 필요한 협업 툴, 문서 포맷, 데이터 툴 등을 익히고 실제 활용하고 있는가?'],
+['업무 성취도','종합성취','입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.',true,''],
 ];
 
 let ITEMS = ITEMS_DEV;
@@ -2997,7 +3022,7 @@ if(!val || !String(val).trim()) return;
 hasAny = true;
 var itemName, itemCategory;
 if(viewerMode === 'prob') {
-var PROB_LABELS = ['컬처핏 측면 긍정적 행동·태도 사례','컬처핏 측면 우려/보완 필요 부분','신규 입사자의 강점','지난 3개월간 팀원의 성과 종합 평가'];
+var PROB_LABELS = ['신규 입사자에게 부여한 역할과 업무','입사부터 현재까지 진행한 활동과 실적','신규 입사자의 강점','지난 3개월간 팀원의 성과 종합 평가'];
 itemName = PROB_LABELS[parseInt(idx)] || ('수습 서술형 ' + (parseInt(idx)+1));
 itemCategory = '수습 서술형';
 } else {
@@ -4154,8 +4179,8 @@ const essayLabels = [
 '가시적인 성과(매출, 유저, 거래 등) 향상 결과',
 ];
 const probEssayLabels = [
-'신규 입사자가 입사부터 현재까지 컬처핏 측면에서 보여준 대표적인 긍정적 행동·태도 사례를 작성해 주세요.*',
-'신규 입사자가 입사부터 현재까지 컬처핏 측면에서 우려되거나 보완이 필요하다고 느낀 부분이 있다면 작성해 주세요',
+'신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요',
+'신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요',
 '신규 입사자는 어떤 강점을 가지고 있나요?',
 '[업무 성취도] 입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.',
 ];
@@ -4166,10 +4191,11 @@ let html = '';
 // 수습리뷰 서술형 (고정 순서: Q1=0, Q2=1, Q3=2, Q4=prob_comment_*, Q5=3)
 if(type === 'prob') {
 const probLabels = [
-{ key: '0',            label: '신규 입사자가 입사부터 현재까지 컬처핏 측면에서 보여준 대표적인 긍정적 행동·태도 사례를 작성해 주세요.*' },
-{ key: '1',            label: '신규 입사자가 입사부터 현재까지 컬처핏 측면에서 우려되거나 보완이 필요하다고 느낀 부분이 있다면 작성해 주세요' },
+{ key: '0',            label: '신규 입사자에게 부여한 역할과 업무가 무엇이었는지 구체적으로 작성해 주세요' },
+{ key: '1',            label: '신규 입사자가 입사부터 현재까지 진행한 활동과 실적을 작성해 주세요' },
 { key: '2',            label: '신규 입사자는 어떤 강점을 가지고 있나요?' },
 { key: 'prob_comment', label: '[업무 성취도] 입사 이후 업무 성취도를 평가하고, 그 이유를 작성해 주세요.' },
+{ key: '3',            label: '지난 3개월간 팀원의 성과를 돌이켜 생각해본다면?' },
 ];
 
 // prob_comment_* 키 찾기

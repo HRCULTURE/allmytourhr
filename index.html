@@ -680,19 +680,7 @@ border-radius:8px; padding:7px 12px; font-size:12px; cursor:pointer; font-family
 <button id="prob-pass-y" onclick="selectProbPass('Y')"
 style="flex:1; padding:14px; border-radius:12px; border:2px solid #E2E8F0; background:#fff;
                     font-size:15px; font-weight:800; color:#94A3B8; cursor:pointer; transition:all 0.2s;">
-✅ 통과 (Y)
-</button>
-<button id="prob-pass-n" onclick="selectProbPass('N')"
-style="flex:1; padding:14px; border-radius:12px; border:2px solid #E2E8F0; background:#fff;
-                    font-size:15px; font-weight:800; color:#94A3B8; cursor:pointer; transition:all 0.2s;">
-❌ 미통과 (N)
-</button>
-</div>
-<input type="hidden" id="prob-pass" value="">
-</div>
-</div>
-</div>
-</div>
+
 <!-- 하단 버튼 영역 -->
 <div class="action-bar" style="margin-top:12px; justify-content:space-between;">
 <div style="display:flex; flex-direction:column; gap:6px;">
@@ -2266,10 +2254,6 @@ const probQ1 = document.getElementById('prob-q1')?.value?.trim() || '';
 const probQ2 = document.getElementById('prob-q2')?.value?.trim() || '';
 const probQ3 = document.getElementById('prob-q3')?.value?.trim() || '';
 const probQ4 = document.getElementById('prob-q4')?.value?.trim() || '';
-if(ITEMS === ITEMS_PROBATION) {
-const probPass = document.getElementById('prob-pass')?.value || '';
-if(!probPass) return alert("수습 통과 여부를 선택해주세요.");
-}
 
 const payload = {
 name: nameInput,

@@ -2123,8 +2123,10 @@ const _cb1 = '_casesCb1_' + Date.now();
 const _s1 = document.createElement('script');
 const _cl1 = () => { delete window[_cb1]; if(_s1.parentNode) _s1.parentNode.removeChild(_s1); };
 window[_cb1] = function(res) {
-_cl1();
-if(res.success && res.cases) {
+  _cl1();
+  console.log('[서술형 조회 응답]', res);
+  console.log('[조회 파라미터] name=', (data.i && data.i.name), '| type=', _caseType, '| evaluator=', (data.i && data.i.evaluator));
+  if(res.success && res.cases && Object.keys(res.cases).length > 0) {
 Object.entries(res.cases).forEach(([idx,v]) => {
 const el = document.querySelector('.case-val[data-idx="'+idx+'"]');
 if(el) el.value = v;
@@ -2135,8 +2137,12 @@ if(box) box.innerText = v;
 }
 });
 if(viewerMode) renderViewerCases(res.cases);
-}
-// 수습리뷰: 통과여부 복원
+      } else if(viewerMode) {
+        console.warn('[서술형 없음] Sheets에서 해당 조건의 데이터를 찾지 못했습니다.');
+        var _ld = document.getElementById('viewer-cases-loading');
+        if(_ld) _ld.innerHTML = '⚠️ 서술형을 찾을 수 없습니다.<br><small style="color:#94A3B8;">이름 또는 평가자가 시트 데이터와 다를 수 있습니다. 콘솔(F12)을 확인해주세요.</small>';
+      }
+      // 수습리뷰: 통과여부 복원
 if(res.prob_pass) {
 selectProbPass(res.prob_pass);
 }

@@ -2144,7 +2144,7 @@ selectProbPass(res.prob_pass);
 _s1.onerror = _cl1;
 const _caseType = (viewerMode === 'down') ? 'down' : (viewerMode === 'upward') ? 'upward' : (viewerMode === 'prob') ? 'prob' : 'self';
 const _evaluatorParam = ((viewerMode === 'down' || viewerMode === 'upward') && data.i?.evaluator) ? '&evaluator=' + encodeURIComponent(data.i.evaluator) : '';
-_s1.src = SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent(data.i.name) + '&type=' + _caseType + _evaluatorParam + '&callback=' + _cb1;
+_s1.src = SHEETS_API_URL + '?action=get_cases&name=' + encodeURIComponent((data.i.name||'').trim()) + '&type=' + _caseType + _evaluatorParam + '&callback=' + _cb1;
 document.head.appendChild(_s1);
 }
 } else if(data.scores) {
@@ -3234,9 +3234,11 @@ syncNameLabels();
 // URL 파라미터 or 임시저장 데이터 있으면 온보딩 건너뛰고 바로 복원
 const _urlParams = new URLSearchParams(window.location.search);
 if(_urlParams.get('d')) {
-// deptValue가 URL에 있으면 해당 부서로, 없으면 기본값(기업연구소 개발)
-try {
-const _dRaw = JSON.parse(decodeURIComponent(escape(atob(_urlParams.get('d')))));
+  document.getElementById('onboarding').style.display = 'none';
+  try {
+  // deptValue가 URL에 있으면 해당 부서로, 없으면 기본값(기업연구소 개발)
+  try {
+    const _dRaw = JSON.parse(decodeURIComponent(escape(atob(_urlParams.get('d')))));
 const _dv = _dRaw.i?.deptValue || '';
 currentDept = (_dv ? DEPT_CONFIG.find(d => d.value === _dv) : null) || DEPT_CONFIG[0];
 } catch(e) { currentDept = DEPT_CONFIG[0]; }
@@ -3362,10 +3364,13 @@ _loadingDiv.innerHTML = '&#128203; &#49436;&#49696;&#54805; &#49324;&#47168; &#4
 _evalWrap.insertAdjacentElement('afterend', _loadingDiv);
 // 3초 후에도 사례 섹션이 없으면 로딩 안내 제거
 setTimeout(function() {
-var _ld = document.getElementById('viewer-cases-loading');
-if(_ld) _ld.remove();
-}, 5000);
-}
+      var _ld = document.getElementById('viewer-cases-loading');
+      if(_ld) _ld.remove();
+    }, 5000);
+  }
+  } catch(err) {
+    console.error('결과 페이지 초기화 오류:', err);
+  }
 } else {
 // 임시저장 데이터 확인
 const _tempRaw = localStorage.getItem('hr_temp_save');
